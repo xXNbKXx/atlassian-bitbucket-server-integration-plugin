@@ -27,7 +27,7 @@ import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.interceptor.RequirePOST;
+import org.kohsuke.stapler.verb.POST;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -189,7 +189,9 @@ public class BitbucketServerConfiguration
         private BitbucketClientFactoryProvider clientFactoryProvider;
 
         @SuppressWarnings("MethodMayBeStatic")
+        @POST
         public FormValidation doCheckAdminCredentialsId(@QueryParameter String value) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             if (isBlank(value)) {
                 return FormValidation.error("An admin token must be selected");
             }
@@ -210,22 +212,25 @@ public class BitbucketServerConfiguration
         }
 
         @SuppressWarnings("MethodMayBeStatic")
+        @POST
         public FormValidation doCheckBaseUrl(@QueryParameter String value) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return checkBaseUrl(value);
         }
 
         @SuppressWarnings("MethodMayBeStatic")
+        @POST
         public FormValidation doCheckServerName(@QueryParameter String value) {
+            Jenkins.get().checkPermission(Jenkins.ADMINISTER);
             return checkServerName(value);
         }
 
         @SuppressWarnings({"MethodMayBeStatic", "unused"})
+        @POST
         public ListBoxModel doFillAdminCredentialsIdItems(
                 @QueryParameter String baseUrl, @QueryParameter String credentialsId) {
             Jenkins instance = Jenkins.get();
-            if (!instance.hasPermission(Jenkins.ADMINISTER)) {
-                return new StandardListBoxModel().includeCurrentValue(credentialsId);
-            }
+            instance.checkPermission(Jenkins.ADMINISTER);
 
             return new StandardListBoxModel()
                     .includeEmptyValue()
@@ -237,13 +242,12 @@ public class BitbucketServerConfiguration
                             CredentialsMatchers.always());
         }
 
-        @SuppressWarnings({"Duplicates", "MethodMayBeStatic", "unused"})
+        @SuppressWarnings({"MethodMayBeStatic", "unused"})
+        @POST
         public ListBoxModel doFillCredentialsIdItems(
                 @QueryParameter String baseUrl, @QueryParameter String credentialsId) {
             Jenkins instance = Jenkins.get();
-            if (!instance.hasPermission(Jenkins.ADMINISTER)) {
-                return new StandardListBoxModel().includeCurrentValue(credentialsId);
-            }
+            instance.checkPermission(Jenkins.ADMINISTER);
 
             return new StandardListBoxModel()
                     .includeEmptyValue()
@@ -261,8 +265,8 @@ public class BitbucketServerConfiguration
                             CredentialsMatchers.always());
         }
 
-        @RequirePOST
         @SuppressWarnings("unused")
+        @POST
         public FormValidation doTestConnection(
                 @QueryParameter String adminCredentialsId,
                 @QueryParameter String baseUrl,

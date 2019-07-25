@@ -2,8 +2,10 @@ package com.atlassian.bitbucket.jenkins.internal.config;
 
 import com.atlassian.bitbucket.jenkins.internal.client.BitbucketClientFactoryProvider;
 import hudson.util.FormValidation;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.jvnet.hudson.test.JenkinsRule;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -12,6 +14,9 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BitbucketServerConfigurationTest {
+
+    @ClassRule
+    public static JenkinsRule jenkins = new JenkinsRule();
 
     @Mock
     private BitbucketClientFactoryProvider clientFactoryProvider;

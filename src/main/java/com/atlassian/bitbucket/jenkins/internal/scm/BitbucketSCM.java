@@ -25,6 +25,7 @@ import hudson.plugins.git.extensions.GitSCMExtension;
 import hudson.plugins.git.extensions.GitSCMExtensionDescriptor;
 import hudson.scm.*;
 import hudson.security.ACL;
+import hudson.security.Permission;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import hudson.util.ListBoxModel.Option;
@@ -35,6 +36,7 @@ import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.verb.POST;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -274,21 +276,27 @@ public class BitbucketSCM extends SCM {
             load();
         }
 
+        @POST
         public FormValidation doCheckProjectKey(@QueryParameter String value) {
+            Jenkins.get().checkPermission(Permission.CONFIGURE);
             if (isEmpty(value)) {
                 return FormValidation.error("Please specify a valid project key.");
             }
             return FormValidation.ok();
         }
 
+        @POST
         public FormValidation doCheckRepositorySlug(@QueryParameter String value) {
+            Jenkins.get().checkPermission(Permission.CONFIGURE);
             if (isEmpty(value)) {
                 return FormValidation.error("Please specify a valid repository slug.");
             }
             return FormValidation.ok();
         }
 
+        @POST
         public FormValidation doCheckServerId(@QueryParameter String serverId) {
+            Jenkins.get().checkPermission(Permission.CONFIGURE);
             List<BitbucketServerConfiguration> serverList =
                     new BitbucketPluginConfiguration().getServerList();
             // Users can only demur in providing a server name if none are available to select
@@ -298,10 +306,12 @@ public class BitbucketSCM extends SCM {
             return FormValidation.ok();
         }
 
-        @SuppressWarnings({"Duplicates", "MethodMayBeStatic"})
+        @SuppressWarnings("MethodMayBeStatic")
+        @POST
         public ListBoxModel doFillCredentialsIdItems(
                 @QueryParameter String baseUrl, @QueryParameter String credentialsId) {
             Jenkins instance = Jenkins.get();
+            instance.checkPermission(Permission.CONFIGURE);
             if (!instance.hasPermission(Jenkins.ADMINISTER)) {
                 return new StandardListBoxModel().includeCurrentValue(credentialsId);
             }
@@ -322,11 +332,15 @@ public class BitbucketSCM extends SCM {
                             CredentialsMatchers.always());
         }
 
+        @POST
         public ListBoxModel doFillGitToolItems() {
+            Jenkins.get().checkPermission(Permission.CONFIGURE);
             return gitScmDescriptor.doFillGitToolItems();
         }
 
+        @POST
         public ListBoxModel doFillServerIdItems(@QueryParameter String serverId) {
+            Jenkins.get().checkPermission(Permission.CONFIGURE);
             List<BitbucketServerConfiguration> serverList =
                     new BitbucketPluginConfiguration().getServerList();
             StandardListBoxModel model = new StandardListBoxModel();

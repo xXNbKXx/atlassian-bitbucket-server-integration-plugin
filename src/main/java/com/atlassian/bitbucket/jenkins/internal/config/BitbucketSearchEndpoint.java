@@ -12,6 +12,7 @@ import com.cloudbees.plugins.credentials.Credentials;
 import hudson.Extension;
 import hudson.model.RootAction;
 import hudson.util.HttpResponses;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.HttpResponse;
@@ -25,6 +26,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static hudson.security.Permission.CONFIGURE;
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.kohsuke.stapler.HttpResponses.error;
@@ -44,6 +46,7 @@ public class BitbucketSearchEndpoint implements RootAction {
             @Nullable @QueryParameter("serverId") String serverId,
             @Nullable @QueryParameter("credentialsId") String credentialsId,
             @Nullable @QueryParameter("name") String name) {
+        Jenkins.get().checkPermission(CONFIGURE);
         BitbucketProjectSearchClient projectSearchClient =
                 bitbucketClientFactoryProvider
                         .getClient(getServer(serverId), getCredentials(credentialsId))
@@ -53,7 +56,7 @@ public class BitbucketSearchEndpoint implements RootAction {
                     projectSearchClient.get(StringUtils.stripToEmpty(name));
             return HttpResponses.okJSON(JSONObject.fromObject(projects));
         } catch (BitbucketClientException e) {
-            // Something wen wrong with the request to Bitbucket
+            // Something went wrong with the request to Bitbucket
             LOGGER.error(e.getMessage());
             throw error(HTTP_INTERNAL_ERROR, e);
         }
@@ -65,6 +68,7 @@ public class BitbucketSearchEndpoint implements RootAction {
             @Nullable @QueryParameter("credentialsId") String credentialsId,
             @Nullable @QueryParameter("projectKey") String projectKey,
             @Nullable @QueryParameter("filter") String filter) {
+        Jenkins.get().checkPermission(CONFIGURE);
         if (StringUtils.isBlank(projectKey)) {
             throw error(HTTP_BAD_REQUEST, "The projectKey must be present");
         }
@@ -77,7 +81,7 @@ public class BitbucketSearchEndpoint implements RootAction {
                     searchClient.get(StringUtils.stripToEmpty(filter));
             return HttpResponses.okJSON(JSONObject.fromObject(repositories));
         } catch (BitbucketClientException e) {
-            // Something wen wrong with the request to Bitbucket
+            // Something went wrong with the request to Bitbucket
             LOGGER.error(e.getMessage());
             throw error(HTTP_INTERNAL_ERROR, e);
         }

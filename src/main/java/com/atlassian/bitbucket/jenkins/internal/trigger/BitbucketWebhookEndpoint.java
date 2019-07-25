@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.interceptor.RequirePOST;
+import org.kohsuke.stapler.verb.POST;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class BitbucketWebhookEndpoint implements UnprotectedRootAction {
     @Inject
     private BitbucketWebhookConsumer webhookConsumer;
 
-    @RequirePOST
+    @POST
     public HttpResponse doTrigger(StaplerRequest request, StaplerResponse response)
             throws ServletException {
         validateContentType(request);
