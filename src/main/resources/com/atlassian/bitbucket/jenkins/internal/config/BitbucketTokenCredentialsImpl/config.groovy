@@ -3,7 +3,7 @@ package com.atlassian.bitbucket.jenkins.internal.config.BitbucketTokenCredential
 def f = namespace(lib.FormTagLib)
 
 f.entry(title: _("bitbucket.admin.token"), field: "secret") {
-    f.password(value: instance?.encryptedPassword)
+    f.password(value: instance?.secret)
 }
 
 f.entry(title: _("bitbucket.admin.token.description"), field: "description") {

@@ -42,25 +42,25 @@ public class BitbucketTokenCredentialsImpl extends BaseStandardCredentials
             IconSet.icons.addIcon(
                     new Icon(
                             "icon-bitbucket-credentials icon-sm",
-                            "atlassian-bitbucket-server-scm/images/16x16/credentials.png",
+                            "atlassian-bitbucket-server-integration/images/16x16/credentials.png",
                             Icon.ICON_SMALL_STYLE,
                             IconType.PLUGIN));
             IconSet.icons.addIcon(
                     new Icon(
                             "icon-bitbucket-credentials icon-md",
-                            "atlassian-bitbucket-server-scm/images/24x24/credentials.png",
+                            "atlassian-bitbucket-server-integration/images/24x24/credentials.png",
                             Icon.ICON_MEDIUM_STYLE,
                             IconType.PLUGIN));
             IconSet.icons.addIcon(
                     new Icon(
                             "icon-bitbucket-credentials icon-lg",
-                            "atlassian-bitbucket-server-scm/images/32x32/credentials.png",
+                            "atlassian-bitbucket-server-integration/images/32x32/credentials.png",
                             Icon.ICON_LARGE_STYLE,
                             IconType.PLUGIN));
             IconSet.icons.addIcon(
                     new Icon(
                             "icon-bitbucket-credentials icon-xlg",
-                            "atlassian-bitbucket-server-scm/images/48x48/credentials.png",
+                            "atlassian-bitbucket-server-integration/images/48x48/credentials.png",
                             Icon.ICON_XLARGE_STYLE,
                             IconType.PLUGIN));
         }
