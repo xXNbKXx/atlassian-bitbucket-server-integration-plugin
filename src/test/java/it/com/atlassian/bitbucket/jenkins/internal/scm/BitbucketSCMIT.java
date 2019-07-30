@@ -60,12 +60,12 @@ public class BitbucketSCMIT {
                 new BitbucketSCM(
                         "",
                         ImmutableList.of(new BranchSpec(branchSpec)),
-                        bbJenkinsRule.getCredentialsId(),
+                        bbJenkinsRule.getBitbucketServer().getAdminCredentialsId(),
                         emptyList(),
                         "",
                         PROJECT_KEY,
                         REPO_SLUG,
-                        bbJenkinsRule.getServerId());
+                        bbJenkinsRule.getBitbucketServer().getId());
         bitbucketSCM.setBitbucketClientFactoryProvider(new BitbucketClientFactoryProvider());
         bitbucketSCM.setBitbucketPluginConfiguration(new BitbucketPluginConfiguration());
         bitbucketSCM.createGitSCM();
