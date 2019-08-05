@@ -23,6 +23,7 @@ import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
@@ -33,14 +34,11 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static com.cloudbees.plugins.credentials.CredentialsMatchers.firstOrNull;
 import static com.cloudbees.plugins.credentials.CredentialsMatchers.withId;
 import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
-import static hudson.util.FormValidation.Kind;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang3.StringUtils.*;
 
@@ -141,8 +139,34 @@ public class BitbucketServerConfiguration
      *
      * @return true if valid; false otherwise
      */
-    public boolean validate() {
-        return checkBaseUrl(baseUrl).kind != Kind.ERROR && checkServerName(serverName).kind != Kind.ERROR;
+    public FormValidation validate() {
+        return FormValidation.aggregate(Arrays.asList(checkBaseUrl(baseUrl), checkServerName(serverName), checkAdminCredentialsId(adminCredentialsId)));
+    }
+
+    /**
+     * Validates the provided admin credentials are present and appropriate
+     *
+     * @param adminCredentialsId the ID of the Bitbucket personal access token to check
+     * @return FormValidation with Kind.ok if credentials are present and the correct type; Kind.error otherwise
+     */
+    private static FormValidation checkAdminCredentialsId(String adminCredentialsId) {
+        if (isBlank(adminCredentialsId)) {
+            return FormValidation.error("An admin token must be selected");
+        }
+        Credentials creds =
+                firstOrNull(
+                        lookupCredentials(
+                                BitbucketTokenCredentials.class,
+                                Jenkins.get(),
+                                ACL.SYSTEM,
+                                Collections.emptyList()),
+                        withId(trimToEmpty(adminCredentialsId)));
+
+        if (creds == null) {
+            return FormValidation.error(
+                    "Could not find the previous admin token (has it been deleted?), please select a new one");
+        }
+        return FormValidation.ok();
     }
 
     /**
@@ -182,6 +206,7 @@ public class BitbucketServerConfiguration
                 : FormValidation.ok();
     }
 
+    @Symbol("BbS")
     @Extension
     public static class DescriptorImpl extends Descriptor<BitbucketServerConfiguration> {
 
@@ -192,23 +217,7 @@ public class BitbucketServerConfiguration
         @POST
         public FormValidation doCheckAdminCredentialsId(@QueryParameter String value) {
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
-            if (isBlank(value)) {
-                return FormValidation.error("Choose a Bitbucket personal access token");
-            }
-            Credentials creds =
-                    firstOrNull(
-                            lookupCredentials(
-                                    BitbucketTokenCredentials.class,
-                                    Jenkins.get(),
-                                    ACL.SYSTEM,
-                                    Collections.emptyList()),
-                            withId(trimToEmpty(value)));
-
-            if (creds == null) {
-                return FormValidation.error(
-                        "Could not find the previous admin token (has it been deleted?), please select a new one");
-            }
-            return FormValidation.ok();
+            return checkAdminCredentialsId(value);
         }
 
         @SuppressWarnings("MethodMayBeStatic")

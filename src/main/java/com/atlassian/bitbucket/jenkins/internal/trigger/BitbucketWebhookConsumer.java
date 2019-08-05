@@ -70,7 +70,62 @@ public class BitbucketWebhookConsumer {
                 .collect(Collectors.toSet());
     }
 
-    private boolean hasMatchingRepository(RefChangedDetails refChangedDetails, ParameterizedJobMixIn.ParameterizedJob job) {
+    private static Set<String> eligibleRefs(RefsChangedWebhookEvent event) {
+        return event.getChanges()
+                .stream()
+                .filter(refChange -> refChange.getType() != BitbucketRefChangeType.DELETE)
+                .map(refChange -> refChange.getRef().getId())
+                .collect(Collectors.toSet());
+    }
+
+    private static Collection<? extends SCM> getScms(ParameterizedJobMixIn.ParameterizedJob job) {
+        SCMTriggerItem triggerItem = SCMTriggerItem.SCMTriggerItems.asSCMTriggerItem(job);
+        if (triggerItem != null) {
+            return triggerItem.getSCMs();
+        }
+        return Collections.emptySet();
+    }
+
+    private static boolean hasMatchingRepository(RefChangedDetails refChangedDetails,
+                                                 GitSCM scm) {
+        return scm.getRepositories().stream()
+                .anyMatch(scmRepo -> matchingRepo(refChangedDetails.getCloneLinks(), scmRepo));
+    }
+
+    private static boolean matchingRepo(Set<String> cloneLinks, RemoteConfig repo) {
+        return repo.getURIs().stream().anyMatch(uri -> {
+            String uriStr = uri.toString();
+            return cloneLinks.stream()
+                    .anyMatch(link -> link.equalsIgnoreCase(uriStr));
+        });
+    }
+
+    private static boolean matchingRepo(BitbucketRepository repository, BitbucketSCMRepository scmRepo) {
+        return scmRepo.getProjectKey().equalsIgnoreCase(repository.getProject().getKey()) &&
+               scmRepo.getRepositorySlug().equalsIgnoreCase(repository.getSlug());
+    }
+
+    private static Optional<TriggerDetails> toTriggerDetails(ParameterizedJobMixIn.ParameterizedJob job) {
+        BitbucketWebhookTriggerImpl trigger = triggerFrom(job);
+        if (trigger != null) {
+            return Optional.of(new TriggerDetails(job, trigger));
+        }
+        return Optional.empty();
+    }
+
+    @Nullable
+    private static BitbucketWebhookTriggerImpl triggerFrom(ParameterizedJobMixIn.ParameterizedJob job) {
+        Map<TriggerDescriptor, Trigger<?>> triggers = job.getTriggers();
+        for (Trigger candidate : triggers.values()) {
+            if (candidate instanceof BitbucketWebhookTriggerImpl) {
+                return (BitbucketWebhookTriggerImpl) candidate;
+            }
+        }
+        return null;
+    }
+
+    private boolean hasMatchingRepository(RefChangedDetails refChangedDetails,
+                                          ParameterizedJobMixIn.ParameterizedJob job) {
         Collection<? extends SCM> scms = getScms(job);
         for (SCM scm : scms) {
             if (scm instanceof GitSCM) {
@@ -94,58 +149,23 @@ public class BitbucketWebhookConsumer {
                 }).orElse(false);
     }
 
-    private static Set<String> eligibleRefs(RefsChangedWebhookEvent event) {
-        return event.getChanges()
-                .stream()
-                .filter(refChange -> refChange.getType() != BitbucketRefChangeType.DELETE)
-                .map(refChange -> refChange.getRef().getId())
-                .collect(Collectors.toSet());
-    }
+    private static final class RefChangedDetails {
 
-    private static boolean hasMatchingRepository(RefChangedDetails refChangedDetails,
-                                                 GitSCM scm) {
-        return scm.getRepositories().stream()
-                .anyMatch(scmRepo -> matchingRepo(refChangedDetails.getCloneLinks(), scmRepo));
-    }
+        private final Set<String> cloneLinks;
+        private final BitbucketRepository repository;
 
-    private static boolean matchingRepo(BitbucketRepository repository, BitbucketSCMRepository scmRepo) {
-        return scmRepo.getProjectKey().equalsIgnoreCase(repository.getProject().getKey()) &&
-                scmRepo.getRepositorySlug().equalsIgnoreCase(repository.getSlug());
-    }
-
-    private static boolean matchingRepo(Set<String> cloneLinks, RemoteConfig repo) {
-        return repo.getURIs().stream().anyMatch(uri -> {
-            String uriStr = uri.toString();
-            return cloneLinks.stream()
-                    .anyMatch(link -> link.equalsIgnoreCase(uriStr));
-        });
-    }
-
-    private static Optional<TriggerDetails> toTriggerDetails(ParameterizedJobMixIn.ParameterizedJob job) {
-        BitbucketWebhookTriggerImpl trigger = triggerFrom(job);
-        if (trigger != null) {
-            return Optional.of(new TriggerDetails(job, trigger));
+        private RefChangedDetails(RefsChangedWebhookEvent event) {
+            this.cloneLinks = cloneLinks(event);
+            this.repository = event.getRepository();
         }
-        return Optional.empty();
-    }
 
-    @Nullable
-    private static BitbucketWebhookTriggerImpl triggerFrom(ParameterizedJobMixIn.ParameterizedJob job) {
-        Map<TriggerDescriptor, Trigger<?>> triggers = job.getTriggers();
-        for (Trigger candidate : triggers.values()) {
-            if (candidate instanceof BitbucketWebhookTriggerImpl) {
-                return (BitbucketWebhookTriggerImpl) candidate;
-            }
+        public Set<String> getCloneLinks() {
+            return cloneLinks;
         }
-        return null;
-    }
 
-    private static Collection<? extends SCM> getScms(ParameterizedJobMixIn.ParameterizedJob job) {
-        SCMTriggerItem triggerItem = SCMTriggerItem.SCMTriggerItems.asSCMTriggerItem(job);
-        if (triggerItem != null) {
-            return triggerItem.getSCMs();
+        public BitbucketRepository getRepository() {
+            return repository;
         }
-        return Collections.emptySet();
     }
 
     private static final class TriggerDetails {
@@ -164,25 +184,6 @@ public class BitbucketWebhookConsumer {
 
         public BitbucketWebhookTrigger getTrigger() {
             return trigger;
-        }
-    }
-
-    private static final class RefChangedDetails {
-
-        private final Set<String> cloneLinks;
-        private final BitbucketRepository repository;
-
-        private RefChangedDetails(RefsChangedWebhookEvent event) {
-            this.cloneLinks = cloneLinks(event);
-            this.repository = event.getRepository();
-        }
-
-        public Set<String> getCloneLinks() {
-            return cloneLinks;
-        }
-
-        public BitbucketRepository getRepository() {
-            return repository;
         }
     }
 }
