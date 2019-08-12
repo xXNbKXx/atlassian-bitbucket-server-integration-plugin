@@ -1,7 +1,6 @@
 package com.atlassian.bitbucket.jenkins.internal.client;
 
-import com.atlassian.bitbucket.jenkins.internal.config.BitbucketServerConfiguration;
-import com.cloudbees.plugins.credentials.Credentials;
+import com.atlassian.bitbucket.jenkins.internal.http.HttpRequestExecutorImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hudson.Plugin;
 import jenkins.model.Jenkins;
@@ -11,11 +10,11 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.log4j.Logger;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Singleton;
 import java.io.IOException;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Client factory provider, use to ensure that expensive objects are only created once and re-used.
@@ -29,18 +28,19 @@ public class BitbucketClientFactoryProvider {
             new OkHttpClient.Builder().addInterceptor(new UserAgentInterceptor()).build();
 
     /**
-     * Return a client factory for the given server.
+     * Return a client factory for the given base URL.
      *
-     * @param server the server to connect to
+     * @param baseUrl the URL to connect to
      * @return a ready to use client factory
      */
-    public BitbucketClientFactory getClient(
-            @Nonnull BitbucketServerConfiguration server, @Nullable Credentials credentials) {
+    public BitbucketClientFactory getClient(String baseUrl, BitbucketCredentials credentials) {
+        requireNonNull(baseUrl, "Bitbucket Server base url cannot be null.");
+        requireNonNull(credentials, "Credentials can't be null. For no credentials use anonymous.");
         return new BitbucketClientFactoryImpl(
-                server.getBaseUrl(),
-                credentials == null ? server.getCredentials() : credentials,
+                baseUrl,
+                credentials,
                 objectMapper,
-                okHttpClient);
+                new HttpRequestExecutorImpl(okHttpClient));
     }
 
     /**

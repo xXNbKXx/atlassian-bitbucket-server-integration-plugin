@@ -4,8 +4,8 @@ import com.atlassian.bitbucket.jenkins.internal.client.BitbucketClientFactoryPro
 import com.atlassian.bitbucket.jenkins.internal.client.exception.BitbucketClientException;
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketPluginConfiguration;
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketServerConfiguration;
+import com.atlassian.bitbucket.jenkins.internal.credentials.BitbucketCredentialsAdaptor;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketRepository;
-import com.atlassian.bitbucket.jenkins.internal.utils.CredentialUtils;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
@@ -249,7 +249,7 @@ public class BitbucketSCM extends SCM {
             String repositorySlug,
             String credentialsId) {
         return bitbucketClientFactoryProvider
-                .getClient(server, CredentialUtils.getCredentials(credentialsId))
+                .getClient(server.getBaseUrl(), BitbucketCredentialsAdaptor.createWithFallback(credentialsId, server))
                 .getProjectClient(projectKey)
                 .getRepositoryClient(repositorySlug)
                 .get();

@@ -1,4 +1,4 @@
-package com.atlassian.bitbucket.jenkins.internal.utils;
+package com.atlassian.bitbucket.jenkins.internal.credentials;
 
 import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.common.UsernamePasswordCredentials;
@@ -7,6 +7,7 @@ import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import java.util.Collections;
 
 import static com.cloudbees.plugins.credentials.CredentialsMatchers.firstOrNull;
@@ -22,7 +23,7 @@ public class CredentialUtils {
     }
 
     @CheckForNull
-    public static Credentials getCredentials(String credentialsId) {
+    public static Credentials getCredentials(@Nullable String credentialsId) {
         Credentials creds = getCredentials(StringCredentials.class, credentialsId);
 
         if (creds == null) {
@@ -33,7 +34,7 @@ public class CredentialUtils {
     }
 
     @CheckForNull
-    public static Credentials getCredentials(Class type, String credentialsId) {
+    private static Credentials getCredentials(Class type, String credentialsId) {
         return firstOrNull(
                 lookupCredentials(type, Jenkins.get(), ACL.SYSTEM, Collections.emptyList()),
                 withId(trimToEmpty(credentialsId)));
