@@ -12,7 +12,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import static java.util.Collections.emptyMap;
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static java.util.Objects.requireNonNull;
+import static org.apache.commons.lang3.StringUtils.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -25,6 +27,7 @@ public class FakeRemoteHttpServer implements Call.Factory {
     private final Map<String, Integer> urlToReturnCode = new HashMap<>();
     private final Map<String, FakeResponseBody> urlToResponseBody = new HashMap<>();
     private final Map<String, Request> urlToRequest = new HashMap<>();
+    private final Map<String, String> urlToRequestBody = new HashMap<>();
 
     @Override
     public Call newCall(Request request) {
@@ -33,15 +36,33 @@ public class FakeRemoteHttpServer implements Call.Factory {
             return mockCallToThrowException(url);
         } else {
             String result = urlToResult.get(url);
+            if (request.method().equalsIgnoreCase("POST")) {
+                ensureCorrectPostRequestBody(request, url);
+            }
             FakeResponseBody body = mockResponseBody(result);
             urlToResponseBody.put(url, body);
             urlToRequest.put(url, request);
-            return mockCallToThrowResult(url, body);
+            return mockCallToReturnResult(url, body);
+        }
+    }
+
+    private void ensureCorrectPostRequestBody(Request request, String url) {
+        Buffer b = new Buffer();
+        try {
+            request.body().writeTo(b);
+            assertEquals("Request body not same as expected.", deleteWhitespace(normalizeSpace(urlToRequestBody.get(url))), new String(b.readByteArray()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void ensureResponseBodyClosed() {
         urlToResponseBody.values().stream().filter(Objects::nonNull).forEach(b -> assertTrue(b.isClosed()));
+    }
+
+    public void mapPostRequestToResult(String url, String requestBody, String responseBody) {
+        urlToRequestBody.put(url, requestBody);
+        mapUrlToResult(url, responseBody);
     }
 
     public void mapUrlToException(String url, Exception exception) {
@@ -85,10 +106,12 @@ public class FakeRemoteHttpServer implements Call.Factory {
                 .build();
     }
 
-    private Call mockCallToThrowResult(String url, ResponseBody mockBody) {
+    private Call mockCallToReturnResult(String url, ResponseBody mockBody) {
         try {
+            int returnCode = requireNonNull(urlToReturnCode.get(url));
+            Map<String, String> headers = requireNonNull(this.headers.get(url));
             Call mockCall = mock(Call.class);
-            when(mockCall.execute()).thenReturn(getResponse(url, urlToReturnCode.get(url), headers.get(url), mockBody));
+            when(mockCall.execute()).thenReturn(getResponse(url, returnCode, headers, mockBody));
             return mockCall;
         } catch (IOException ex) {
             throw new RuntimeException(ex);
