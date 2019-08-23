@@ -18,9 +18,18 @@ public class BitbucketPage<T> {
     private int size;
     private int start;
     private List<T> values;
+    private int nextPageStart;
 
     public int getLimit() {
         return limit;
+    }
+
+    public int getNextPageStart() {
+        return nextPageStart;
+    }
+
+    public void setNextPageStart(int nextPageStart) {
+        this.nextPageStart = nextPageStart;
     }
 
     public void setLimit(int limit) {

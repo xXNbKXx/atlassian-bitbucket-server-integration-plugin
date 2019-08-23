@@ -36,11 +36,15 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class BitbucketSearchEndpointTest {
 
-    @ClassRule public static JenkinsRule jenkins = new JenkinsRule();
+    @ClassRule
+    public static JenkinsRule jenkins = new JenkinsRule();
 
-    @Mock private BitbucketClientFactoryProvider bitbucketClientFactoryProvider;
-    @Mock private BitbucketClientFactory bbClientFactory;
-    @Mock private BitbucketProjectSearchClient bbProjectSearchClient;
+    @Mock
+    private BitbucketClientFactoryProvider bitbucketClientFactoryProvider;
+    @Mock
+    private BitbucketClientFactory bbClientFactory;
+    @Mock
+    private BitbucketProjectSearchClient bbProjectSearchClient;
 
     private final String BB_WEBHOOK_URL =
             jenkins.getInstance().getRootUrl() + BITBUCKET_SERVER_SEARCH_URL + "/findProjects/";

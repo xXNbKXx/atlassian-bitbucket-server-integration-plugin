@@ -98,8 +98,9 @@ public class BitbucketClientFactoryImpl implements BitbucketClientFactory {
                 HttpUrl.Builder urlBuilder =
                         bitbucketRequestExecutor.getCoreRestPath().newBuilder().addPathSegment("projects");
                 queryParams.forEach(urlBuilder::addQueryParameter);
+                HttpUrl url = urlBuilder.build();
                 return bitbucketRequestExecutor.makeGetRequest(
-                        urlBuilder.build(),
+                        url,
                         new TypeReference<BitbucketPage<BitbucketProject>>() {
                         })
                         .getBody();
@@ -129,8 +130,9 @@ public class BitbucketClientFactoryImpl implements BitbucketClientFactory {
                         .addPathSegment("repos")
                         .addQueryParameter("projectname", projectName);
                 queryParams.forEach(urlBuilder::addQueryParameter);
+                HttpUrl url = urlBuilder.build();
                 return bitbucketRequestExecutor.makeGetRequest(
-                        urlBuilder.build(),
+                        url,
                         new TypeReference<BitbucketPage<BitbucketRepository>>() {
                         })
                         .getBody();
