@@ -37,9 +37,6 @@ public class FakeRemoteHttpServer implements Call.Factory {
         } else {
             String result = urlToResult.get(url);
             String method = request.method();
-            if ("POST".equalsIgnoreCase(method) || "PUT".equalsIgnoreCase(method)) {
-                ensureCorrectRequestBody(request, url);
-            }
             FakeResponseBody body = mockResponseBody(result);
             urlToResponseBody.put(url, body);
             urlToRequest.put(url, request);
