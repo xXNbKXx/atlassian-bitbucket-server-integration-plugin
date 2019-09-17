@@ -300,17 +300,17 @@ public class BitbucketServerConfiguration
                 Optional<String> username =
                         clientFactoryProvider
                                 .getClient(config.getBaseUrl(), BitbucketCredentialsAdaptor.createWithFallback(config.getAdminCredentials(), config))
-                                .getUsernameClient()
-                                .get();
+                                .getAuthenticatedUserClient()
+                                .getAuthenticatedUser();
                 if (!username.isPresent()) {
                     return FormValidation.error("The admin credentials are invalid");
                 }
                 BitbucketClientFactory client =
                         clientFactoryProvider.getClient(config.getBaseUrl(), BitbucketCredentialsAdaptor.createWithFallback(credentials, config));
 
-                AtlassianServerCapabilities capabilities = client.getCapabilityClient().get();
+                AtlassianServerCapabilities capabilities = client.getCapabilityClient().getServerCapabilities();
                 if (credentials instanceof StringCredentials) {
-                    if (!client.getUsernameClient().get().isPresent()) {
+                    if (!client.getAuthenticatedUserClient().getAuthenticatedUser().isPresent()) {
                         throw new AuthorizationException("Token did not work", HTTP_UNAUTHORIZED, null);
                     }
                 }

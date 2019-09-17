@@ -2,6 +2,7 @@ package com.atlassian.bitbucket.jenkins.internal.config;
 
 import com.atlassian.bitbucket.jenkins.internal.client.*;
 import com.atlassian.bitbucket.jenkins.internal.client.exception.NotFoundException;
+import com.atlassian.bitbucket.jenkins.internal.credentials.BitbucketCredentials;
 import com.atlassian.bitbucket.jenkins.internal.model.*;
 import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
@@ -48,7 +49,7 @@ public class BitbucketSearchEndpointTest {
     @Mock
     private BitbucketClientFactory bbClientFactory;
     @Mock
-    private BitbucketProjectSearchClient bbProjectSearchClient;
+    private BitbucketSearchClient bbSearchClient;
     @Mock
     private BitbucketMirroredRepositoryDescriptorClient bbRepoMirrorsClient;
     @Mock
@@ -69,15 +70,15 @@ public class BitbucketSearchEndpointTest {
         setupCredentials(credentialId, "admin");
 
         when(bitbucketClientFactoryProvider.getClient(anyString(), any())).thenReturn(bbClientFactory);
-        when(bbClientFactory.getProjectSearchClient()).thenReturn(bbProjectSearchClient);
-        when(bbClientFactory.getMirroredRepositoriesClient(REPO_ID)).thenReturn(bbRepoMirrorsClient);
+        when(bbClientFactory.getSearchClient(any())).thenReturn(bbSearchClient);
+        when(bbClientFactory.getMirroredRepositoriesClient(anyInt())).thenReturn(bbRepoMirrorsClient);
         setBitbucketSearchEndpoint();
     }
 
     @Test
     public void testFindMirroredRepository() {
         BitbucketPage<BitbucketMirroredRepositoryDescriptor> page = createMirroredRepoDescriptors(2);
-        when(bbRepoMirrorsClient.get()).thenReturn(page);
+        when(bbRepoMirrorsClient.getMirroredRepositoryDescriptors()).thenReturn(page);
 
         Map<String, List<BitbucketNamedLink>> repoLinks = new HashMap<>();
         String repoCloneUrl = "http://mirror1.example.com/scm/stash/jenkins/jenkins.git";
