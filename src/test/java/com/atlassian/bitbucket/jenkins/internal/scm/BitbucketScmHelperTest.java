@@ -8,6 +8,7 @@ import com.atlassian.bitbucket.jenkins.internal.client.exception.BitbucketClient
 import com.atlassian.bitbucket.jenkins.internal.client.exception.NotFoundException;
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketServerConfiguration;
 import com.atlassian.bitbucket.jenkins.internal.credentials.BitbucketCredentials;
+import com.atlassian.bitbucket.jenkins.internal.credentials.JenkinsToBitbucketCredentials;
 import com.atlassian.bitbucket.jenkins.internal.fixture.BitbucketMockJenkinsRule;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketPage;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketProject;
@@ -25,8 +26,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMoc
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +34,8 @@ import static org.mockito.Mockito.when;
 public class BitbucketScmHelperTest {
 
     @ClassRule
-    public static BitbucketMockJenkinsRule bbJenkins = new BitbucketMockJenkinsRule("token", wireMockConfig().dynamicPort());
+    public static BitbucketMockJenkinsRule bbJenkins =
+            new BitbucketMockJenkinsRule("token", wireMockConfig().dynamicPort());
     private BitbucketScmHelper bitbucketScmHelper;
     @Mock
     private BitbucketServerConfiguration bitbucketServerConfiguration;
@@ -44,6 +45,8 @@ public class BitbucketScmHelperTest {
     private Credentials credentials;
     @Mock
     private BitbucketSearchClient searchClient;
+    @Mock
+    private JenkinsToBitbucketCredentials jenkinsToBitbucketCredentials;
 
     @Before
     public void setup() {
@@ -60,7 +63,9 @@ public class BitbucketScmHelperTest {
         when(bitbucketServerConfiguration.getCredentials()).thenReturn(mock(Credentials.class));
         when(bitbucketClientFactoryProvider.getClient(eq("myBaseUrl"), any(BitbucketCredentials.class)))
                 .thenReturn(clientFactory);
-        bitbucketScmHelper = new BitbucketScmHelper(bitbucketClientFactoryProvider, bitbucketServerConfiguration, "");
+        when(jenkinsToBitbucketCredentials.toBitbucketCredentials(nullable(String.class), any(BitbucketServerConfiguration.class))).thenReturn(mock(BitbucketCredentials.class));
+        bitbucketScmHelper =
+                new BitbucketScmHelper(bitbucketClientFactoryProvider, bitbucketServerConfiguration, "", jenkinsToBitbucketCredentials);
     }
 
     @Test
@@ -70,7 +75,8 @@ public class BitbucketScmHelperTest {
         projectPage.setValues(singletonList(expectedProject));
         when(searchClient.findProjects()).thenReturn(projectPage);
         BitbucketPage<BitbucketRepository> repositoryPage = new BitbucketPage<>();
-        BitbucketRepository expectedRepo = new BitbucketRepository("my repo", null, expectedProject, "myRepo", RepositoryState.AVAILABLE);
+        BitbucketRepository expectedRepo =
+                new BitbucketRepository(0, "my repo", null, expectedProject, "myRepo", RepositoryState.AVAILABLE);
         repositoryPage.setValues(singletonList(expectedRepo));
         when(searchClient.findRepositories("my repo")).thenReturn(repositoryPage);
 

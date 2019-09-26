@@ -1,6 +1,7 @@
 package com.atlassian.bitbucket.jenkins.internal.trigger;
 
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketPluginConfiguration;
+import com.atlassian.bitbucket.jenkins.internal.model.BitbucketMirrorServer;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketNamedLink;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketRefChangeType;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketRepository;
@@ -38,12 +39,33 @@ public class BitbucketWebhookConsumer {
     void process(RefsChangedWebhookEvent event) {
         BitbucketRepository repository = event.getRepository();
         LOGGER.fine(String.format("Received refs changed event from repo: %s/%s  ", repository.getProject().getKey(), repository.getSlug()));
-        if (eligibleRefs(event).isEmpty()) {
-            LOGGER.fine("Skipping processing of refs changed event because no refs have been added or updated");
+        if (!isEligibleRefs(event)) {
             return;
         }
         RefChangedDetails refChangedDetails = new RefChangedDetails(event);
+        triggerJob(event, refChangedDetails);
+    }
 
+    void process(MirrorSynchronizedWebhookEvent event) {
+        BitbucketRepository repository = event.getRepository();
+        LOGGER.fine(String.format("Received Mirror Synchronized changed event from repo: %s/%s  ", repository.getProject().getKey(), repository.getSlug()));
+        if (!isEligibleRefs(event)) {
+            return;
+        }
+        RefChangedDetails refChangedDetails = new RefChangedDetails(event);
+        triggerJob(event, refChangedDetails);
+    }
+
+    private boolean isEligibleRefs(RefsChangedWebhookEvent event) {
+        if (eligibleRefs(event).isEmpty()) {
+            LOGGER.fine("Skipping processing of refs changed event because no refs have been added or updated");
+            return false;
+        }
+        return true;
+    }
+
+    private void triggerJob(RefsChangedWebhookEvent event,
+                            RefChangedDetails refChangedDetails) {
         try (ACLContext ctx = ACL.as(ACL.SYSTEM)) {
             BitbucketWebhookTriggerRequest.Builder requestBuilder = BitbucketWebhookTriggerRequest.builder();
             event.getActor().ifPresent(requestBuilder::actor);
@@ -54,15 +76,11 @@ public class BitbucketWebhookConsumer {
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .filter(triggerDetails -> hasMatchingRepository(refChangedDetails, triggerDetails.getJob()))
+                    .peek(triggerDetails -> LOGGER.fine("Triggering " + triggerDetails.getJob().getFullDisplayName()))
                     .forEach(triggerDetails -> {
-                        LOGGER.fine("Triggering " + triggerDetails.getJob().getFullDisplayName());
                         triggerDetails.getTrigger().trigger(requestBuilder.build());
                     });
         }
-    }
-
-    void process(MirrorSynchronizedWebhookEvent event) {
-        LOGGER.fine("Received mirror synchronized event: " + event);
     }
 
     private static Set<String> eligibleRefs(RefsChangedWebhookEvent event) {
@@ -134,6 +152,11 @@ public class BitbucketWebhookConsumer {
 
     private boolean hasMatchingRepository(RefChangedDetails refChangedDetails,
                                           BitbucketSCM scm) {
+        if (refChangedDetails.isMirrorSyncEvent()) {
+            if (!refChangedDetails.getMirrorName().equals(scm.getMirrorName())) {
+                return false;
+            }
+        }
         return bitbucketPluginConfiguration.getServerById(scm.getServerId())
                 .map(serverConfig -> {
                     if (refChangedDetails.getRepository().getSelfLink().startsWith(serverConfig.getBaseUrl())) {
@@ -148,18 +171,37 @@ public class BitbucketWebhookConsumer {
 
         private final Set<String> cloneLinks;
         private final BitbucketRepository repository;
+        private final String mirrorName;
+        private final boolean isMirrorSyncEvent;
 
         private RefChangedDetails(RefsChangedWebhookEvent event) {
             this.cloneLinks = cloneLinks(event);
             this.repository = event.getRepository();
+            this.mirrorName = "";
+            this.isMirrorSyncEvent = false;
+        }
+
+        private RefChangedDetails(MirrorSynchronizedWebhookEvent event) {
+            this.cloneLinks = cloneLinks(event);
+            this.repository = event.getRepository();
+            this.mirrorName = event.getMirrorServer().map(BitbucketMirrorServer::getName).orElse("");
+            this.isMirrorSyncEvent = true;
         }
 
         public Set<String> getCloneLinks() {
             return cloneLinks;
         }
 
+        public String getMirrorName() {
+            return mirrorName;
+        }
+
         public BitbucketRepository getRepository() {
             return repository;
+        }
+
+        public boolean isMirrorSyncEvent() {
+            return isMirrorSyncEvent;
         }
 
         private static Set<String> cloneLinks(RefsChangedWebhookEvent event) {

@@ -16,6 +16,7 @@ import static org.apache.commons.lang3.StringUtils.stripToEmpty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BitbucketRepository {
 
+    private final int id;
     private final String name;
     private final BitbucketProject project;
     private final String slug;
@@ -25,11 +26,13 @@ public class BitbucketRepository {
 
     @JsonCreator
     public BitbucketRepository(
+            @JsonProperty("id") int id,
             @JsonProperty("name") String name,
             @CheckForNull @JsonProperty("links") Map<String, List<BitbucketNamedLink>> links,
             @JsonProperty("project") BitbucketProject project,
             @JsonProperty("slug") String slug,
             @JsonProperty("state") RepositoryState state) {
+        this.id = id;
         this.name = name;
         this.project = project;
         this.slug = slug;
@@ -39,14 +42,20 @@ public class BitbucketRepository {
         }
     }
 
-    public BitbucketRepository(String name, BitbucketProject project, String slug, RepositoryState state,
+    public BitbucketRepository(int repositoryId, String name, BitbucketProject project, String slug,
+                               RepositoryState state,
                                List<BitbucketNamedLink> cloneUrls, String selfLink) {
+        this.id = repositoryId;
         this.name = name;
         this.project = project;
         this.slug = slug;
         this.state = state;
         this.cloneUrls = cloneUrls;
         this.selfLink = selfLink;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public List<BitbucketNamedLink> getCloneUrls() {

@@ -24,18 +24,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
 
-import static com.atlassian.bitbucket.jenkins.internal.util.TestUtils.BITBUCKET_BASE_URL;
-import static com.atlassian.bitbucket.jenkins.internal.util.TestUtils.PROJECT;
-import static com.atlassian.bitbucket.jenkins.internal.util.TestUtils.REPO;
+import static com.atlassian.bitbucket.jenkins.internal.util.TestUtils.*;
 import static java.util.Collections.emptySet;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RetryingWebhookHandlerTest {
@@ -123,7 +118,7 @@ public class RetryingWebhookHandlerTest {
     }
 
     private BitbucketSCMRepository createSCMRepository() {
-        return new BitbucketSCMRepository(JOB_CREDENTIALS, PROJECT, PROJECT, REPO, REPO, SERVER_ID, false);
+        return new BitbucketSCMRepository(JOB_CREDENTIALS, PROJECT, PROJECT, REPO, REPO, SERVER_ID, "");
     }
 
     private BitbucketWebhookClient mockWebhookClient(BitbucketClientFactory clientFactory) {

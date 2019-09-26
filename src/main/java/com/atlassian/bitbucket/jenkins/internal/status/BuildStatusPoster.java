@@ -1,10 +1,10 @@
 package com.atlassian.bitbucket.jenkins.internal.status;
 
 import com.atlassian.bitbucket.jenkins.internal.client.BitbucketClientFactoryProvider;
-import com.atlassian.bitbucket.jenkins.internal.credentials.BitbucketCredentials;
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketPluginConfiguration;
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketServerConfiguration;
-import com.atlassian.bitbucket.jenkins.internal.credentials.BitbucketCredentialsAdaptor;
+import com.atlassian.bitbucket.jenkins.internal.credentials.BitbucketCredentials;
+import com.atlassian.bitbucket.jenkins.internal.credentials.JenkinsToBitbucketCredentials;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketBuildStatus;
 import hudson.model.AbstractBuild;
 import hudson.model.TaskListener;
@@ -27,6 +27,8 @@ public class BuildStatusPoster {
     BitbucketClientFactoryProvider bitbucketClientFactoryProvider;
     @Inject
     private BitbucketPluginConfiguration pluginConfiguration;
+    @Inject
+    private JenkinsToBitbucketCredentials jenkinsToBitbucketCredentials;
 
     public void postBuildStatus(AbstractBuild build, TaskListener listener) {
         BitbucketRevisionAction revisionAction = build.getAction(BitbucketRevisionAction.class);
@@ -42,7 +44,7 @@ public class BuildStatusPoster {
                 listener.getLogger().format(BUILD_STATUS_FORMAT, buildStatus.getState(), server.getServerName());
 
                 BitbucketCredentials credentials =
-                        BitbucketCredentialsAdaptor.createWithFallback(server.getCredentials(), server);
+                        jenkinsToBitbucketCredentials.toBitbucketCredentials(server.getCredentials(), server);
                 bitbucketClientFactoryProvider.getClient(server.getBaseUrl(), credentials)
                         .getBuildStatusClient(revisionAction.getRevisionSha1())
                         .post(buildStatus);

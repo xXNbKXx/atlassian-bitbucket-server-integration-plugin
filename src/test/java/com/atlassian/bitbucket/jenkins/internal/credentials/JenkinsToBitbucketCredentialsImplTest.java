@@ -11,10 +11,10 @@ import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-public class BitbucketCredentialsAdaptorTest {
+public class JenkinsToBitbucketCredentialsImplTest {
 
     @Test
     public void testBasicAuth() {
@@ -52,7 +52,7 @@ public class BitbucketCredentialsAdaptorTest {
         Secret tokenSecret = SecretFactory.getSecret("adminUtiSecretoMaiestatisSignumLepus");
         when(cred.getSecret()).thenReturn(tokenSecret);
 
-        BitbucketCredentials bbCreds = BitbucketCredentialsAdaptor.createWithFallback(cred, conf);
+        BitbucketCredentials bbCreds = createInstance().toBitbucketCredentials(cred, conf);
 
         assertThat(bbCreds.toHeaderValue(), is(equalTo("Bearer adminUtiSecretoMaiestatisSignumLepus")));
         verifyZeroInteractions(conf);
@@ -69,7 +69,7 @@ public class BitbucketCredentialsAdaptorTest {
         when(conf.getCredentials()).thenReturn(userNamePasswordCred);
 
         Credentials credentials = null;
-        BitbucketCredentials bbCreds = BitbucketCredentialsAdaptor.createWithFallback(credentials, conf);
+        BitbucketCredentials bbCreds = createInstance().toBitbucketCredentials(credentials, conf);
         assertThat(bbCreds.toHeaderValue(), is(equalTo("Basic dXNlcm5hbWU6cGFzc3dvcmQ=")));
     }
 
@@ -79,7 +79,7 @@ public class BitbucketCredentialsAdaptorTest {
         when(conf.getCredentials()).thenReturn(null);
         Credentials c = null;
 
-        BitbucketCredentials bitbucketCredentials = BitbucketCredentialsAdaptor.createWithFallback(c, conf);
+        BitbucketCredentials bitbucketCredentials = createInstance().toBitbucketCredentials(c, conf);
 
         assertThat(bitbucketCredentials, is(BitbucketCredentials.ANONYMOUS_CREDENTIALS));
     }
@@ -95,6 +95,11 @@ public class BitbucketCredentialsAdaptorTest {
     }
 
     private String toHeaderValue(Credentials cred) {
-        return BitbucketCredentialsAdaptor.createWithFallback(cred, mock(BitbucketServerConfiguration.class)).toHeaderValue();
+        return createInstance().toBitbucketCredentials(cred, mock(BitbucketServerConfiguration.class)).toHeaderValue();
     }
+
+    private JenkinsToBitbucketCredentials createInstance() {
+        return new JenkinsToBitbucketCredentialsImpl();
+    }
+
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -28,12 +29,17 @@ public class BitbucketMirroredRepository {
         this.available = available;
         this.links = requireNonNull(links, "links");
         this.mirrorName = requireNonNull(mirrorName, "mirrorName");
-        this.repositoryId = repositoryId;
+        this.repositoryId = requireNonNull(repositoryId, "repositoryId");
         this.status = requireNonNull(status, "status");
     }
 
     public boolean isAvailable() {
         return available;
+    }
+
+    public List<BitbucketNamedLink> getCloneUrls() {
+        List<BitbucketNamedLink> cloneUrls = links.get("clone");
+        return cloneUrls == null ? Collections.emptyList() : Collections.unmodifiableList(cloneUrls);
     }
 
     public Map<String, List<BitbucketNamedLink>> getLinks() {

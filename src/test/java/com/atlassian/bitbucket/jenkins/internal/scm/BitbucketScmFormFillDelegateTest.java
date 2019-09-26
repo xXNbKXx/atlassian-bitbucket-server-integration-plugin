@@ -5,6 +5,7 @@ import com.atlassian.bitbucket.jenkins.internal.client.exception.BitbucketClient
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketPluginConfiguration;
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketServerConfiguration;
 import com.atlassian.bitbucket.jenkins.internal.credentials.BitbucketCredentials;
+import com.atlassian.bitbucket.jenkins.internal.credentials.JenkinsToBitbucketCredentials;
 import com.atlassian.bitbucket.jenkins.internal.fixture.BitbucketMockJenkinsRule;
 import com.atlassian.bitbucket.jenkins.internal.model.*;
 import com.cloudbees.plugins.credentials.Credentials;
@@ -35,10 +36,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
+import static java.util.Collections.*;
 import static java.util.Optional.of;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -47,9 +45,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BitbucketScmFormFillDelegateTest {
@@ -74,6 +70,8 @@ public class BitbucketScmFormFillDelegateTest {
     private BitbucketServerConfiguration serverConfigurationInvalid;
     @Mock
     private BitbucketServerConfiguration serverConfigurationValid;
+    @Mock
+    private JenkinsToBitbucketCredentials jenkinsToBitbucketCredentials;
 
     @Before
     public void setup() {
@@ -81,6 +79,10 @@ public class BitbucketScmFormFillDelegateTest {
         when(serverConfigurationValid.getServerName()).thenReturn(SERVER_NAME_VALID);
         when(serverConfigurationValid.getBaseUrl()).thenReturn(SERVER_BASE_URL_VALID);
         when(serverConfigurationValid.validate()).thenReturn(FormValidation.ok());
+        when(jenkinsToBitbucketCredentials.toBitbucketCredentials(nullable(String.class), any(BitbucketServerConfiguration.class)))
+                .thenReturn(mock(BitbucketCredentials.class));
+        when(jenkinsToBitbucketCredentials.toBitbucketCredentials(nullable(Credentials.class), any(BitbucketServerConfiguration.class)))
+                .thenReturn(mock(BitbucketCredentials.class));
         when(pluginConfiguration.getServerById(SERVER_ID_VALID)).thenReturn(of(serverConfigurationValid));
 
         when(serverConfigurationInvalid.getId()).thenReturn(SERVER_ID_INVALID);
@@ -109,9 +111,9 @@ public class BitbucketScmFormFillDelegateTest {
                         String partialRepositoryName = findRepositoriesInvocation.getArgument(0);
                         BitbucketPage<BitbucketRepository> page = new BitbucketPage<>();
                         ArrayList<BitbucketRepository> results = new ArrayList<>();
-                        results.add(new BitbucketRepository(partialRepositoryName + "-full-name", emptyMap(), project,
+                        results.add(new BitbucketRepository(0, partialRepositoryName + "-full-name", emptyMap(), project,
                                 partialRepositoryName + "-slug", RepositoryState.AVAILABLE));
-                        results.add(new BitbucketRepository(partialRepositoryName + "-full-name2", emptyMap(), project,
+                        results.add(new BitbucketRepository(0, partialRepositoryName + "-full-name2", emptyMap(), project,
                                 partialRepositoryName + "-slug2", RepositoryState.AVAILABLE));
                         page.setValues(results);
                         return page;
@@ -130,7 +132,7 @@ public class BitbucketScmFormFillDelegateTest {
                 String repositoryKey = getRepositoryClientArgs.getArgument(0);
                 BitbucketRepositoryClient repositoryClient = mock(BitbucketRepositoryClient.class);
                 when(repositoryClient.getRepository()).thenAnswer((Answer<BitbucketRepository>) repositoryClientArgs ->
-                        new BitbucketRepository(repositoryKey + "-full-name", emptyMap(), project, repositoryKey, RepositoryState.AVAILABLE));
+                        new BitbucketRepository(0, repositoryKey + "-full-name", emptyMap(), project, repositoryKey, RepositoryState.AVAILABLE));
                 return repositoryClient;
             });
             return projectClient;

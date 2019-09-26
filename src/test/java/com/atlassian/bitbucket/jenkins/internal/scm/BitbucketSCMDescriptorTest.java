@@ -3,6 +3,7 @@ package com.atlassian.bitbucket.jenkins.internal.scm;
 import com.atlassian.bitbucket.jenkins.internal.client.BitbucketClientFactoryProvider;
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketPluginConfiguration;
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketServerConfiguration;
+import com.atlassian.bitbucket.jenkins.internal.credentials.JenkinsToBitbucketCredentials;
 import com.atlassian.bitbucket.jenkins.internal.fixture.BitbucketMockJenkinsRule;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -38,6 +39,8 @@ public class BitbucketSCMDescriptorTest {
     private BitbucketClientFactoryProvider bitbucketClientFactoryProvider;
     @Mock
     private BitbucketPluginConfiguration bitbucketPluginConfiguration;
+    @Mock
+    private JenkinsToBitbucketCredentials jenkinsToBitbucketCredentials;
 
     @Test
     public void testDoCheckCredentialsId() {
