@@ -9,7 +9,7 @@
     </parent>
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>atlassian-bitbucket-server-integration</artifactId>
-    <version>1.0-beta-1-SNAPSHOT</version>
+    <version>1.0-beta-1</version>
     <packaging>hpi</packaging>
     <properties>
         <bitbucket.version>5.6.0</bitbucket.version>
@@ -285,8 +285,8 @@
                         <configuration>
                             <tasks>
                                 <echo>Copying across symlink</echo>
-                                <copy todir="${basedir}/src/main/resources/com/atlassian/bitbucket/jenkins/internal/scm/BitbucketSCMStep" >
-                                    <fileset dir="${basedir}/src/main/resources/com/atlassian/bitbucket/jenkins/internal/scm/BitbucketSCM" includes="**"/>
+                                <copy todir="${basedir}/src/main/resources/com/atlassian/bitbucket/jenkins/internal/scm/BitbucketSCMStep">
+                                    <fileset dir="${basedir}/src/main/resources/com/atlassian/bitbucket/jenkins/internal/scm/BitbucketSCM" includes="**" />
                                 </copy>
                             </tasks>
                         </configuration>
@@ -409,7 +409,7 @@
         <connection>scm:git:git://github.com/jenkinsci/atlassian-bitbucket-server-integration-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:jenkinsci/atlassian-bitbucket-server-integration-plugin.git</developerConnection>
         <url>http://github.com/jenkinsci/atlassian-bitbucket-server-integration-plugin</url>
-      <tag>HEAD</tag>
+      <tag>atlassian-bitbucket-server-integration-1.0-beta-1</tag>
   </scm>
 
     <repositories>
