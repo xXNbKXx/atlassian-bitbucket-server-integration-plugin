@@ -9,6 +9,9 @@ import io.restassured.response.Response;
 import it.com.atlassian.bitbucket.jenkins.internal.fixture.BitbucketJenkinsRule;
 import it.com.atlassian.bitbucket.jenkins.internal.util.JsonUtils.JenkinsBitbucketProject;
 import it.com.atlassian.bitbucket.jenkins.internal.util.JsonUtils.JenkinsBitbucketRepository;
+import it.com.atlassian.bitbucket.jenkins.internal.util.JsonUtils.JenkinsMirrorListBox;
+import org.hamcrest.collection.IsIterableWithSize;
+import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -391,15 +394,41 @@ public abstract class AbstractBitbucketSCMDescriptorIT {
                 .post(getReposUrl());
     }
 
+    @Test
+    public void testFillMirrorListBox() throws Exception {
+        JenkinsMirrorListBox output = RestAssured.expect().statusCode(200)
+                .log()
+                .all()
+                .given()
+                .header("Jenkins-Crumb", "test")
+                .formParam("serverId", bbJenkinsRule.getBitbucketServerConfiguration().getId())
+                .formParam("credentialsId", bbJenkinsRule.getBitbucketServerConfiguration().getCredentialsId())
+                .formParam("projectName", "Project 1")
+                .formParam("repositoryName", "rep")
+                .post(getMirrorsUrl())
+                .getBody()
+                .as(JenkinsMirrorListBox.class);
+
+        assertThat(output.getValues(), IsIterableWithSize.iterableWithSize(1));
+        assertThat(output.getValues().toString(), Is.is(equalTo("[[name=Primary Server,selected=true,value=]]")));
+    }
+
     protected abstract String getClassName();
 
     private String getProjectSearchUrl() throws IOException {
         return bbJenkinsRule.getURL() + "job/" + project.getName() +
-               "/descriptorByName/com.atlassian.bitbucket.jenkins.internal.scm." + getClassName() + "/fillProjectNameItems";
+               "/descriptorByName/com.atlassian.bitbucket.jenkins.internal.scm." + getClassName() +
+               "/fillProjectNameItems";
     }
 
     private String getReposUrl() throws IOException {
         return bbJenkinsRule.getURL() + "job/" + project.getName() +
-               "/descriptorByName/com.atlassian.bitbucket.jenkins.internal.scm." + getClassName() + "/fillRepositoryNameItems";
+               "/descriptorByName/com.atlassian.bitbucket.jenkins.internal.scm." + getClassName() +
+               "/fillRepositoryNameItems";
+    }
+
+    private String getMirrorsUrl() throws IOException {
+        return bbJenkinsRule.getURL() + "job/" + project.getName() +
+               "/descriptorByName/com.atlassian.bitbucket.jenkins.internal.scm.BitbucketSCM/fillMirrorNameItems";
     }
 }
