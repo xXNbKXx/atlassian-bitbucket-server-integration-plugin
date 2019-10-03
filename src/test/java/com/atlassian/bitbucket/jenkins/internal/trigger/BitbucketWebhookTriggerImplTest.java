@@ -18,10 +18,7 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.atlassian.bitbucket.jenkins.internal.util.TestUtils.PROJECT;
 import static com.atlassian.bitbucket.jenkins.internal.util.TestUtils.REPO;
@@ -173,6 +170,22 @@ public class BitbucketWebhookTriggerImplTest {
         assertThat(t.skipWebhookRegistration(wj, false), is(false));
     }
 
+    @Test
+    public void testReregisterWebhook() {
+        BitbucketSCMRepository repo = createSCMRepo();
+        BitbucketSCM scm = createSCM(repo);
+        FreeStyleProject project = createProjectWithSCM(scm);
+        mockExistingProjectWithSCMs(project, false, scm);
+
+        BitbucketWebhookTriggerImpl trigger = createInstance(descriptor, false);
+
+        trigger.start(project, true);
+        scm.setWebhookRegistered(false);
+        trigger.start(project, true);
+
+        verify(webhookHandler, times(2)).register(repo);
+    }
+
     private FreeStyleProject createFreeStyleProject() {
         FreeStyleProject project = mock(FreeStyleProject.class);
         Hudson itemGroup = mock(Hudson.class);
@@ -288,8 +301,15 @@ public class BitbucketWebhookTriggerImplTest {
     }
 
     private void mockExistingProjectWithSCMs(FreeStyleProject newProject, BitbucketSCM... scms) {
+        this.mockExistingProjectWithSCMs(newProject, true, scms);
+    }
+
+    private void mockExistingProjectWithSCMs(FreeStyleProject newProject, boolean triggerPreviouslyAdded,
+                                             BitbucketSCM... scms) {
         FreeStyleProject existingProject = createProjectWithSCM(scms);
-        when(existingProject.getTriggers()).thenReturn(Collections.singletonMap(descriptor, new BitbucketWebhookTriggerImpl()));
+        Arrays.asList(scms).stream().forEach(scm -> when(scm.isWebhookRegistered()).thenReturn(triggerPreviouslyAdded));
+        BitbucketWebhookTriggerImpl t = new BitbucketWebhookTriggerImpl();
+        when(existingProject.getTriggers()).thenReturn(Collections.singletonMap(descriptor, t));
         when(jenkins.getAllItems(any(Class.class))).thenReturn(asList(existingProject, newProject));
     }
 

@@ -16,15 +16,19 @@ import hudson.util.NamingThreadFactory;
 import hudson.util.SequentialExecutionQueue;
 import jenkins.model.ParameterizedJobMixIn;
 import jenkins.triggers.SCMTriggerItem;
+import net.sf.json.JSONObject;
 import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.StaplerRequest;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static java.util.Objects.requireNonNull;
@@ -67,9 +71,22 @@ public class BitbucketWebhookTriggerImpl extends Trigger<Job<?, ?>>
                     .stream()
                     .filter(scm -> scm instanceof BitbucketSCM)
                     .map(scm -> (BitbucketSCM) scm)
-                    .filter(scm -> !descriptor.webhookExists(job, scm))
-                    .forEach(scm -> descriptor.addTrigger(scm));
+                    .filter(scm -> !scm.isWebhookRegistered())
+                    .filter(scm -> !checkTriggerExists(descriptor, scm))
+                    .forEach(scm -> {
+                        boolean isAdded = descriptor.addTrigger(scm);
+                        scm.setWebhookRegistered(isAdded);
+                    });
         }
+    }
+
+    private boolean checkTriggerExists(BitbucketWebhookTriggerDescriptor descriptor,
+                                       BitbucketSCM scm) {
+        boolean isExists = descriptor.webhookExists(job, scm);
+        if (isExists) {
+            scm.setWebhookRegistered(true);
+        }
+        return isExists;
     }
 
     /**
@@ -127,6 +144,11 @@ public class BitbucketWebhookTriggerImpl extends Trigger<Job<?, ?>>
             return asSCMTriggerItem(item) != null;
         }
 
+        @Override
+        public Trigger<?> newInstance(@Nullable StaplerRequest req, @Nonnull JSONObject formData) throws FormException {
+            return super.newInstance(req, formData);
+        }
+
         public void schedule(
                 @Nullable Job<?, ?> job,
                 SCMTriggerItem triggerItem,
@@ -135,8 +157,14 @@ public class BitbucketWebhookTriggerImpl extends Trigger<Job<?, ?>>
             queue.execute(new BitbucketTriggerWorker(job, triggerItem, causeAction, triggerRequest.getAdditionalActions()));
         }
 
-        private void addTrigger(BitbucketSCM scm) {
-            scm.getRepositories().forEach(repo -> registerWebhook(repo));
+        private boolean addTrigger(BitbucketSCM scm) {
+            try {
+                scm.getRepositories().forEach(repo -> registerWebhook(repo));
+                return true;
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, "There was a problem while trying to add webhook", ex);
+                throw ex;
+            }
         }
 
         private static SequentialExecutionQueue createSequentialQueue() {
@@ -178,7 +206,8 @@ public class BitbucketWebhookTriggerImpl extends Trigger<Job<?, ?>>
         }
 
         private boolean isExistingWebhookOnRepo(BitbucketSCM scm, BitbucketSCMRepository repository) {
-            return scm.getRepositories().stream().allMatch(r -> r.getServerId().equals(repository.getServerId()) &&
+            return scm.isWebhookRegistered() &&
+                   scm.getRepositories().stream().allMatch(r -> r.getServerId().equals(repository.getServerId()) &&
                                                                 r.getProjectKey().equals(repository.getProjectKey()) &&
                                                                 r.getRepositorySlug().equals(repository.getRepositorySlug()) &&
                                                                 !isMirrorConfigurationDifferent(r));
