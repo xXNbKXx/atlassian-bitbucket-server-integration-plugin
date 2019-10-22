@@ -22,6 +22,7 @@ import static com.atlassian.bitbucket.jenkins.internal.client.BitbucketSearchHel
 import static hudson.security.Permission.CONFIGURE;
 import static hudson.util.FormValidation.Kind.ERROR;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.firstNonBlank;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -110,7 +111,7 @@ public class BitbucketScmFormValidationDelegate implements BitbucketScmFormValid
                                                 serverConf.getGlobalCredentialsProvider("Check Repository Name")));
                         BitbucketRepository repository =
                                 getRepositoryByNameOrSlug(projectName, repositoryName, clientFactory);
-                        return FormValidation.ok("Using '" + repository.getName() + "' at " + repository.getSelfLink());
+                        return FormValidation.ok("Using '" + repository.getName() + "' at " + firstNonBlank(repository.getSelfLink(), serverConf.getBaseUrl()));
                     } catch (NotFoundException e) {
                         return FormValidation.error("The repository '" + repositoryName + "' does not " +
                                                     "exist or you do not have permission to access it.");

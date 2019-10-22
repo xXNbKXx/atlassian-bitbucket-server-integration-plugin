@@ -70,6 +70,11 @@ public class BitbucketRepository {
         return project;
     }
 
+    /**
+     * The self link on webhook events was only introduced in Bitbucket Server 5.14, so this may be blank
+     *
+     * @return the self link for the repository if the Bitbucket instance is 5.14 or higher, otherwise {@code ""}
+     */
     public String getSelfLink() {
         return stripToEmpty(selfLink);
     }
