@@ -5,9 +5,11 @@ import com.atlassian.bitbucket.jenkins.internal.config.BitbucketPluginConfigurat
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketServerConfiguration;
 import com.atlassian.bitbucket.jenkins.internal.credentials.GlobalCredentialsProvider;
 import com.atlassian.bitbucket.jenkins.internal.credentials.JenkinsToBitbucketCredentials;
+import com.atlassian.bitbucket.jenkins.internal.credentials.JenkinsToBitbucketCredentialsModule;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketNamedLink;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketProject;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketRepository;
+import com.google.inject.Guice;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -367,8 +369,7 @@ public class BitbucketSCM extends SCM {
         private BitbucketClientFactoryProvider bitbucketClientFactoryProvider;
         @Inject
         private BitbucketPluginConfiguration bitbucketPluginConfiguration;
-        @Inject
-        private JenkinsToBitbucketCredentials jenkinsToBitbucketCredentials;
+        private transient JenkinsToBitbucketCredentials jenkinsToBitbucketCredentials;
 
         public DescriptorImpl() {
             super(Stash.class);
@@ -484,9 +485,15 @@ public class BitbucketSCM extends SCM {
             return true;
         }
 
+        @Inject
+        public void setJenkinsToBitbucketCredentials(
+                JenkinsToBitbucketCredentials jenkinsToBitbucketCredentials) {
+            this.jenkinsToBitbucketCredentials = jenkinsToBitbucketCredentials;
+        }
+
         BitbucketScmHelper getBitbucketScmHelper(String bitbucketUrl,
-                                                         GlobalCredentialsProvider globalCredentialsProvider,
-                                                         @Nullable String credentialsId) {
+                                                 GlobalCredentialsProvider globalCredentialsProvider,
+                                                 @Nullable String credentialsId) {
             return new BitbucketScmHelper(bitbucketUrl,
                     bitbucketClientFactoryProvider,
                     globalCredentialsProvider,
@@ -502,6 +509,12 @@ public class BitbucketSCM extends SCM {
 
         Optional<BitbucketServerConfiguration> getConfiguration(@Nullable String serverId) {
             return bitbucketPluginConfiguration.getServerById(serverId);
+        }
+
+        public void injectJenkinsToBitbucketCredentials() {
+            if (jenkinsToBitbucketCredentials == null) {
+                Guice.createInjector(new JenkinsToBitbucketCredentialsModule()).injectMembers(this);
+            }
         }
     }
 }
