@@ -27,7 +27,7 @@ public abstract class Token {
         token = checkNotNull(builder.token, "token");
         tokenSecret = checkNotNull(builder.tokenSecret, "tokenSecret");
         consumer = checkNotNull(builder.consumer, "consumer");
-        properties = Collections.unmodifiableMap(new HashMap<String, String>(builder.properties));
+        properties = Collections.unmodifiableMap(new HashMap<>(builder.properties));
     }
 
     /**

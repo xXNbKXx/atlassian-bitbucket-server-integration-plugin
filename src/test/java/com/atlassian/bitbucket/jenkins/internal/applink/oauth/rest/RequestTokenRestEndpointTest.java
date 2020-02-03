@@ -10,7 +10,6 @@ import com.atlassian.bitbucket.jenkins.internal.provider.JenkinsProvider;
 import jenkins.model.Jenkins;
 import net.oauth.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,7 +26,6 @@ import java.util.Map;
 
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest.RequestTokenRestEndpoint.INVALID_CALLBACK_ADVICE;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.Consumers.RSA_CONSUMER;
-import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.Consumers.RSA_CONSUMER_WITH_2LO_ONLY;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.OAuthConsumers.RSA_OAUTH_CONSUMER;
 import static net.oauth.OAuth.OAUTH_CALLBACK;
 import static net.oauth.OAuth.OAUTH_CONSUMER_KEY;
@@ -42,8 +40,6 @@ import static org.mockito.Mockito.*;
 public class RequestTokenRestEndpointTest {
 
     private static final ServiceProviderToken UNAUTHORIZED_REQUEST_TOKEN =
-            ServiceProviderToken.newRequestToken("1234").tokenSecret("5678").consumer(RSA_CONSUMER).build();
-    private static final ServiceProviderToken UNAUTHORIZED_REQUEST_TOKEN_V1 =
             ServiceProviderToken.newRequestToken("1234").tokenSecret("5678").consumer(RSA_CONSUMER).build();
 
     @Mock
@@ -104,29 +100,6 @@ public class RequestTokenRestEndpointTest {
     }
 
     @Test
-    @Ignore
-    public void verifyThatVersion1RequestTokenIsSentWhenNoOAuthCallbackParameterIsProvided() throws Exception {
-        when(request.getMethod()).thenReturn("POST");
-        when(request.getParameterMap()).thenReturn(mapOf(
-                OAUTH_CONSUMER_KEY, new String[]{RSA_CONSUMER.getKey()}
-        ));
-        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(RSA_CONSUMER);
-        when(tokenStore.put(UNAUTHORIZED_REQUEST_TOKEN_V1)).thenReturn(UNAUTHORIZED_REQUEST_TOKEN_V1);
-        when(factory.generateRequestToken(same(RSA_CONSUMER), (URI) isNull(), isA(OAuthMessage.class)))
-                .thenReturn(UNAUTHORIZED_REQUEST_TOKEN_V1);
-
-        servlet.handleRequestToken(request, response);
-
-        verify(tokenStore).put(same(UNAUTHORIZED_REQUEST_TOKEN_V1));
-        verify(response).setContentType("text/plain");
-        assertThat(responseStream.toString(), allOf(
-                containsString("oauth_token=1234"),
-                containsString("oauth_token_secret=5678"),
-                not(containsString("oauth_callback_confirmed="))
-        ));
-    }
-
-    @Test
     public void verifyThatConsumerKeyUnknownResponseIsSentForInvalidConsumerKey() throws Exception {
         when(request.getMethod()).thenReturn("POST");
         when(request.getParameterMap()).thenReturn(mapOf(
@@ -163,7 +136,7 @@ public class RequestTokenRestEndpointTest {
     }
 
     @Test
-    public void verifyThatParameterRejectedResponseIsSentWhenOAutCallbackIsNotAValidUri() throws Exception {
+    public void verifyThatParameterRejectedResponseIsSentWhenOAuthCallbackIsNotAValidUri() throws Exception {
         when(request.getMethod()).thenReturn("POST");
         final String callbackUrl = "an invalid uri";
         when(request.getParameterMap()).thenReturn(mapOf(
@@ -243,21 +216,6 @@ public class RequestTokenRestEndpointTest {
         assertThat(responseStream.toString(), containsString("oauth_problem=parameter_rejected"));
         assertThat(URLDecoder.decode(responseStream.toString(), "UTF-8"),
                 containsString(String.format(INVALID_CALLBACK_ADVICE, callbackUrl)));
-    }
-
-    @Test
-    @Ignore
-    public void verifyThatRequestTokenRequestIsRejectedIfThreeLOIsOff() throws Exception {
-        when(request.getMethod()).thenReturn("POST");
-        when(request.getParameterMap()).thenReturn(mapOf(
-                OAUTH_CONSUMER_KEY, new String[]{RSA_CONSUMER_WITH_2LO_ONLY.getKey()},
-                OAUTH_CALLBACK, new String[]{"http://consumer/callback"}
-        ));
-        when(consumerStore.get(RSA_CONSUMER_WITH_2LO_ONLY.getKey())).thenReturn(RSA_CONSUMER_WITH_2LO_ONLY);
-
-        servlet.handleRequestToken(request, response);
-
-        assertThat(responseStream.toString(), containsString("oauth_problem=permission_denied"));
     }
 
     private Map<String, String[]> mapOf(String k1, String[] v1, String k2, String[] v2) {

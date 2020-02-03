@@ -6,14 +6,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 public final class ByteArrayServletOutputStream extends ServletOutputStream {
 
     private final OutputStream os;
 
     public ByteArrayServletOutputStream(ByteArrayOutputStream os) {
-        this.os = checkNotNull(os);
+        this.os = requireNonNull(os);
     }
 
     @Override
