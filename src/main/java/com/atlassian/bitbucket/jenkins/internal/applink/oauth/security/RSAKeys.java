@@ -1,4 +1,4 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.keys;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.security;
 
 import java.io.ByteArrayInputStream;
 import java.security.*;
@@ -79,8 +79,8 @@ public class RSAKeys {
     }
 
     /**
-     * Convert the key to the appropriate string encoding.  For public keys, this means converting to the X.509 key spec
-     * and then encoding in base-64.  For private keys, this means converting to the PKCS8 key spec and then encoding
+     * Convert the key to the appropriate string encoding.  For public security, this means converting to the X.509 key spec
+     * and then encoding in base-64.  For private security, this means converting to the PKCS8 key spec and then encoding
      * in base-64.
      *
      * @param key {@code Key} to be encoded

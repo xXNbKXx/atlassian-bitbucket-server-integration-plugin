@@ -4,7 +4,6 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.adaptor.OAuthConve
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.*;
 import com.atlassian.bitbucket.jenkins.internal.provider.JenkinsProvider;
-import com.atlassian.bitbucket.jenkins.internal.scm.BitbucketMirrorHandler;
 import hudson.Extension;
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthMessage;
@@ -40,12 +39,10 @@ public class RequestTokenRestEndpoint extends AbstractAPIActionHandler {
             "oauth_callback parameter is required and must be either a valid, absolute URI using the http or https scheme, " +
             "or 'oob' if the callback has been established out of band. The following invalid URI was supplied '%s'";
 
-    private static final Logger LOGGER = Logger.getLogger(BitbucketMirrorHandler.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(RequestTokenRestEndpoint.class.getName());
 
     @Inject
     private OAuthValidator oAuthValidator;
-    @Inject
-    private JenkinsProvider jenkinsProvider;
     @Inject
     private ConsumerStore consumerStore;
     @Inject
@@ -65,8 +62,8 @@ public class RequestTokenRestEndpoint extends AbstractAPIActionHandler {
                                     OAuthConverter OAuthConverter,
                                     TokenFactory tokenFactory,
                                     ServiceProviderTokenStore tokenStore) {
+        super(jenkinsProvider);
         this.oAuthValidator = oAuthValidator;
-        this.jenkinsProvider = jenkinsProvider;
         this.consumerStore = consumerStore;
         this.OAuthConverter = OAuthConverter;
         this.tokenFactory = tokenFactory;
@@ -78,7 +75,7 @@ public class RequestTokenRestEndpoint extends AbstractAPIActionHandler {
     public void handleRequestToken(HttpServletRequest req,
                                    HttpServletResponse resp) throws ServletException, IOException {
         try {
-            OAuthMessage message = OAuthServlet.getMessage(req, getBaseUrl());
+            OAuthMessage message = OAuthServlet.getMessage(req, null);
             message.requireParameters(OAUTH_CONSUMER_KEY);
             Consumer consumer = consumerStore.get(message.getConsumerKey());
             if (consumer == null) {
@@ -111,10 +108,6 @@ public class RequestTokenRestEndpoint extends AbstractAPIActionHandler {
         } catch (Exception e) {
             handleException(resp, e, getBaseUrl(), true);
         }
-    }
-
-    private String getBaseUrl() {
-        return jenkinsProvider.get().getRootUrl() + "/" + super.getUrlName();
     }
 
     private URI callbackToUri(String callbackParameter) throws IOException, OAuthProblemException {

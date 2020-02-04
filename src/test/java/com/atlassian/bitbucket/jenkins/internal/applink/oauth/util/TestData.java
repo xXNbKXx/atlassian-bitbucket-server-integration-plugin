@@ -3,7 +3,7 @@ package com.atlassian.bitbucket.jenkins.internal.applink.oauth.util;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.adaptor.OAuthConverter.ConsumerProperty;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer.SignatureMethod;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.keys.RSAKeys;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.security.RSAKeys;
 import net.oauth.OAuth;
 import net.oauth.OAuthConsumer;
 import net.oauth.signature.RSA_SHA1;
@@ -20,16 +20,8 @@ public class TestData {
 
     public static final String USERNAME = "bob";
     public static final String LONG_USERNAME = repeat("bob", 20);
-    public static final Principal USER = new Principal() {
-        public String getName() {
-            return USERNAME;
-        }
-    };
-    public static final Principal USER_WITH_LONG_USERNAME = new Principal() {
-        public String getName() {
-            return LONG_USERNAME;
-        }
-    };
+    public static final Principal USER = () -> USERNAME;
+    public static final Principal USER_WITH_LONG_USERNAME = () -> LONG_USERNAME;
 
     public static final KeyPair KEYS;
 

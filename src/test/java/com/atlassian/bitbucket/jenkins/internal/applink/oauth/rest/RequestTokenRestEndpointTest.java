@@ -71,6 +71,7 @@ public class RequestTokenRestEndpointTest {
         Jenkins jenkins = Mockito.mock(Jenkins.class);
         when(jenkinsProvider.get()).thenReturn(jenkins);
         when(jenkins.getRootUrl()).thenReturn("http://localhost:8080/jenkins");
+        when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/jenkins/request-token"));
 
         servlet =
                 new RequestTokenRestEndpoint(validator, jenkinsProvider, consumerStore, converter, factory, tokenStore);
@@ -222,12 +223,6 @@ public class RequestTokenRestEndpointTest {
         Map<String, String[]> result = new HashMap<>();
         result.put(k1, v1);
         result.put(k2, v2);
-        return result;
-    }
-
-    private Map<String, String[]> mapOf(String k1, String[] v1) {
-        Map<String, String[]> result = new HashMap<>();
-        result.put(k1, v1);
         return result;
     }
 }
