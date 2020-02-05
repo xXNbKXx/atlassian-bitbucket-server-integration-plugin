@@ -74,7 +74,7 @@ public class RequestTokenRestEndpointTest {
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/jenkins/request-token"));
 
         servlet =
-                new RequestTokenRestEndpoint(validator, jenkinsProvider, consumerStore, converter, factory, tokenStore);
+                new RequestTokenRestEndpoint(validator, consumerStore, factory, tokenStore);
     }
 
     @Test

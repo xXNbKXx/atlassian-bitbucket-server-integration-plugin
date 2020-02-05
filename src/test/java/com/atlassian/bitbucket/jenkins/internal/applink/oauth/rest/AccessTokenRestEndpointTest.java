@@ -68,11 +68,6 @@ public class AccessTokenRestEndpointTest {
                     TOKEN_SECRET + "r1").consumer(RSA_CONSUMER).authorizedBy(USER).session(newSession(
                     SESSION_HANDLE + "r1").build()).build();
 
-    private static final ServiceProviderToken V1_UNAUTHORIZED_REQUEST_TOKEN =
-            ServiceProviderToken.newRequestToken(TOKEN_VALUE).tokenSecret(TOKEN_SECRET).consumer(RSA_CONSUMER).build();
-    private static final ServiceProviderToken V1_AUTHORIZED_REQUEST_TOKEN =
-            V1_UNAUTHORIZED_REQUEST_TOKEN.authorize(USER, VERIFIER);
-
     @Mock
     private ServiceProviderTokenStore tokenStore;
     @Mock
@@ -101,7 +96,7 @@ public class AccessTokenRestEndpointTest {
         when(jenkins.getRootUrl()).thenReturn("http://localhost:8080/jenkins");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/jenkins/access-token"));
 
-        endpoint = new AccessTokenRestEndpoint(validator, jenkinsProvider, factory, tokenStore, clock);
+        endpoint = new AccessTokenRestEndpoint(validator, factory, tokenStore, clock);
     }
 
     @Test

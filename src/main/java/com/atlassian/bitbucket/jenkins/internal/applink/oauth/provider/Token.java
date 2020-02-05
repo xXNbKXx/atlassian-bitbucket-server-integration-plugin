@@ -10,9 +10,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Base type for OAuth tokens.  This type should never be used directly.  Instead, use the more specific
- * com.atlassian.oauth.serviceprovider.ServiceProviderToken or
- * com.atlassian.oauth.serviceprovider.ConsumerToken depending on whether you are providing OAuth services or
- * are consuming them.
+ * com.atlassian.oauth.serviceprovider.ServiceProviderToken
  */
 public abstract class Token {
 

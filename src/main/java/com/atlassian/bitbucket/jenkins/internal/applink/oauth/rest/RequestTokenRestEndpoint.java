@@ -3,17 +3,15 @@ package com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.adaptor.OAuthConverter;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.*;
-import com.atlassian.bitbucket.jenkins.internal.provider.JenkinsProvider;
-import hudson.Extension;
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthProblemException;
-import net.oauth.OAuthValidator;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.InMemoryConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.ServiceProviderTokenStoreImpl;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.TokenFactoryImpl;
+import hudson.model.InvisibleAction;
+import net.oauth.*;
 import net.oauth.server.OAuthServlet;
 import org.kohsuke.stapler.WebMethod;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
-import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,8 +29,7 @@ import static net.oauth.OAuth.*;
 import static net.oauth.OAuth.Problems.*;
 import static net.oauth.server.OAuthServlet.handleException;
 
-@Extension
-public class RequestTokenRestEndpoint extends AbstractAPIActionHandler {
+public class RequestTokenRestEndpoint extends InvisibleAction {
 
     public static final String INVALID_CALLBACK_ADVICE =
             "As per OAuth spec version 1.0 Revision A Section 6.1 <http://oauth.net/core/1.0a#auth_step1>, the " +
@@ -41,31 +38,24 @@ public class RequestTokenRestEndpoint extends AbstractAPIActionHandler {
 
     private static final Logger LOGGER = Logger.getLogger(RequestTokenRestEndpoint.class.getName());
 
-    @Inject
     private OAuthValidator oAuthValidator;
-    @Inject
     private ConsumerStore consumerStore;
-    @Inject
-    private OAuthConverter OAuthConverter;
-    @Inject
     private TokenFactory tokenFactory;
-    @Inject
     private ServiceProviderTokenStore tokenStore;
 
     public RequestTokenRestEndpoint() {
-
+        oAuthValidator = new SimpleOAuthValidator();
+        consumerStore = new InMemoryConsumerStore();
+        tokenFactory = new TokenFactoryImpl();
+        tokenStore = new ServiceProviderTokenStoreImpl();
     }
 
     public RequestTokenRestEndpoint(OAuthValidator oAuthValidator,
-                                    JenkinsProvider jenkinsProvider,
                                     ConsumerStore consumerStore,
-                                    OAuthConverter OAuthConverter,
                                     TokenFactory tokenFactory,
                                     ServiceProviderTokenStore tokenStore) {
-        super(jenkinsProvider);
         this.oAuthValidator = oAuthValidator;
         this.consumerStore = consumerStore;
-        this.OAuthConverter = OAuthConverter;
         this.tokenFactory = tokenFactory;
         this.tokenStore = tokenStore;
     }
@@ -106,7 +96,7 @@ public class RequestTokenRestEndpoint extends AbstractAPIActionHandler {
                     new Parameter(OAUTH_CALLBACK_CONFIRMED, "true"));
             formEncode(parameters, out);
         } catch (Exception e) {
-            handleException(resp, e, getBaseUrl(), true);
+            handleException(resp, e, req.getRequestURL().toString(), true);
         }
     }
 
