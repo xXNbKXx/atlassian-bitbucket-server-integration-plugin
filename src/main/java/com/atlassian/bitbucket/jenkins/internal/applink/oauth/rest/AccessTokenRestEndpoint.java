@@ -7,14 +7,11 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServicePr
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.TokenFactory;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.ServiceProviderTokenStoreImpl;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.TokenFactoryImpl;
-import hudson.model.InvisibleAction;
 import net.oauth.OAuthMessage;
 import net.oauth.OAuthProblemException;
 import net.oauth.OAuthValidator;
 import net.oauth.SimpleOAuthValidator;
 import net.oauth.server.OAuthServlet;
-import org.kohsuke.stapler.WebMethod;
-import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +26,7 @@ import static net.oauth.OAuth.*;
 import static net.oauth.OAuth.Problems.*;
 import static net.oauth.server.OAuthServlet.handleException;
 
-public class AccessTokenRestEndpoint extends InvisibleAction {
+public class AccessTokenRestEndpoint {
 
     public static final String OAUTH_SESSION_HANDLE = "oauth_session_handle";
     public static final String OAUTH_EXPIRES_IN = "oauth_expires_in";
@@ -58,8 +55,6 @@ public class AccessTokenRestEndpoint extends InvisibleAction {
         this.clock = clock;
     }
 
-    @RequirePOST
-    @WebMethod(name = "access-token")
     public void handleAccessToken(HttpServletRequest request,
                                   HttpServletResponse response) throws ServletException, IOException {
         ServiceProviderToken accessToken;

@@ -6,11 +6,8 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.*;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.InMemoryConsumerStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.ServiceProviderTokenStoreImpl;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.TokenFactoryImpl;
-import hudson.model.InvisibleAction;
 import net.oauth.*;
 import net.oauth.server.OAuthServlet;
-import org.kohsuke.stapler.WebMethod;
-import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -29,7 +26,7 @@ import static net.oauth.OAuth.*;
 import static net.oauth.OAuth.Problems.*;
 import static net.oauth.server.OAuthServlet.handleException;
 
-public class RequestTokenRestEndpoint extends InvisibleAction {
+public class RequestTokenRestEndpoint {
 
     public static final String INVALID_CALLBACK_ADVICE =
             "As per OAuth spec version 1.0 Revision A Section 6.1 <http://oauth.net/core/1.0a#auth_step1>, the " +
@@ -60,8 +57,6 @@ public class RequestTokenRestEndpoint extends InvisibleAction {
         this.tokenStore = tokenStore;
     }
 
-    @RequirePOST
-    @WebMethod(name = "request-token")
     public void handleRequestToken(HttpServletRequest req,
                                    HttpServletResponse resp) throws ServletException, IOException {
         try {
