@@ -6,14 +6,6 @@ package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider;
  */
 public class InvalidTokenException extends StoreException {
 
-    public InvalidTokenException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public InvalidTokenException(Throwable cause) {
-        super(cause);
-    }
-
     public InvalidTokenException(String message) {
         super(message);
     }

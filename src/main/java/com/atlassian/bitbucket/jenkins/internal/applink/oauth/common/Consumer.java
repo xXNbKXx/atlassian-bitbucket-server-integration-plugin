@@ -42,7 +42,7 @@ public final class Consumer {
 
     /**
      * Static factory method that starts the process of building a {@code Consumer} instance.  Returns an
-     * {@code InstanceBuilder} so the other attribute can be set.
+     * {@code Builder} so the other attribute can be set.
      *
      * @param key unique key used to identify the consumer in requests unauthorized OAuth request tokens
      * @return the builder for constructing the rest of the {@code Consumer} instance
@@ -54,7 +54,7 @@ public final class Consumer {
     /**
      * Returns the unique key used to identify the consumer in requests unauthorized OAuth request tokens.
      *
-     * @return the unique key used to identify the consumer in requests unauthorized OAuth request tokens
+     * @return the unique key
      */
     public String getKey() {
         return key;
@@ -63,7 +63,7 @@ public final class Consumer {
     /**
      * Returns the name of the consumer as it will be displayed to the user.
      *
-     * @return the name of the consumer as it will be displayed to the user
+     * @return the name
      */
     public String getName() {
         return name;
@@ -72,24 +72,24 @@ public final class Consumer {
     /**
      * Returns the method the consumer uses to sign requests.
      *
-     * @return the method the consumer uses to sign requests
+     * @return the signature method
      */
     public SignatureMethod getSignatureMethod() {
         return signatureMethod;
     }
 
     /**
-     * Returns the RSA public key for the consumer, {@code null} if the signature method is not RSA-SHA1.
+     * Returns optional RSA public key for the consumer,
      * If the signature method is RSA-SHA1, this key is used in verifying the signature in requests from the consumer.
      *
-     * @return the RSA public key for the consumer, {@code null} if the signature method is not RSA-SHA1
+     * @return the RSA public key for the consumer
      */
     public Optional<PublicKey> getPublicKey() {
         return Optional.ofNullable(publicKey);
     }
 
     /**
-     * Returns the optional description of the consumer as it would be displayed to the user, {@code null} if the
+     * Returns the optional description of the consumer as it would be displayed to the user, empty if the
      * description was not set.
      *
      * @return the optional description of the consumer as it would be displayed to the user, {@code null} if the
@@ -109,6 +109,12 @@ public final class Consumer {
         return callback;
     }
 
+    /**
+     * Returns optional secret for the consumer,
+     * If the signature method is HMAC_SHA1, this secret is used in verifying the signature in requests from the consumer.
+     *
+     * @return the secret
+     */
     public Optional<String> getConsumerSecret() {
         return Optional.ofNullable(consumerSecret);
     }
@@ -147,7 +153,7 @@ public final class Consumer {
         private String name;
         private SignatureMethod signatureMethod;
         private PublicKey publicKey;
-        private String description;
+        private String description = "";
         private URI callback;
         private String consumerSecret;
 
@@ -217,6 +223,12 @@ public final class Consumer {
             return this;
         }
 
+        /**
+         * Sets the consumer secret which is used in HMAC_SHA1 signature method and possibly other symmetric crypto methods.
+         *
+         * @param secret the secret
+         * @return {@code this} builder
+         */
         public Builder consumerSecret(String secret) {
             this.consumerSecret = secret;
             return this;

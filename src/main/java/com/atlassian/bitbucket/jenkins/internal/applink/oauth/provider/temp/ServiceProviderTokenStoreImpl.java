@@ -4,39 +4,34 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServicePr
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderTokenStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.StoreException;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.stream.Collectors.toList;
 
 public class ServiceProviderTokenStoreImpl implements ServiceProviderTokenStore {
 
-    private List<ServiceProviderToken> tokens = new CopyOnWriteArrayList<>();
+    private Map<String, ServiceProviderToken> tokens = new ConcurrentHashMap<>();
 
     @Override
     public ServiceProviderToken get(String token) throws StoreException {
-        return tokens.stream()
-                .filter(t -> t.getToken().equals(token))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("No such token " + token));
+        return tokens.get(token);
     }
 
     @Override
     public Iterable<ServiceProviderToken> getAccessTokensForUser(String username) {
-        return tokens.stream().filter(token -> token.getUser().getName().equals(username)).collect(toList());
+        return tokens.values().stream().filter(token -> token.getUser().getName().equals(username)).collect(toList());
     }
 
     @Override
     public ServiceProviderToken put(ServiceProviderToken token) throws StoreException {
-        tokens.add(token);
+        tokens.put(token.getToken(), token);
         return token;
     }
 
     @Override
     public void remove(String token) throws StoreException {
-        tokens.stream()
-                .filter(t -> t.getToken().equals(token))
-                .findFirst().ifPresent(tokens::remove);
+        tokens.remove(token);
     }
 
     @Override
