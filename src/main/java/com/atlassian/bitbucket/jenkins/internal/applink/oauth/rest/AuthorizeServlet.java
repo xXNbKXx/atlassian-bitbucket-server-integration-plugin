@@ -1,11 +1,9 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.Randomizer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.RandomizerImpl;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.InvalidTokenException;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderTokenStore;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.ServiceProviderTokenStoreImpl;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.OAuthProblemUtils;
 import net.oauth.OAuthException;
 import net.oauth.OAuthMessage;
@@ -37,10 +35,10 @@ public class AuthorizeServlet {
     private final ServiceProviderTokenStore tokenStore;
     private final Randomizer randomizer;
 
-    public AuthorizeServlet() {
-        clock = Clock.systemUTC();
-        tokenStore = new ServiceProviderTokenStoreImpl();
-        randomizer = new RandomizerImpl();
+    public AuthorizeServlet(ServiceProviderTokenStore store, Randomizer randomizer, Clock clock) {
+        this.tokenStore = store;
+        this.randomizer = randomizer;
+        this.clock = clock;
     }
 
     public void authorize(HttpServletRequest request,

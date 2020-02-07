@@ -1,19 +1,15 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.adaptor.OAuthConverter;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ConsumerStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderTokenStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.TokenFactory;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.ByteArrayServletOutputStream;
-import com.atlassian.bitbucket.jenkins.internal.provider.JenkinsProvider;
-import jenkins.model.Jenkins;
 import net.oauth.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +22,6 @@ import java.util.Map;
 
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest.RequestTokenRestEndpoint.INVALID_CALLBACK_ADVICE;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.Consumers.RSA_CONSUMER;
-import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.OAuthConsumers.RSA_OAUTH_CONSUMER;
 import static net.oauth.OAuth.OAUTH_CALLBACK;
 import static net.oauth.OAuth.OAUTH_CONSUMER_KEY;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -50,11 +45,6 @@ public class RequestTokenRestEndpointTest {
     private TokenFactory factory;
     @Mock
     private OAuthValidator validator;
-    @Mock
-    private OAuthConverter converter;
-    @Mock
-    private JenkinsProvider jenkinsProvider;
-
     private RequestTokenRestEndpoint servlet;
 
     @Mock
@@ -68,9 +58,6 @@ public class RequestTokenRestEndpointTest {
     public void setUp() throws Exception {
         responseStream = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(new ByteArrayServletOutputStream(responseStream));
-        Jenkins jenkins = Mockito.mock(Jenkins.class);
-        when(jenkinsProvider.get()).thenReturn(jenkins);
-        when(jenkins.getRootUrl()).thenReturn("http://localhost:8080/jenkins");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/jenkins/request-token"));
 
         servlet =
@@ -124,7 +111,6 @@ public class RequestTokenRestEndpointTest {
                 OAUTH_CALLBACK, new String[]{"http://consumer/callback"}
         ));
         when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(RSA_CONSUMER);
-        when(converter.toOAuthConsumer(RSA_CONSUMER)).thenReturn(RSA_OAUTH_CONSUMER);
         doThrow(new OAuthProblemException("signature_invalid"))
                 .when(validator).validateMessage(isA(OAuthMessage.class), isA(OAuthAccessor.class));
 
