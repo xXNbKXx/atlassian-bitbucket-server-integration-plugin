@@ -3,9 +3,6 @@ package com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.adaptor.OAuthConverter;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.*;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.InMemoryConsumerStore;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.ServiceProviderTokenStoreImpl;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.TokenFactoryImpl;
 import net.oauth.*;
 import net.oauth.server.OAuthServlet;
 
@@ -39,13 +36,6 @@ public class RequestTokenRestEndpoint {
     private ConsumerStore consumerStore;
     private TokenFactory tokenFactory;
     private ServiceProviderTokenStore tokenStore;
-
-    public RequestTokenRestEndpoint() {
-        oAuthValidator = new SimpleOAuthValidator();
-        consumerStore = new InMemoryConsumerStore();
-        tokenFactory = new TokenFactoryImpl();
-        tokenStore = new ServiceProviderTokenStoreImpl();
-    }
 
     public RequestTokenRestEndpoint(OAuthValidator oAuthValidator,
                                     ConsumerStore consumerStore,

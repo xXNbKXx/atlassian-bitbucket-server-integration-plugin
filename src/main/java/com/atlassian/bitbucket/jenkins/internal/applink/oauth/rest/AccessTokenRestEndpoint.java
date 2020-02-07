@@ -5,12 +5,9 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.InvalidTo
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderTokenStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.TokenFactory;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.ServiceProviderTokenStoreImpl;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.TokenFactoryImpl;
 import net.oauth.OAuthMessage;
 import net.oauth.OAuthProblemException;
 import net.oauth.OAuthValidator;
-import net.oauth.SimpleOAuthValidator;
 import net.oauth.server.OAuthServlet;
 
 import javax.servlet.ServletException;
@@ -38,13 +35,6 @@ public class AccessTokenRestEndpoint {
     private TokenFactory tokenFactory;
     private ServiceProviderTokenStore tokenStore;
     private Clock clock;
-
-    public AccessTokenRestEndpoint() {
-        oAuthValidator = new SimpleOAuthValidator();
-        tokenFactory = new TokenFactoryImpl();
-        tokenStore = new ServiceProviderTokenStoreImpl();
-        clock = Clock.systemUTC();
-    }
 
     public AccessTokenRestEndpoint(OAuthValidator oAuthValidator,
                                    TokenFactory tokenFactory,

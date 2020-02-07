@@ -51,12 +51,13 @@ public class TokenEndpoint extends InvisibleAction {
     @WebMethod(name = "request-token")
     public void doRequestToken(StaplerRequest req,
                                StaplerResponse resp) throws ServletException, IOException {
+        consumerRegistrar.registerConsumer("stash-consumer", "foo");
         requestTokenRestEndpoint.handleRequestToken(req, resp);
     }
 
     @WebMethod(name = "authorize")
-    public void doAuthorizeToken(StaplerRequest req,
-                                 StaplerResponse resp) throws ServletException, JSONException, IOException {
+    public void getAuthorizeToken(StaplerRequest req,
+                                  StaplerResponse resp) throws ServletException, JSONException, IOException {
         authorizeServlet.authorize(req, resp);
     }
 }

@@ -26,5 +26,5 @@ public interface TokenFactory {
      * @param token an authorized request token
      * @throws IllegalArgumentException thrown if the token is not an authorized request token
      */
-    ServiceProviderToken generateAccessToken(Token token);
+    ServiceProviderToken generateAccessToken(ServiceProviderToken token);
 }

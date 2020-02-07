@@ -17,7 +17,7 @@ public class BaseApplinkRestAPI extends InvisibleAction implements UnprotectedRo
         return URL_BASE;
     }
 
-    public Action getRest() {
+    public Action getOauth() {
         return tokenEndpoint;
     }
 }

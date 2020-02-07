@@ -5,6 +5,7 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.InvalidTo
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderTokenStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.OAuthProblemUtils;
+import jenkins.model.Jenkins;
 import net.oauth.OAuthException;
 import net.oauth.OAuthMessage;
 import net.oauth.OAuthProblemException;
@@ -60,7 +61,7 @@ public class AuthorizeServlet {
         }
 
         String verifier = randomizer.randomAlphanumericString(AuthorizeServlet.VERIFIER_LENGTH);
-        Principal userPrincipal = request.getUserPrincipal();
+        Principal userPrincipal = Jenkins.getAuthentication();
         if (userPrincipal == null) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
