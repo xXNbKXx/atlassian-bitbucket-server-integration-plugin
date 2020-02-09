@@ -10,6 +10,8 @@ import net.oauth.OAuthProblemException;
 import net.oauth.OAuthValidator;
 import net.oauth.server.OAuthServlet;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +25,7 @@ import static net.oauth.OAuth.*;
 import static net.oauth.OAuth.Problems.*;
 import static net.oauth.server.OAuthServlet.handleException;
 
+@Singleton
 public class AccessTokenRestEndpoint {
 
     public static final String OAUTH_SESSION_HANDLE = "oauth_session_handle";
@@ -36,6 +39,7 @@ public class AccessTokenRestEndpoint {
     private ServiceProviderTokenStore tokenStore;
     private Clock clock;
 
+    @Inject
     public AccessTokenRestEndpoint(OAuthValidator oAuthValidator,
                                    TokenFactory tokenFactory,
                                    ServiceProviderTokenStore tokenStore,

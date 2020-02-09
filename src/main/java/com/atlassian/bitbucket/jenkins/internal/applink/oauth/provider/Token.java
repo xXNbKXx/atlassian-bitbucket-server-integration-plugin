@@ -182,7 +182,7 @@ public abstract class Token {
         public abstract T build();
     }
 
-    protected static enum Type {
+    protected enum Type {
         REQUEST, ACCESS
     }
 }

@@ -3,9 +3,14 @@ package com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.adaptor.OAuthConverter;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.*;
-import net.oauth.*;
+import net.oauth.OAuthAccessor;
+import net.oauth.OAuthMessage;
+import net.oauth.OAuthProblemException;
+import net.oauth.OAuthValidator;
 import net.oauth.server.OAuthServlet;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +28,7 @@ import static net.oauth.OAuth.*;
 import static net.oauth.OAuth.Problems.*;
 import static net.oauth.server.OAuthServlet.handleException;
 
+@Singleton
 public class RequestTokenRestEndpoint {
 
     public static final String INVALID_CALLBACK_ADVICE =
@@ -37,6 +43,7 @@ public class RequestTokenRestEndpoint {
     private TokenFactory tokenFactory;
     private ServiceProviderTokenStore tokenStore;
 
+    @Inject
     public RequestTokenRestEndpoint(OAuthValidator oAuthValidator,
                                     ConsumerStore consumerStore,
                                     TokenFactory tokenFactory,

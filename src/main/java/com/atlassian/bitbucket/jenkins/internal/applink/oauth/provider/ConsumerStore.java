@@ -1,11 +1,14 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.InMemoryConsumerStore;
+import com.google.inject.ImplementedBy;
 
 /**
  * Provides persistent storage for OAuth consumers. The implementation of this store should only concern itself
  * with the immediate task that it is being asked to perform.
  */
+@ImplementedBy(InMemoryConsumerStore.class)
 public interface ConsumerStore {
 
     /**

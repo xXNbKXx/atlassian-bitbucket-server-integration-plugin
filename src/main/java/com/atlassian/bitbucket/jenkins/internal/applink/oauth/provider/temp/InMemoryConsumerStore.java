@@ -3,9 +3,11 @@ package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ConsumerStore;
 
+import javax.inject.Singleton;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Singleton
 public class InMemoryConsumerStore implements ConsumerStore {
 
     private Map<String, Consumer> consumers = new ConcurrentHashMap<>();

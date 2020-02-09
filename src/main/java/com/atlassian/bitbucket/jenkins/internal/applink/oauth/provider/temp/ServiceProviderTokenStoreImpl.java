@@ -4,11 +4,13 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServicePr
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderTokenStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.StoreException;
 
+import javax.inject.Singleton;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.stream.Collectors.toList;
 
+@Singleton
 public class ServiceProviderTokenStoreImpl implements ServiceProviderTokenStore {
 
     private Map<String, ServiceProviderToken> tokens = new ConcurrentHashMap<>();

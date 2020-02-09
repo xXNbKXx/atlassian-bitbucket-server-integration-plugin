@@ -247,9 +247,8 @@ public final class ServiceProviderToken extends Token {
      *
      * @return {@code Principal} of the user that authorized the {@code Consumer} to make requests on behalf of themselves
      */
-    public
     @Nullable
-    Principal getUser() {
+    public Principal getUser() {
         return user;
     }
 
@@ -260,9 +259,8 @@ public final class ServiceProviderToken extends Token {
      * @return verification code that is used to verify the user that authorized the token is the same one that is
      *         swapping it for an access token
      */
-    public
     @Nullable
-    String getVerifier() {
+    public String getVerifier() {
         return verifier;
     }
 
@@ -302,9 +300,7 @@ public final class ServiceProviderToken extends Token {
      *
      * @return {@code URI} the consumer should be redirected to after the user has completed authorization
      */
-    public
-    @Nullable
-    URI getCallback() {
+    public URI getCallback() {
         return callback;
     }
 
@@ -315,7 +311,6 @@ public final class ServiceProviderToken extends Token {
     /**
      * Returns the {@code Session} associated with the token.
      *
-     * @since 1.4.0
      */
     public Session getSession() {
         return session;
@@ -324,7 +319,6 @@ public final class ServiceProviderToken extends Token {
     /**
      * Returns {@code true} if there is a {@code Session} associated with the token.
      *
-     * @since 1.4.2
      */
     public boolean hasSession() {
         return session != null;
@@ -354,8 +348,6 @@ public final class ServiceProviderToken extends Token {
      * Representation of an OAuth session.  As long as the session is valid, old access tokens can be swapped for new
      * access tokens.  A session is valid as long as the last renewal time plus the time to live is greater than the
      * current time.
-     *
-     * @since 1.4.0
      */
     public static final class Session {
 
@@ -582,7 +574,6 @@ public final class ServiceProviderToken extends Token {
          *
          * @param session the session
          * @return {@code this} builder
-         * @since 1.4.0
          */
         public ServiceProviderTokenBuilder session(Session session) {
             this.session = session;

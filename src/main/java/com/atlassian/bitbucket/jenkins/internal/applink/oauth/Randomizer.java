@@ -1,8 +1,11 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth;
 
+import com.google.inject.ImplementedBy;
+
 /**
  * Generates random values.
  */
+@ImplementedBy(RandomizerImpl.class)
 public interface Randomizer {
 
     /**

@@ -6,8 +6,10 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.TokenFact
 import net.oauth.OAuthMessage;
 
 import javax.annotation.Nullable;
+import javax.inject.Singleton;
 import java.net.URI;
 
+@Singleton
 public class TokenFactoryImpl implements TokenFactory {
 
     @Override

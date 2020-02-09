@@ -5,12 +5,15 @@ import hudson.model.Action;
 import hudson.model.InvisibleAction;
 import hudson.model.UnprotectedRootAction;
 
+import javax.inject.Inject;
+
 @Extension
 public class BaseApplinkRestAPI extends InvisibleAction implements UnprotectedRootAction {
 
     private static final String URL_BASE = "bitbucket";
 
-    private TokenEndpoint tokenEndpoint = new TokenEndpoint();
+    @Inject
+    private TokenEndpoint tokenEndpoint;
 
     @Override
     public String getUrlName() {

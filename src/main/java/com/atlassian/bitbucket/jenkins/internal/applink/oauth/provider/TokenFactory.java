@@ -1,6 +1,8 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.TokenFactoryImpl;
+import com.google.inject.ImplementedBy;
 import net.oauth.OAuthMessage;
 
 import javax.annotation.Nullable;
@@ -9,6 +11,7 @@ import java.net.URI;
 /**
  * Provides methods for generating request and access tokens.
  */
+@ImplementedBy(TokenFactoryImpl.class)
 public interface TokenFactory {
 
     /**

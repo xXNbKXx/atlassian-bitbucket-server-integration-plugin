@@ -1,5 +1,8 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider;
 
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.ServiceProviderTokenStoreImpl;
+import com.google.inject.ImplementedBy;
+
 /**
  * Provides persistent storage for OAuth tokens. The implementation of this store should only concern itself
  * with the immediate task that it is being asked to perform. As an example, if the {@link #get(String)} method
@@ -7,6 +10,7 @@ package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider;
  * caller of the {@link #get(String)} method is responsible for the removal of the token.  It is the sole task of the
  * store to save objects to a persistent backend and retrieve or remove them when requested.
  */
+@ImplementedBy(ServiceProviderTokenStoreImpl.class)
 public interface ServiceProviderTokenStore {
 
     /**

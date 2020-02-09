@@ -13,6 +13,8 @@ import net.oauth.server.OAuthServlet;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,16 +28,17 @@ import static net.oauth.OAuth.OAUTH_TOKEN;
 import static net.oauth.OAuth.Problems.*;
 import static net.oauth.server.OAuthServlet.handleException;
 
+@Singleton
 public class AuthorizeServlet {
 
-    static final int VERIFIER_LENGTH = 6;
-
+    private static final int VERIFIER_LENGTH = 6;
     private static final Logger LOGGER = Logger.getLogger(AuthorizeServlet.class.getName());
 
-    private final Clock clock;
-    private final ServiceProviderTokenStore tokenStore;
-    private final Randomizer randomizer;
+    private Clock clock;
+    private ServiceProviderTokenStore tokenStore;
+    private Randomizer randomizer;
 
+    @Inject
     public AuthorizeServlet(ServiceProviderTokenStore store, Randomizer randomizer, Clock clock) {
         this.tokenStore = store;
         this.randomizer = randomizer;
