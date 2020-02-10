@@ -83,10 +83,10 @@ public class OAuthConverter {
         }
     }
 
-    private static final class ConsumerProperty {
+    public static final class ConsumerProperty {
 
-        private static final String NAME = "name";
-        private static final String DESCRIPTION = "description";
+        public static final String NAME = "name";
+        public static final String DESCRIPTION = "description";
     }
 
     private static final class AccessorProperty {
