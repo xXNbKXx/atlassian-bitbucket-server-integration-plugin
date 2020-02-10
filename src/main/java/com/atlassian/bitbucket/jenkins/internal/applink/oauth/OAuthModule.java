@@ -7,6 +7,9 @@ import net.oauth.SimpleOAuthValidator;
 
 import java.time.Clock;
 
+/**
+ * All guice wiring for 3rd party library for OAuth module should go here.
+ */
 @Extension
 public class OAuthModule extends AbstractModule {
 
