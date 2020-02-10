@@ -1,4 +1,4 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.security;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;

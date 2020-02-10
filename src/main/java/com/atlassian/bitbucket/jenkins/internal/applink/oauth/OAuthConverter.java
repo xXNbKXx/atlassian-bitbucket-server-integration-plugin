@@ -1,8 +1,7 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.adaptor;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.Token;
 import net.oauth.OAuth;
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;

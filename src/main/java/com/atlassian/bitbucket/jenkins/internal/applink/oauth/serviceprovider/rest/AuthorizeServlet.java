@@ -6,7 +6,6 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.to
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.OAuthProblemUtils;
 import jenkins.model.Jenkins;
-import net.oauth.OAuthException;
 import net.oauth.OAuthMessage;
 import net.oauth.OAuthProblemException;
 import net.oauth.server.OAuthServlet;
@@ -24,6 +23,7 @@ import java.security.Principal;
 import java.time.Clock;
 import java.util.logging.Logger;
 
+import static jenkins.model.Jenkins.ANONYMOUS;
 import static net.oauth.OAuth.OAUTH_TOKEN;
 import static net.oauth.OAuth.Problems.*;
 import static net.oauth.server.OAuthServlet.handleException;
@@ -55,17 +55,15 @@ public class AuthorizeServlet {
         ServiceProviderToken token;
         try {
             token = getTokenForAuthorization(request);
-        } catch (OAuthException e) {
-            if (e instanceof OAuthProblemException) {
-                OAuthProblemUtils.logOAuthProblem(OAuthServlet.getMessage(request, null), (OAuthProblemException) e, LOGGER);
-            }
+        } catch (OAuthProblemException e) {
+            OAuthProblemUtils.logOAuthProblem(OAuthServlet.getMessage(request, null), e, LOGGER);
             handleException(response, e, request.getRequestURL().toString(), false);
             return;
         }
 
         String verifier = randomizer.randomAlphanumericString(AuthorizeServlet.VERIFIER_LENGTH);
         Principal userPrincipal = Jenkins.getAuthentication();
-        if (userPrincipal == null) {
+        if (ANONYMOUS.equals(userPrincipal)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
             ServiceProviderToken newToken = token.authorize(userPrincipal, verifier);
@@ -74,7 +72,7 @@ public class AuthorizeServlet {
             OutputStream out = response.getOutputStream();
             JSONObject json = new JSONObject();
             json.put("authorizeCode", newToken.getVerifier());
-            out.write(json.toString().getBytes());
+            out.write(json.toString().getBytes("utf-8"));
         }
     }
 

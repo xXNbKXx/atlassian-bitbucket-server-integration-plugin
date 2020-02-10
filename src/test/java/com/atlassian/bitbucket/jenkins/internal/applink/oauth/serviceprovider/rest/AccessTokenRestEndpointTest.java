@@ -1,6 +1,6 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.adaptor.OAuthConverter;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.OAuthConverter;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.InvalidTokenException;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
