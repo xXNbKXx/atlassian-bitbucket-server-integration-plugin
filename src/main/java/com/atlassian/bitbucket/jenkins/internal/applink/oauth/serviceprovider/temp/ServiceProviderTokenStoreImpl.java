@@ -1,11 +1,12 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.temp;
 
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.StoreException;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.StoreException;
 
 import javax.inject.Singleton;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.stream.Collectors.toList;
@@ -16,8 +17,8 @@ public class ServiceProviderTokenStoreImpl implements ServiceProviderTokenStore 
     private Map<String, ServiceProviderToken> tokens = new ConcurrentHashMap<>();
 
     @Override
-    public ServiceProviderToken get(String token) throws StoreException {
-        return tokens.get(token);
+    public Optional<ServiceProviderToken> get(String token) throws StoreException {
+        return Optional.ofNullable(tokens.get(token));
     }
 
     @Override

@@ -5,6 +5,8 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.ex
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.temp.ServiceProviderTokenStoreImpl;
 import com.google.inject.ImplementedBy;
 
+import java.util.Optional;
+
 /**
  * Provides persistent storage for OAuth tokens. The implementation of this store should only concern itself
  * with the immediate task that it is being asked to perform. As an example, if the {@link #get(String)} method
@@ -20,11 +22,11 @@ public interface ServiceProviderTokenStore {
      * {@code token} parameter.
      *
      * @param token token value of the {@code ServiceProviderToken} to retrieve
-     * @return {@code ServiceProviderToken} whose value is {@code token}, {@code null} if there is no
+     * @return Optional of {@code ServiceProviderToken} whose value is {@code token}, {@code Optional.absent()} if there is no
      *         {@code ServiceProviderToken} instance matching the {@code token} parameter
      * @throws StoreException thrown if there is a problem storing the {@code ServiceProviderToken}
      */
-    ServiceProviderToken get(String token) throws StoreException;
+    Optional<ServiceProviderToken> get(String token) throws StoreException;
 
     /**
      * Retrieves all the access tokens the user has approved.

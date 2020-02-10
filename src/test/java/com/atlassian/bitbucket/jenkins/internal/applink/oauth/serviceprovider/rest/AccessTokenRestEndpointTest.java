@@ -19,6 +19,7 @@ import java.io.ByteArrayOutputStream;
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest.AccessTokenRestEndpoint.OAUTH_SESSION_HANDLE;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.DEFAULT_ACCESS_TOKEN_TTL;
@@ -99,7 +100,7 @@ public class AccessTokenRestEndpointTest {
                 OAUTH_VERIFIER, new String[]{VERIFIER},
                 OAUTH_CONSUMER_KEY, new String[]{RSA_CONSUMER.getKey()}
         ));
-        when(tokenStore.get(TOKEN_VALUE)).thenReturn(AUTHORIZED_REQUEST_TOKEN);
+        when(tokenStore.get(TOKEN_VALUE)).thenReturn(Optional.of(AUTHORIZED_REQUEST_TOKEN));
         when(tokenStore.put(ACCESS_TOKEN)).thenReturn(ACCESS_TOKEN);
         when(factory.generateAccessToken(AUTHORIZED_REQUEST_TOKEN)).thenReturn(ACCESS_TOKEN);
 
@@ -123,7 +124,7 @@ public class AccessTokenRestEndpointTest {
                 OAUTH_VERIFIER, new String[]{VERIFIER},
                 OAUTH_CONSUMER_KEY, new String[]{RSA_CONSUMER_WITH_2LO.getKey()}
         ));
-        when(tokenStore.get(TOKEN_VALUE)).thenReturn(AUTHORIZED_REQUEST_TOKEN);
+        when(tokenStore.get(TOKEN_VALUE)).thenReturn(Optional.of(AUTHORIZED_REQUEST_TOKEN));
 
         endpoint.handleAccessToken(request, response);
 
@@ -154,7 +155,7 @@ public class AccessTokenRestEndpointTest {
                 OAUTH_TOKEN, new String[]{TOKEN_VALUE},
                 OAUTH_VERIFIER, new String[]{VERIFIER}
         ));
-        when(tokenStore.get(TOKEN_VALUE)).thenReturn(EXPIRED_AUTHORIZED_REQUEST_TOKEN);
+        when(tokenStore.get(TOKEN_VALUE)).thenReturn(Optional.of(EXPIRED_AUTHORIZED_REQUEST_TOKEN));
         when(clock.millis()).thenReturn(System.currentTimeMillis());
 
         endpoint.handleAccessToken(request, response);
@@ -172,7 +173,7 @@ public class AccessTokenRestEndpointTest {
                 OAUTH_TOKEN, new String[]{TOKEN_VALUE},
                 OAUTH_VERIFIER, new String[]{VERIFIER}
         ));
-        when(tokenStore.get(TOKEN_VALUE)).thenReturn(UNAUTHORIZED_REQUEST_TOKEN);
+        when(tokenStore.get(TOKEN_VALUE)).thenReturn(Optional.of(UNAUTHORIZED_REQUEST_TOKEN));
 
         endpoint.handleAccessToken(request, response);
 
@@ -190,7 +191,7 @@ public class AccessTokenRestEndpointTest {
                 OAUTH_VERIFIER, new String[]{VERIFIER},
                 OAUTH_CONSUMER_KEY, new String[]{RSA_CONSUMER.getKey()}
         ));
-        when(tokenStore.get(TOKEN_VALUE)).thenReturn(AUTHORIZED_REQUEST_TOKEN);
+        when(tokenStore.get(TOKEN_VALUE)).thenReturn(Optional.of(AUTHORIZED_REQUEST_TOKEN));
         doThrow(new OAuthProblemException("signature_invalid")).when(validator).validateMessage(isA(OAuthMessage.class),
                 argThat(accessor -> AUTHORIZED_REQUEST_ACCESSOR.consumer.consumerKey.equals(accessor.consumer.consumerKey)));
 
@@ -226,7 +227,7 @@ public class AccessTokenRestEndpointTest {
                 OAUTH_TOKEN, new String[]{TOKEN_VALUE},
                 OAUTH_VERIFIER, new String[]{VERIFIER}
         ));
-        when(tokenStore.get(TOKEN_VALUE)).thenReturn(EXPIRED_AUTHORIZED_REQUEST_TOKEN);
+        when(tokenStore.get(TOKEN_VALUE)).thenReturn(Optional.of(EXPIRED_AUTHORIZED_REQUEST_TOKEN));
         when(clock.millis()).thenReturn(System.currentTimeMillis());
 
         endpoint.handleAccessToken(request, response);
@@ -262,7 +263,7 @@ public class AccessTokenRestEndpointTest {
                 OAUTH_TOKEN, new String[]{TOKEN_VALUE},
                 OAUTH_CONSUMER_KEY, new String[]{RSA_CONSUMER.getKey()}
         ));
-        when(tokenStore.get(TOKEN_VALUE)).thenReturn(AUTHORIZED_REQUEST_TOKEN);
+        when(tokenStore.get(TOKEN_VALUE)).thenReturn(Optional.of(AUTHORIZED_REQUEST_TOKEN));
 
         endpoint.handleAccessToken(request, response);
 
@@ -298,7 +299,7 @@ public class AccessTokenRestEndpointTest {
                 OAUTH_TOKEN, new String[]{TOKEN_VALUE},
                 OAUTH_SESSION_HANDLE, new String[]{SESSION_HANDLE}
         ));
-        when(tokenStore.get(TOKEN_VALUE)).thenReturn(ACCESS_TOKEN);
+        when(tokenStore.get(TOKEN_VALUE)).thenReturn(Optional.of(ACCESS_TOKEN));
         when(tokenStore.put(RENEWED_ACCESS_TOKEN)).thenReturn(RENEWED_ACCESS_TOKEN);
         when(factory.generateAccessToken(ACCESS_TOKEN)).thenReturn(RENEWED_ACCESS_TOKEN);
 
@@ -318,7 +319,7 @@ public class AccessTokenRestEndpointTest {
         when(request.getParameterMap()).thenReturn(mapOf(
                 OAUTH_TOKEN, new String[]{TOKEN_VALUE}
         ));
-        when(tokenStore.get(TOKEN_VALUE)).thenReturn(ACCESS_TOKEN);
+        when(tokenStore.get(TOKEN_VALUE)).thenReturn(Optional.of(ACCESS_TOKEN));
 
         endpoint.handleAccessToken(request, response);
 
@@ -337,7 +338,7 @@ public class AccessTokenRestEndpointTest {
                 OAUTH_TOKEN, new String[]{TOKEN_VALUE},
                 OAUTH_SESSION_HANDLE, new String[]{SESSION_HANDLE + "r1"}
         ));
-        when(tokenStore.get(TOKEN_VALUE)).thenReturn(ACCESS_TOKEN);
+        when(tokenStore.get(TOKEN_VALUE)).thenReturn(Optional.of(ACCESS_TOKEN));
 
         endpoint.handleAccessToken(request, response);
 
@@ -354,7 +355,7 @@ public class AccessTokenRestEndpointTest {
                 OAUTH_TOKEN, new String[]{TOKEN_VALUE},
                 OAUTH_SESSION_HANDLE, new String[]{SESSION_HANDLE}
         ));
-        when(tokenStore.get(TOKEN_VALUE)).thenReturn(ACCESS_TOKEN_WITH_EXPIRED_SESSION);
+        when(tokenStore.get(TOKEN_VALUE)).thenReturn(Optional.of(ACCESS_TOKEN_WITH_EXPIRED_SESSION));
         when(clock.millis()).thenReturn(System.currentTimeMillis());
 
         endpoint.handleAccessToken(request, response);

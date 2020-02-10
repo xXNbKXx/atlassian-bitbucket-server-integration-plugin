@@ -82,11 +82,12 @@ public class AuthorizeServlet {
         requestMessage.requireParameters(OAUTH_TOKEN);
         ServiceProviderToken token;
         try {
-            token = tokenStore.get(requestMessage.getToken());
+            token =
+                    tokenStore.get(requestMessage.getToken()).orElseThrow(() -> new OAuthProblemException(TOKEN_REJECTED));
         } catch (InvalidTokenException e) {
             throw new OAuthProblemException(TOKEN_REJECTED);
         }
-        if (token == null || token.isAccessToken()) {
+        if (token.isAccessToken()) {
             throw new OAuthProblemException(TOKEN_REJECTED);
         }
         if (token.getAuthorization() == ServiceProviderToken.Authorization.AUTHORIZED ||
