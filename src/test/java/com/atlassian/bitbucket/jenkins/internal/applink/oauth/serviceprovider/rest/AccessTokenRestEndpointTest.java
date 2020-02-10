@@ -6,14 +6,11 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.to
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.TokenFactory;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.ByteArrayServletOutputStream;
-import com.atlassian.bitbucket.jenkins.internal.provider.JenkinsProvider;
-import jenkins.model.Jenkins;
 import net.oauth.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,10 +20,10 @@ import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest.AccessTokenRestEndpoint.OAUTH_SESSION_HANDLE;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.DEFAULT_ACCESS_TOKEN_TTL;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.DEFAULT_SESSION_TTL;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.Session.newSession;
-import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest.AccessTokenRestEndpoint.OAUTH_SESSION_HANDLE;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.Consumers.RSA_CONSUMER;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.Consumers.RSA_CONSUMER_WITH_2LO;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.USER;
@@ -75,8 +72,6 @@ public class AccessTokenRestEndpointTest {
     @Mock
     private OAuthValidator validator;
     @Mock
-    private JenkinsProvider jenkinsProvider;
-    @Mock
     private Clock clock;
 
     private AccessTokenRestEndpoint endpoint;
@@ -91,9 +86,6 @@ public class AccessTokenRestEndpointTest {
     public void setUp() throws Exception {
         responseStream = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(new ByteArrayServletOutputStream(responseStream));
-        Jenkins jenkins = Mockito.mock(Jenkins.class);
-        when(jenkinsProvider.get()).thenReturn(jenkins);
-        when(jenkins.getRootUrl()).thenReturn("http://localhost:8080/jenkins");
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost:8080/jenkins/access-token"));
 
         endpoint = new AccessTokenRestEndpoint(validator, factory, tokenStore, clock);

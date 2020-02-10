@@ -1,11 +1,11 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.OAuthConverter;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.Token;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.Token;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.TokenFactory;
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthMessage;
@@ -13,6 +13,7 @@ import net.oauth.OAuthProblemException;
 import net.oauth.OAuthValidator;
 import net.oauth.server.OAuthServlet;
 
+import javax.annotation.CheckForNull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.servlet.ServletException;
@@ -96,7 +97,8 @@ public class RequestTokenRestEndpoint {
         }
     }
 
-    private URI callbackToUri(String callbackParameter) throws IOException, OAuthProblemException {
+    @CheckForNull
+    private URI callbackToUri(String callbackParameter) throws OAuthProblemException {
         if (callbackParameter.equals("oob")) {
             return null;
         }
