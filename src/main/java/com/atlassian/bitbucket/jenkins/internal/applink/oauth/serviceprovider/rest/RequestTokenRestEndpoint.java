@@ -1,8 +1,12 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.adaptor.OAuthConverter;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.*;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.Token;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.TokenFactory;
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthMessage;
 import net.oauth.OAuthProblemException;

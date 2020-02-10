@@ -1,6 +1,6 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.TempConsumerRegistrar;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.temp.TempConsumerRegistrar;
 import hudson.model.InvisibleAction;
 import org.json.JSONException;
 import org.kohsuke.stapler.StaplerRequest;

@@ -1,6 +1,6 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
 
 import java.util.Collections;
 import java.util.HashMap;

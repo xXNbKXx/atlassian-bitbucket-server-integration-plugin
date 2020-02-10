@@ -1,8 +1,8 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.util;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.adaptor.OAuthConverter.ConsumerProperty;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer.SignatureMethod;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer.SignatureMethod;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.security.RSAKeys;
 import net.oauth.OAuth;
 import net.oauth.OAuthConsumer;

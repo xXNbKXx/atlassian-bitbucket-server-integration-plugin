@@ -1,9 +1,9 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.Randomizer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.InvalidTokenException;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderTokenStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.InvalidTokenException;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.OAuthProblemUtils;
 import jenkins.model.Jenkins;
 import net.oauth.OAuthException;

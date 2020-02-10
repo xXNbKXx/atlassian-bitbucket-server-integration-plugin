@@ -1,7 +1,7 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.temp;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

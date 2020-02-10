@@ -1,4 +1,4 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest;
 
 import hudson.Extension;
 import hudson.model.Action;

@@ -1,7 +1,6 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.InMemoryConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.temp.InMemoryConsumerStore;
 import com.google.inject.ImplementedBy;
 
 /**

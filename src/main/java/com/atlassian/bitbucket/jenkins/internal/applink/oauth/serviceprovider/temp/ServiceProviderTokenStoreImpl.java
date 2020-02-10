@@ -1,8 +1,8 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.temp;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderTokenStore;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.StoreException;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.StoreException;
 
 import javax.inject.Singleton;
 import java.util.Map;

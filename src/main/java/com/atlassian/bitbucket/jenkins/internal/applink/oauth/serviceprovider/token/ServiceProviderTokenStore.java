@@ -1,6 +1,8 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.ServiceProviderTokenStoreImpl;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.InvalidTokenException;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.StoreException;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.temp.ServiceProviderTokenStoreImpl;
 import com.google.inject.ImplementedBy;
 
 /**

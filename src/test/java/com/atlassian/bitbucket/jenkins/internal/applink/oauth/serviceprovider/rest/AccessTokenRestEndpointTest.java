@@ -1,10 +1,10 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.adaptor.OAuthConverter;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.InvalidTokenException;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderTokenStore;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.TokenFactory;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.InvalidTokenException;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.TokenFactory;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.ByteArrayServletOutputStream;
 import com.atlassian.bitbucket.jenkins.internal.provider.JenkinsProvider;
 import jenkins.model.Jenkins;
@@ -23,10 +23,10 @@ import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken.DEFAULT_ACCESS_TOKEN_TTL;
-import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken.DEFAULT_SESSION_TTL;
-import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken.Session.newSession;
-import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest.AccessTokenRestEndpoint.OAUTH_SESSION_HANDLE;
+import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.DEFAULT_ACCESS_TOKEN_TTL;
+import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.DEFAULT_SESSION_TTL;
+import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.Session.newSession;
+import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest.AccessTokenRestEndpoint.OAUTH_SESSION_HANDLE;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.Consumers.RSA_CONSUMER;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.Consumers.RSA_CONSUMER_WITH_2LO;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.USER;
@@ -56,7 +56,7 @@ public class AccessTokenRestEndpointTest {
                     System.currentTimeMillis() -
                     ServiceProviderToken.DEFAULT_REQUEST_TOKEN_TTL * 2).authorizedBy(USER).verifier(VERIFIER).build();
     private static final OAuthAccessor AUTHORIZED_REQUEST_ACCESSOR =
-            OAuthConverter.asOAuthAccessor(AUTHORIZED_REQUEST_TOKEN);
+            OAuthConverter.createOAuthAccessor(AUTHORIZED_REQUEST_TOKEN);
     private static final ServiceProviderToken ACCESS_TOKEN =
             ServiceProviderToken.newAccessToken(TOKEN_VALUE).tokenSecret(TOKEN_SECRET).consumer(RSA_CONSUMER).authorizedBy(USER).session(newSession(SESSION_HANDLE).build()).build();
     private static final ServiceProviderToken ACCESS_TOKEN_WITH_EXPIRED_SESSION =

@@ -1,7 +1,7 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp.TokenFactoryImpl;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.temp.TokenFactoryImpl;
 import com.google.inject.ImplementedBy;
 import net.oauth.OAuthMessage;
 

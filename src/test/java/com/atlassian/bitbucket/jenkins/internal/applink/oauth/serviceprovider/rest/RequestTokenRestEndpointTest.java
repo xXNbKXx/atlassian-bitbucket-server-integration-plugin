@@ -1,9 +1,9 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ConsumerStore;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderTokenStore;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.TokenFactory;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.TokenFactory;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.ByteArrayServletOutputStream;
 import net.oauth.*;
 import org.junit.Before;
@@ -20,7 +20,7 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.rest.RequestTokenRestEndpoint.INVALID_CALLBACK_ADVICE;
+import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest.RequestTokenRestEndpoint.INVALID_CALLBACK_ADVICE;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.Consumers.RSA_CONSUMER;
 import static net.oauth.OAuth.OAUTH_CALLBACK;
 import static net.oauth.OAuth.OAUTH_CONSUMER_KEY;

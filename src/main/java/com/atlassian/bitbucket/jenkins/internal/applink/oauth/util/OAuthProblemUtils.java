@@ -4,15 +4,11 @@ import net.oauth.OAuth;
 import net.oauth.OAuthMessage;
 import net.oauth.OAuthProblemException;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Utility methods for servlets that implement OAuth.
- *
- * @since 1.0.13
  */
 public class OAuthProblemUtils {
 
@@ -36,26 +32,6 @@ public class OAuthProblemUtils {
                     "Problem encountered authenticating OAuth client for url \"{}\", error was \"{}\", with parameters \"{}\"",
                     new Object[]{message.URL, ope.getProblem(), ope.getParameters()}
             );
-        }
-    }
-
-    public static void logOAuthRequest(final HttpServletRequest request,
-                                       final String message, final Logger logger) {
-        if (logger.isLoggable(Level.FINE)) {
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(message);
-            buffer.append(" Headers: [");
-            Enumeration<String> headerNames = request.getHeaderNames();
-            while (headerNames.hasMoreElements()) {
-                String headerName = headerNames.nextElement();
-                buffer.append(headerName);
-                buffer.append(" = ");
-                buffer.append(request.getHeader(headerName));
-                buffer.append(", ");
-            }
-            buffer.append("]");
-
-            logger.fine(buffer.toString());
         }
     }
 }

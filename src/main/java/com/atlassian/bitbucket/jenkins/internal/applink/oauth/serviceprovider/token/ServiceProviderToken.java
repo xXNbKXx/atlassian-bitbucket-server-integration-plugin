@@ -1,5 +1,6 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token;
 
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.Token;
 import net.jcip.annotations.Immutable;
 
 import javax.annotation.Nullable;
@@ -295,7 +296,7 @@ public final class ServiceProviderToken extends Token {
     /**
      * Returns the {@code URI} the consumer should be redirected to after the user has completed authorization.
      * It will be {@code null} if the {@code URI} was communicated out-of-band via another form of communication
-     * between the service provider and consumer.  It will also be {@code null} if the token is a version 1.0 request
+     * between the service serviceprovider and consumer.  It will also be {@code null} if the token is a version 1.0 request
      * token.
      *
      * @return {@code URI} the consumer should be redirected to after the user has completed authorization
@@ -558,7 +559,7 @@ public final class ServiceProviderToken extends Token {
          * Sets the {@code callback} attribute of the token and returns {@code this} builder to allow other optional
          * attributes to be set or the final request {@code Token} instance to be constructed.  A {@code null} callback
          * value indicates that the callback has been established out-of-band, via some other form of communication
-         * between the consumer and the service provider.
+         * between the consumer and the service serviceprovider.
          *
          * @param callback callback token attributes value
          * @return {@code this} builder

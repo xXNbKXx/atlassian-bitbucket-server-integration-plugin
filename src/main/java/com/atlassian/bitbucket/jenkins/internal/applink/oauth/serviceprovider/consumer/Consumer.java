@@ -1,4 +1,4 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.common;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer;
 
 import net.jcip.annotations.Immutable;
 import org.apache.commons.lang3.builder.ToStringBuilder;

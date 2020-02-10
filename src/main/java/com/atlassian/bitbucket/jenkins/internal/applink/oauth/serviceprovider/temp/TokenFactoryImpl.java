@@ -1,8 +1,8 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.temp;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.temp;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.TokenFactory;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.TokenFactory;
 import net.oauth.OAuthMessage;
 
 import javax.annotation.Nullable;

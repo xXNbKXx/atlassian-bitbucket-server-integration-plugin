@@ -1,8 +1,8 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.adaptor;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.common.Consumer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.ServiceProviderToken;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider.Token;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.Token;
 import net.oauth.OAuth;
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
@@ -14,7 +14,14 @@ import static java.util.Objects.requireNonNull;
 
 public class OAuthConverter {
 
-    public static OAuthAccessor asOAuthAccessor(ServiceProviderToken token) {
+    /***
+     *
+     * Creates an OAuth Accessor based on input token
+     *
+     * @param token input token
+     * @return Oauth accessor
+     */
+    public static OAuthAccessor createOAuthAccessor(ServiceProviderToken token) {
         requireNonNull(token, "token");
 
         OAuthAccessor accessor = new OAuthAccessor(OAuthConverter.toOAuthConsumer(token.getConsumer()));
@@ -22,6 +29,12 @@ public class OAuthConverter {
         return accessor;
     }
 
+    /**
+     * Converts our {@code consumer} to OAuthConsumer
+     *
+     * @param consumer the consumer
+     * @return the OAuthConsumer
+     */
     public static OAuthConsumer toOAuthConsumer(Consumer consumer) {
         String callback = consumer.getCallback() != null ? consumer.getCallback().toString() : null;
         OAuthConsumer oauthConsumer = new OAuthConsumer(callback,

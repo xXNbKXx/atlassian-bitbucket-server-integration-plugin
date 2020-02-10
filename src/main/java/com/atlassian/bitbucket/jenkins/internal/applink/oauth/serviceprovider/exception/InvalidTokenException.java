@@ -1,4 +1,6 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.provider;
+package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception;
+
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
 
 /**
  * Exception thrown by the {@link ServiceProviderTokenStore#get(String)} method if the token is no longer valid.
