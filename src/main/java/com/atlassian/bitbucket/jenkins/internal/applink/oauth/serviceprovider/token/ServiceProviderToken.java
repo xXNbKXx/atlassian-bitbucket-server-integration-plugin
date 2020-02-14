@@ -80,7 +80,7 @@ public final class ServiceProviderToken extends Token {
 
     /**
      * The default value for session time to live.  Value corresponds to 5 years + 30 days in ms.
-     * This value is supposed to be longer than {#link DEFAULT_ACCESS_TOKEN_TTL} so that the session is still
+     * This value is supposed to be longer than {@link ServiceProviderToken#DEFAULT_ACCESS_TOKEN_TTL} so that the session is still
      * live while the access token has just expired.
      */
     public static final long DEFAULT_SESSION_TTL =
@@ -311,7 +311,6 @@ public final class ServiceProviderToken extends Token {
 
     /**
      * Returns the {@code Session} associated with the token.
-     *
      */
     public Session getSession() {
         return session;
@@ -319,7 +318,6 @@ public final class ServiceProviderToken extends Token {
 
     /**
      * Returns {@code true} if there is a {@code Session} associated with the token.
-     *
      */
     public boolean hasSession() {
         return session != null;

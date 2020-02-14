@@ -14,7 +14,7 @@ public class SystemPropertyUtils {
      * @return the parsed long value of the system property value, or the defaultValue if the system property is
      *         undefined or invalid
      */
-    public static long parsePositiveLongFromSystemProperty(final String propertyName, final long defaultValue) {
+    public static long parsePositiveLongFromSystemProperty(String propertyName, long defaultValue) {
         final String propertyValue = System.getProperty(propertyName);
         if (propertyValue != null && !propertyValue.trim().isEmpty()) {
             try {

@@ -11,6 +11,11 @@ import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Underlying net.oauth library is not test friendly and relies on properties. It is assumed that the client of library
+ * knows about keys for these properties. Classes like {@link Consumer} fixes this by encapsulating these details. This
+ * class acts as a bridge between the library and local classes.
+ */
 public class OAuthConverter {
 
     /***
