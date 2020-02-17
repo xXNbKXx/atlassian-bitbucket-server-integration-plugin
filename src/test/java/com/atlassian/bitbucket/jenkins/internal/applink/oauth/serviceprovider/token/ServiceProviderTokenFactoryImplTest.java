@@ -10,6 +10,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import javax.annotation.Nullable;
 import java.net.URI;
 import java.security.Principal;
 import java.util.Objects;
@@ -25,19 +26,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RandomValueTokenFactoryTest {
+public class ServiceProviderTokenFactoryImplTest {
 
     @Mock
     private Randomizer randomizer;
 
     @InjectMocks
-    private RandomValueTokenFactory tokenFactory;
+    private ServiceProviderTokenFactoryImpl tokenFactory;
 
-    private static TokenMatcher accessToken(URI callback, String consumerKey, String secret) {
+    private static TokenMatcher accessToken(@Nullable URI callback, String consumerKey, String secret) {
         return new TokenMatcher(true, callback, consumerKey, secret);
     }
 
-    private static TokenMatcher requestToken(URI callback, String consumerKey, String secret) {
+    private static TokenMatcher requestToken(@Nullable URI callback, String consumerKey, String secret) {
         return new TokenMatcher(false, callback, consumerKey, secret);
     }
 
@@ -100,19 +101,34 @@ public class RandomValueTokenFactoryTest {
     }
 
     @Test
-    public void testGenerateRequestToken() {
+    public void testGenerateRequestTokenWithCallback() {
         URI callback = URI.create("http://some-callback-url/endpoint");
         String tokenSecret = "test-token-secret";
         when(randomizer.randomUrlSafeString(anyInt())).thenReturn(tokenSecret);
 
-        ServiceProviderToken requestToken = tokenFactory.generateRequestToken(RSA_CONSUMER, callback, null);
+        ServiceProviderToken requestToken = tokenFactory.generateRequestToken(RSA_CONSUMER, callback);
 
         assertThat(requestToken, requestToken(callback, RSA_CONSUMER.getKey(), tokenSecret));
     }
 
+    @Test
+    public void testGenerateRequestTokenWithoutCallback() {
+        String tokenSecret = "test-token-secret";
+        when(randomizer.randomUrlSafeString(anyInt())).thenReturn(tokenSecret);
+
+        ServiceProviderToken requestToken = tokenFactory.generateRequestToken(RSA_CONSUMER);
+
+        assertThat(requestToken, requestToken(null, RSA_CONSUMER.getKey(), tokenSecret));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testGenerateRequestTokenWithNullCallback() {
+        tokenFactory.generateRequestToken(RSA_CONSUMER, null);
+    }
+
     @Test(expected = NullPointerException.class)
     public void testGenerateRequestTokenConsumerIsNull() {
-        tokenFactory.generateRequestToken(null, URI.create("http://some-callback-url/endpoint"), null);
+        tokenFactory.generateRequestToken(null, URI.create("http://some-callback-url/endpoint"));
     }
 
     private static final class TokenMatcher extends TypeSafeDiagnosingMatcher<ServiceProviderToken> {
@@ -122,7 +138,7 @@ public class RandomValueTokenFactoryTest {
         private final URI callback;
         private final String consumerKey;
 
-        private TokenMatcher(boolean accessToken, URI callback, String consumerKey, String secret) {
+        private TokenMatcher(boolean accessToken, @Nullable URI callback, String consumerKey, String secret) {
             this.callback = callback;
             this.consumerKey = consumerKey;
             this.accessToken = accessToken;

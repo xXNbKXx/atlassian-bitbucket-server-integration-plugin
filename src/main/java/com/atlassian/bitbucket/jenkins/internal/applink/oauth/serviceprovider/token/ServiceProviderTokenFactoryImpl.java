@@ -5,38 +5,37 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.co
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.InvalidTokenException;
 import net.oauth.OAuthMessage;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.net.URI;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.newAccessToken;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.newRequestToken;
 import static java.lang.System.currentTimeMillis;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 import static java.util.UUID.randomUUID;
+import static java.util.logging.Level.FINE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
- * Implementation of {@link TokenFactory} that uses randomly generated values for tokens and delegates storage of
- * generated tokens to {@link ServiceProviderTokenStore}.
- * <br>
- * The random token generation is based on the
- * <a href="https://github.com/spring-projects/spring-security-oauth/blob/master/spring-security-oauth/src/main/java/org/springframework/security/oauth/provider/token/RandomValueProviderTokenServices.java">Spring OAuth Provider Library</a>
+ * Implementation of {@link ServiceProviderTokenFactory} that uses {@link Randomizer randomly generated values} to
+ * generate request and access tokens.
  */
 @Singleton
-public class RandomValueTokenFactory implements TokenFactory {
+public class ServiceProviderTokenFactoryImpl implements ServiceProviderTokenFactory {
 
     private static final int ACCESS_TOKEN_SESSION_LENGTH_BYTES = 80;
     private static final int TOKEN_SECRET_LENGTH_BYTES = 80;
 
-    private static final Logger log = Logger.getLogger(RandomValueTokenFactory.class.getName());
+    private static final Logger log = Logger.getLogger(ServiceProviderTokenFactoryImpl.class.getName());
 
     private final Randomizer randomizer;
 
     @Inject
-    public RandomValueTokenFactory(Randomizer randomizer) {
+    public ServiceProviderTokenFactoryImpl(Randomizer randomizer) {
         this.randomizer = randomizer;
     }
 
@@ -54,7 +53,9 @@ public class RandomValueTokenFactory implements TokenFactory {
             throw new InvalidTokenException("Request token is not authorized");
         }
 
-        log.fine(String.format("Request token '%s' was used to generate an access token", requestToken));
+        if (log.isLoggable(FINE)) {
+            log.fine(String.format("Request token '%s' was used to generate an access token", requestToken));
+        }
 
         return newAccessToken(randomUUID().toString())
                 .callback(requestToken.getCallback())
@@ -68,8 +69,19 @@ public class RandomValueTokenFactory implements TokenFactory {
     }
 
     @Override
-    public ServiceProviderToken generateRequestToken(Consumer consumer, @Nullable URI callback, OAuthMessage message) {
+    public ServiceProviderToken generateRequestToken(Consumer consumer) {
         requireNonNull(consumer, "consumer");
+        return newRequestToken(randomUUID().toString())
+                .consumer(consumer)
+                .creationTime(currentTimeMillis())
+                .tokenSecret(randomizer.randomUrlSafeString(TOKEN_SECRET_LENGTH_BYTES))
+                .build();
+    }
+
+    @Override
+    public ServiceProviderToken generateRequestToken(Consumer consumer, URI callback) {
+        requireNonNull(consumer, "consumer");
+        requireNonNull(callback, "callback");
         return newRequestToken(randomUUID().toString())
                 .callback(callback)
                 .consumer(consumer)
@@ -85,5 +97,55 @@ public class RandomValueTokenFactory implements TokenFactory {
             builder.creationTime(token.getSession().getCreationTime());
         }
         return builder.build();
+    }
+
+    public static final class RequestTokenGenerationRequest {
+
+        private final Consumer consumer;
+        private final URI callback;
+        private final OAuthMessage message;
+
+        private RequestTokenGenerationRequest(Builder builder) {
+            this.consumer = builder.consumer;
+            this.callback = builder.callback;
+            this.message = builder.message;
+        }
+
+        public Consumer getConsumer() {
+            return consumer;
+        }
+
+        public Optional<URI> getCallback() {
+            return ofNullable(callback);
+        }
+
+        public Optional<OAuthMessage> getMessage() {
+            return ofNullable(message);
+        }
+
+        public static final class Builder {
+
+            private final Consumer consumer;
+            private URI callback;
+            private OAuthMessage message;
+
+            public Builder(Consumer consumer) {
+                this.consumer = requireNonNull(consumer, "consumer");
+            }
+
+            public Builder callback(URI callback) {
+                this.callback = callback;
+                return this;
+            }
+
+            public Builder message(OAuthMessage message) {
+                this.message = message;
+                return this;
+            }
+
+            public RequestTokenGenerationRequest build() {
+                return new RequestTokenGenerationRequest(this);
+            }
+        }
     }
 }
