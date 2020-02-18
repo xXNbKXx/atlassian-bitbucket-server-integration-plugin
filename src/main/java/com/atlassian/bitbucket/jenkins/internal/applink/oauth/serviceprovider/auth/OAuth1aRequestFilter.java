@@ -7,7 +7,6 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.ex
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.NoSuchUserException;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
-import com.atlassian.bitbucket.jenkins.internal.provider.JenkinsProvider;
 import net.oauth.OAuthException;
 import net.oauth.OAuthMessage;
 import net.oauth.OAuthProblemException;
@@ -44,7 +43,6 @@ public class OAuth1aRequestFilter implements Filter {
 
     private static final Logger log = Logger.getLogger(OAuth1aRequestFilter.class.getName());
 
-    private final JenkinsProvider jenkinsProvider;
     private final ConsumerStore consumerStore;
     private final ServiceProviderTokenStore tokenStore;
     private final OAuthValidator validator;
@@ -52,13 +50,11 @@ public class OAuth1aRequestFilter implements Filter {
     private final UnderlyingSystemAuthorizerFilter authorizerFilter;
 
     @Inject
-    public OAuth1aRequestFilter(JenkinsProvider jenkinsProvider,
-                                ConsumerStore consumerStore,
+    public OAuth1aRequestFilter(ConsumerStore consumerStore,
                                 ServiceProviderTokenStore tokenStore,
                                 OAuthValidator validator,
                                 Clock clock,
                                 UnderlyingSystemAuthorizerFilter authorizerFilter) {
-        this.jenkinsProvider = jenkinsProvider;
         this.consumerStore = consumerStore;
         this.tokenStore = tokenStore;
         this.validator = validator;
@@ -73,7 +69,6 @@ public class OAuth1aRequestFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) response;
 
         if (isOauthRequest(req)) {
-            log.info("REQUEST " + req.getRequestURL().toString());
             resp = new OAuthWWWAuthenticateAddingResponse(resp, getBaseUrl(req));
             OAuthMessage message = OAuthServlet.getMessage(req, getLogicalUri(req));
             String tokenStr = getTokenFromRequest(req, resp, message);
@@ -167,7 +162,7 @@ public class OAuth1aRequestFilter implements Filter {
         }
         validate3LOMessage(message, token);
         validateConsumer(message);
-        return token.getUser().getName();
+        return token.getUser();
     }
 
     @CheckForNull
