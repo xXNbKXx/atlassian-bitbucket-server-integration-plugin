@@ -73,7 +73,7 @@ public class BitbucketSamples {
 
         @Override
         public String title() {
-            return "Bitbucket server + maven";
+            return "Bitbucket Server + maven";
         }
 
         private String convertToGroovyCheckoutString(BitbucketServerConfiguration server) {
