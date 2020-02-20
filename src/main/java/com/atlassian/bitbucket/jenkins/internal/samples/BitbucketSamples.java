@@ -43,8 +43,9 @@ public class BitbucketSamples {
                             if (serverList.size() == 0) {
                                 output.append("\n//NOTE! You need to configure a Bitbucket server at the global level to use Bitbucket Server");
                             } else if (serverList.size() == 1) {
-                                output.append("// Please replace the project and repostory name with the correct ones.\n");
-                                output.append(convertToGroovyCheckoutString(serverList.get(0)));
+                                output.append("// Please replace the project and repostory name with the correct ones.\n")
+                                        .append("                ")
+                                        .append(convertToGroovyCheckoutString(serverList.get(0)));
                             } else {
                                 output.append("// Please replace the project and repostory name with the correct ones.\n");
                                 output.append("                // Several Bitbucket Server instances found, please uncomment the one that contains the repository to clone\n");
