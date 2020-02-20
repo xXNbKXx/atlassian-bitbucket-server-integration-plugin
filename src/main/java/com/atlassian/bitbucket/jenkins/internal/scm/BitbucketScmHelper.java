@@ -54,7 +54,7 @@ public class BitbucketScmHelper {
             }
         } catch (NotFoundException e) {
             LOGGER.info("Error creating the Bitbucket SCM: Cannot find the project " + projectName);
-            return new BitbucketRepository(-1, repositoryName, null, new BitbucketProject(projectName, null, projectName), repositoryName, RepositoryState.AVAILABLE);
+            return new BitbucketRepository(-2, repositoryName, null, new BitbucketProject(projectName, null, projectName), repositoryName, RepositoryState.AVAILABLE);
         } catch (BitbucketClientException e) {
             // Something went wrong with the request to Bitbucket
             LOGGER.info(

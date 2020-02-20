@@ -194,6 +194,13 @@ public class BitbucketSCMStep extends SCMStep {
     @Nonnull
     @Override
     protected SCM createSCM() {
+        if (repositoryId < 0) {
+            //something is terribly wrong and we should probably not continue.
+            if (repositoryId == -2) { //-2 means not found, we should tell the user
+                throw new RuntimeException("Project or repository not found, please check name and spelling and try again");
+            }
+            throw new RuntimeException("Could not communicate with Bitbucket Server, please check configuration and try again");
+        }
         BitbucketProject bitbucketProject = new BitbucketProject(projectKey, null, projectName);
         List<BitbucketNamedLink> cloneUrls = singletonList(new BitbucketNamedLink("http", cloneUrl));
         BitbucketRepository bitbucketRepository =
