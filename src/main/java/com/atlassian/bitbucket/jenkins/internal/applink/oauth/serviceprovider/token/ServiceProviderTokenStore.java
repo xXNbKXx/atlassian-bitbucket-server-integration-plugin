@@ -2,7 +2,6 @@ package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.t
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.InvalidTokenException;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.StoreException;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.temp.ServiceProviderTokenStoreImpl;
 import com.google.inject.ImplementedBy;
 
 import java.util.Optional;
@@ -14,7 +13,7 @@ import java.util.Optional;
  * caller of the {@link #get(String)} method is responsible for the removal of the token.  It is the sole task of the
  * store to save objects to a persistent backend and retrieve or remove them when requested.
  */
-@ImplementedBy(ServiceProviderTokenStoreImpl.class)
+@ImplementedBy(PersistentServiceProviderTokenStore.class)
 public interface ServiceProviderTokenStore {
 
     /**
