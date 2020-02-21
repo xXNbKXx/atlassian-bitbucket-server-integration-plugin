@@ -4,9 +4,9 @@ import com.atlassian.bitbucket.jenkins.internal.config.BitbucketPluginConfigurat
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketServerConfiguration;
 import com.google.inject.Injector;
 import hudson.Extension;
-import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.workflow.cps.GroovySample;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -23,6 +23,18 @@ public class BitbucketSamples {
     @Extension
     public static class BitbucketMavenSample implements GroovySample {
 
+        @Inject
+        private Injector injector;
+
+        public BitbucketMavenSample() {
+            //required by Jenkins
+        }
+
+        public BitbucketMavenSample(Injector injector) {
+            //Used to to ease testing
+            this.injector = injector;
+        }
+
         @Override
         public String name() {
             return "bbs-maven";
@@ -30,7 +42,6 @@ public class BitbucketSamples {
 
         @Override
         public String script() {
-            Injector injector = Jenkins.get().getInjector();
             if (injector != null) {
                 BitbucketPluginConfiguration configuration = injector.getInstance(BitbucketPluginConfiguration.class);
 
