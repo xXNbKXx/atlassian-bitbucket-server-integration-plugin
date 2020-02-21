@@ -93,7 +93,7 @@ public class BitbucketSamples {
                     .append("projectName: 'sampleProject', ")
                     .append("repositoryName: 'sampleRepository', ")
                     .append("serverId: '").append(server.getId()).append("', ")
-                    .append("branches: [[name: '*/master']],")
+                    .append("branches: [[name: '*/master']], ")
                     .append("credentialsId: '").append(server.getCredentialsId()).append("', ")
                     .append("mirrorName: '', ")
                     .append("id: '").append(UUID.randomUUID().toString()).append("'");
