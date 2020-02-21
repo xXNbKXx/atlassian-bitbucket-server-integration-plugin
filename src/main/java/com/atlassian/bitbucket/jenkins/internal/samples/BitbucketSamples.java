@@ -91,7 +91,7 @@ public class BitbucketSamples {
             StringBuilder output = new StringBuilder();
             output.append("bbs_checkout ")
                     .append("projectName: 'sampleProject', ")
-                    .append("repositoryName: 'sampleRepository',")
+                    .append("repositoryName: 'sampleRepository', ")
                     .append("serverId: '").append(server.getId()).append("', ")
                     .append("branches: [[name: '*/master']],")
                     .append("credentialsId: '").append(server.getCredentialsId()).append("', ")
