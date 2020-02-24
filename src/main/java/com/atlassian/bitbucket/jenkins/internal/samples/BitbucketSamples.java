@@ -49,7 +49,7 @@ public class BitbucketSamples {
                     StringBuffer output = new StringBuffer();
                     Files.readAllLines(Paths.get(BitbucketMavenSample.class.getResource("/samples/bbsMaven.groovy").toURI())).forEach(line -> {
                         if (line.endsWith("{replace}")) {
-                            output.append("                ");
+                            output.append(StringUtils.repeat(" ", 16));
                             List<BitbucketServerConfiguration> serverList = configuration.getValidServerList();
                             if (serverList.size() == 0) {
                                 output.append("\n//NOTE! You need to configure a Bitbucket server at the global level to use Bitbucket Server");
