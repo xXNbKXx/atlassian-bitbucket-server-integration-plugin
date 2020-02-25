@@ -1,6 +1,6 @@
 package com.atlassian.bitbucket.jenkins.internal.jenkins.auth;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.auth.UnderlyingSystemAuthorizerFilter;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.auth.TrustedUnderlyingSystemAuthorizerFilter;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.NoSuchUserException;
 import hudson.model.User;
 import hudson.security.ACL;
@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 
 import static java.util.Objects.requireNonNull;
 
-public class JenkinsAuthorizer implements UnderlyingSystemAuthorizerFilter {
+public class JenkinsAuthorizerTrusted implements TrustedUnderlyingSystemAuthorizerFilter {
 
     private static final Logger log = Logger.getLogger(OAuthFilterRegistrar.class.getName());
 

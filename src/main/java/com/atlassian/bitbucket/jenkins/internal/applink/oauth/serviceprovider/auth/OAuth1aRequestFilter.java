@@ -48,14 +48,14 @@ public class OAuth1aRequestFilter implements Filter {
     private final ServiceProviderTokenStore tokenStore;
     private final OAuthValidator validator;
     private final Clock clock;
-    private final UnderlyingSystemAuthorizerFilter authorizerFilter;
+    private final TrustedUnderlyingSystemAuthorizerFilter authorizerFilter;
 
     @Inject
     public OAuth1aRequestFilter(ConsumerStore consumerStore,
                                 ServiceProviderTokenStore tokenStore,
                                 OAuthValidator validator,
                                 Clock clock,
-                                UnderlyingSystemAuthorizerFilter authorizerFilter) {
+                                TrustedUnderlyingSystemAuthorizerFilter authorizerFilter) {
         this.consumerStore = consumerStore;
         this.tokenStore = tokenStore;
         this.validator = validator;

@@ -75,7 +75,7 @@ public class OAuth1aRequestFilterTest {
     @Mock
     private Clock clock;
     @Mock
-    private UnderlyingSystemAuthorizerFilter underlyingSystemAuthorizerFilter;
+    private TrustedUnderlyingSystemAuthorizerFilter trustedUnderlyingSystemAuthorizerFilter;
     @Mock
     private HttpServletRequest request;
     @Mock
@@ -84,7 +84,6 @@ public class OAuth1aRequestFilterTest {
     private FilterChain chain;
     private OAuth1aRequestFilter filter;
     private Map<String, String[]> rsaConsumerParameterMap;
-    private Map<String, String[]> rsaConsumerWith2LOParameterMap;
     private ByteArrayOutputStream responseOutputStream;
 
     @Before
@@ -97,10 +96,6 @@ public class OAuth1aRequestFilterTest {
         rsaConsumerParameterMap.put("oauth_timestamp", new String[]{Long.toString(System.currentTimeMillis() / 1000L)});
         rsaConsumerParameterMap.put("oauth_nonce", new String[]{"oauth_nonce"});
 
-        rsaConsumerWith2LOParameterMap = new HashMap<>(rsaConsumerParameterMap);
-        rsaConsumerWith2LOParameterMap.put("oauth_token", new String[]{TOKEN});
-        rsaConsumerWith2LOParameterMap.put("oauth_consumer_key", new String[]{RSA_CONSUMER_WITH_2LO.getKey()});
-
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://host/service"));
         when(request.getRequestURI()).thenReturn("/service");
         when(request.getMethod()).thenReturn("GET");
@@ -108,11 +103,10 @@ public class OAuth1aRequestFilterTest {
         responseOutputStream = new ByteArrayOutputStream();
         when(response.getOutputStream()).thenReturn(new ByteArrayServletOutputStream(responseOutputStream));
         when(clock.millis()).thenReturn(System.currentTimeMillis());
-
         when(serviceProviderConsumerStore.get(RSA_CONSUMER.getKey())).thenReturn(RSA_CONSUMER);
 
         filter =
-                new OAuth1aRequestFilter(serviceProviderConsumerStore, store, validator, clock, underlyingSystemAuthorizerFilter);
+                new OAuth1aRequestFilter(serviceProviderConsumerStore, store, validator, clock, trustedUnderlyingSystemAuthorizerFilter);
     }
 
     @Test
@@ -133,7 +127,7 @@ public class OAuth1aRequestFilterTest {
 
         filter.doFilter(request, response, chain);
 
-        verify(underlyingSystemAuthorizerFilter).authorize(argThat(u -> u.equals(USER)), argThat(r -> r.equals(request)), isA(HttpServletResponse.class), argThat(c -> c.equals(chain)));
+        verify(trustedUnderlyingSystemAuthorizerFilter).authorize(argThat(u -> u.equals(USER)), argThat(r -> r.equals(request)), isA(HttpServletResponse.class), argThat(c -> c.equals(chain)));
     }
 
     @Test
@@ -145,7 +139,7 @@ public class OAuth1aRequestFilterTest {
 
         filter.doFilter(request, response, chain);
 
-        verify(underlyingSystemAuthorizerFilter, never()).authorize(
+        verify(trustedUnderlyingSystemAuthorizerFilter, never()).authorize(
                 anyString(),
                 any(HttpServletRequest.class),
                 any(HttpServletResponse.class),
@@ -202,7 +196,7 @@ public class OAuth1aRequestFilterTest {
     public void assertThatFailureResultWithPermissionDeniedMessageIsReturnedForUserWithValidTokenThatCannotLogIn() throws IOException, ServletException {
         setupRequestWithParameters(rsaConsumerParameterMap);
         when(store.get(TOKEN)).thenReturn(Optional.of(ACCESS_TOKEN));
-        doThrow(new NoSuchUserException()).when(underlyingSystemAuthorizerFilter)
+        doThrow(new NoSuchUserException()).when(trustedUnderlyingSystemAuthorizerFilter)
                 .authorize(argThat(u -> u.equals(USER)), argThat(r -> r.equals(request)), isA(HttpServletResponse.class), argThat(c -> c.equals(chain)));
 
         filter.doFilter(request, response, chain);
@@ -239,7 +233,7 @@ public class OAuth1aRequestFilterTest {
 
         verify(chain).doFilter(isA(HttpServletRequest.class), isA(HttpServletResponse.class));
         verify(response, never()).addHeader(eq("WWW-Authenticate"), startsWith("OAuth"));
-        verifyZeroInteractions(underlyingSystemAuthorizerFilter);
+        verifyZeroInteractions(trustedUnderlyingSystemAuthorizerFilter);
     }
 
     @Test
@@ -249,7 +243,7 @@ public class OAuth1aRequestFilterTest {
 
         filter.doFilter(request, response, chain);
 
-        verify(underlyingSystemAuthorizerFilter).authorize(
+        verify(trustedUnderlyingSystemAuthorizerFilter).authorize(
                 argThat(u -> u.equals(USER)),
                 any(HttpServletRequest.class),
                 any(HttpServletResponse.class),
