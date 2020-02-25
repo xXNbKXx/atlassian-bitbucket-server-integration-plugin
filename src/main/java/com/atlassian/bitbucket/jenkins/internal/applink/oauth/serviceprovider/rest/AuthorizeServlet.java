@@ -63,10 +63,10 @@ public class AuthorizeServlet {
 
         String verifier = randomizer.randomAlphanumericString(AuthorizeServlet.VERIFIER_LENGTH);
         Principal userPrincipal = Jenkins.getAuthentication();
-        if (ANONYMOUS.getPrincipal().equals(userPrincipal.getName())) {
+        if (ANONYMOUS.equals(userPrincipal)) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         } else {
-            ServiceProviderToken newToken = token.authorize(userPrincipal.getName(), verifier);
+            ServiceProviderToken newToken = token.authorize(userPrincipal, verifier);
             tokenStore.put(newToken);
             response.setContentType("application/json");
             OutputStream out = response.getOutputStream();
