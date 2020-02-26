@@ -1,8 +1,8 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.temp.TempConsumerRegistrar;
+import hudson.model.Action;
 import hudson.model.InvisibleAction;
-import org.json.JSONException;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebMethod;
@@ -20,6 +20,9 @@ public class TokenEndpoint extends InvisibleAction {
     private AuthorizeServlet authorizeServlet;
     private TempConsumerRegistrar consumerRegistrar;
     private RequestTokenRestEndpoint requestTokenRestEndpoint;
+
+    @Inject
+    private AuthorizeAction authorizeAction;
 
     @Inject
     public TokenEndpoint(
@@ -48,9 +51,8 @@ public class TokenEndpoint extends InvisibleAction {
         requestTokenRestEndpoint.handleRequestToken(req, resp);
     }
 
-    @WebMethod(name = "authorize")
-    public void getAuthorizeToken(StaplerRequest req,
-                                  StaplerResponse resp) throws ServletException, JSONException, IOException {
-        authorizeServlet.authorize(req, resp);
+    public Action getAuthorize(StaplerRequest req) {
+        return authorizeAction;
+        //authorizeServlet.authorize(req, resp);
     }
 }
