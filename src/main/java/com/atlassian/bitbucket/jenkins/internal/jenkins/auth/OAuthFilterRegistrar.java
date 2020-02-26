@@ -25,7 +25,7 @@ public class OAuthFilterRegistrar {
     @Initializer(after = PLUGINS_PREPARED)
     public void onStart() {
         try {
-            PluginServletFilter.addFilter(requestHandler);
+            addFilter();
         } catch (ServletException e) {
             log.log(SEVERE, "Failed to add filter in filter chain", e);
         }
@@ -34,9 +34,17 @@ public class OAuthFilterRegistrar {
     @Terminator
     public void onStop() {
         try {
-            PluginServletFilter.removeFilter(requestHandler);
+            removeFilter();
         } catch (ServletException e) {
             log.log(WARNING, "Failed to remove filter from filter chain", e);
         }
+    }
+
+    void addFilter() throws ServletException {
+        PluginServletFilter.addFilter(requestHandler);
+    }
+
+    void removeFilter() throws ServletException {
+        PluginServletFilter.removeFilter(requestHandler);
     }
 }

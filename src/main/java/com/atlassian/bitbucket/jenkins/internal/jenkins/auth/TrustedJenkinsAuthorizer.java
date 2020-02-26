@@ -15,21 +15,30 @@ import java.util.logging.Logger;
 
 import static java.util.Objects.requireNonNull;
 
-public class JenkinsAuthorizerTrusted implements TrustedUnderlyingSystemAuthorizerFilter {
+public class TrustedJenkinsAuthorizer implements TrustedUnderlyingSystemAuthorizerFilter {
 
-    private static final Logger log = Logger.getLogger(OAuthFilterRegistrar.class.getName());
+    private static final Logger log = Logger.getLogger(TrustedJenkinsAuthorizer.class.getName());
 
     @Override
     public void authorize(String userName, HttpServletRequest request, HttpServletResponse response,
                           FilterChain filterChain) throws IOException, ServletException, NoSuchUserException {
         requireNonNull(userName, "userName");
-        User u = User.getById(userName, false);
+        User u = getUser(userName);
         if (u != null) {
-            try (ACLContext ignored = ACL.as(u)) {
+            try (ACLContext ignored = createACLContext(u)) {
+                log.info("Successfully logged in as user " + userName);
                 filterChain.doFilter(request, response);
             }
         } else {
             throw new NoSuchUserException();
         }
+    }
+
+    User getUser(String userName) {
+        return User.getById(userName, false);
+    }
+
+    ACLContext createACLContext(User u) {
+        return ACL.as(u);
     }
 }
