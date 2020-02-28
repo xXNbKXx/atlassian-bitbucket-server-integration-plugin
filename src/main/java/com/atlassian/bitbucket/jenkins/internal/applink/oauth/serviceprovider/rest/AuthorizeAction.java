@@ -43,8 +43,8 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
     private String token;
     private ServiceProviderTokenStore tokenStore;
 
-    public AuthorizeAction(ServiceProviderTokenStore store, Randomizer randomizer, Clock clock, String token) {
-        this.tokenStore = store;
+    public AuthorizeAction(ServiceProviderTokenStore tokenStore, Randomizer randomizer, Clock clock, String token) {
+        this.tokenStore = tokenStore;
         this.randomizer = randomizer;
         this.clock = clock;
         this.token = token;

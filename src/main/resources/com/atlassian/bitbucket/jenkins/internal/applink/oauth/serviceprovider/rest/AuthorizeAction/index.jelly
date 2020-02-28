@@ -1,0 +1,29 @@
+<?jelly escape-by-default='true'?>
+
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:f="/lib/form">
+    <l:layout norefresh="true">
+        <l:main-panel>
+            <h2>Welcome to PLACEHOLDER #2</h2>
+            <p>
+                The application <strong>PLACEHOLDER #1</strong> would like to have <strong>PLACEHOLDER #3</strong>
+                access to your data on <strong>PLACEHOLDER #4</strong>. The application will be allowed to use your
+                credentials and authenticate as you (PLACEHOLDER #5) in the future.
+            </p>
+
+            <f:form action="performSubmit" method="POST" name="performSubmit">
+                <f:invisibleEntry field="token">
+                    <f:readOnlyTextbox type="hidden" name="id" value="${it.token}"/>
+                </f:invisibleEntry>
+                <f:bottomButtonBar>
+                    <f:submit name="authorize" value="Authorize"/>
+                    <f:submit name="cancel" value="Cancel"/>
+                </f:bottomButtonBar>
+            </f:form>
+
+            <p>
+                By allowing this, you can use <strong>PLACEHOLDER #2</strong> without storing your PLACEHOLDER #2
+                password in <strong>PLACEHOLDER #1</strong>
+            </p>
+        </l:main-panel>
+    </l:layout>
+</j:jelly>
