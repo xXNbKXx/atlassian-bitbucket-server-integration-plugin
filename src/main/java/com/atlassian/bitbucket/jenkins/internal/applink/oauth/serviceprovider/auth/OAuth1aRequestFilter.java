@@ -25,7 +25,6 @@ import java.net.URISyntaxException;
 import java.time.Clock;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.OAuthRequestUtils.isOAuthAccessAttempt;
@@ -37,7 +36,9 @@ import static java.util.logging.Level.*;
 import static javax.servlet.RequestDispatcher.FORWARD_REQUEST_URI;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static net.oauth.OAuth.Problems.*;
+import static net.oauth.OAuthMessage.AUTH_SCHEME;
 import static org.apache.commons.lang3.StringUtils.startsWithIgnoreCase;
+import static org.apache.http.HttpHeaders.AUTHORIZATION;
 
 public class OAuth1aRequestFilter implements Filter {
 
@@ -47,14 +48,14 @@ public class OAuth1aRequestFilter implements Filter {
     private final ServiceProviderTokenStore tokenStore;
     private final OAuthValidator validator;
     private final Clock clock;
-    private final UnderlyingSystemAuthorizerFilter authorizerFilter;
+    private final TrustedUnderlyingSystemAuthorizerFilter authorizerFilter;
 
     @Inject
     public OAuth1aRequestFilter(ConsumerStore consumerStore,
                                 ServiceProviderTokenStore tokenStore,
                                 OAuthValidator validator,
                                 Clock clock,
-                                UnderlyingSystemAuthorizerFilter authorizerFilter) {
+                                TrustedUnderlyingSystemAuthorizerFilter authorizerFilter) {
         this.consumerStore = consumerStore;
         this.tokenStore = tokenStore;
         this.validator = validator;
@@ -69,7 +70,6 @@ public class OAuth1aRequestFilter implements Filter {
         HttpServletResponse resp = (HttpServletResponse) response;
 
         if (isOauthRequest(req)) {
-            resp = new OAuthWWWAuthenticateAddingResponse(resp, getBaseUrl(req));
             OAuthMessage message = OAuthServlet.getMessage(req, getLogicalUri(req));
             String tokenStr = getTokenFromRequest(req, resp, message);
             if (tokenStr == null) {
@@ -79,7 +79,7 @@ public class OAuth1aRequestFilter implements Filter {
                 try {
                     user = verifyToken(message, tokenStr);
                 } catch (OAuthProblemException ope) {
-                    handleOAuthProblemException(req, resp, message, tokenStr, ope);
+                    handleOAuthProblemException(req, resp, message, ope);
                     return;
                 } catch (Exception ex) {
                     handleException(req, resp, message, ex);
@@ -87,11 +87,14 @@ public class OAuth1aRequestFilter implements Filter {
                 }
 
                 try {
+                    resp = new OAuthWWWAuthenticateAddingResponse(resp, getBaseUrl(req));
                     authorizerFilter.authorize(user, req, resp, chain);
                     logOAuthRequest(req, "OAuth authentication successful. Request marked as OAuth.", log);
                     return;
                 } catch (NoSuchUserException exception) {
-                    OAuthServlet.handleException(resp, new OAuthProblemException("User name associated with token not found"), getBaseUrl(req));
+                    String msg =
+                            format("User %s associated with the token %s not found in the system", user, tokenStr);
+                    OAuthServlet.handleException(resp, new OAuthProblemException(msg), getBaseUrl(req));
                 }
             }
         } else {
@@ -172,7 +175,7 @@ public class OAuth1aRequestFilter implements Filter {
             return message.getToken();
         } catch (IOException e) {
             // this would be really strange if it happened, but take precautions just in case
-            log.log(Level.SEVERE, "3-Legged-OAuth Failed to read token from request", e);
+            log.log(SEVERE, "3-Legged-OAuth Failed to read token from request", e);
             sendError(request, response, SC_INTERNAL_SERVER_ERROR, message);
             logOAuthRequest(request, "OAuth authentication FAILED - Unreadable token", log);
             return null;
@@ -180,8 +183,8 @@ public class OAuth1aRequestFilter implements Filter {
     }
 
     private boolean isOauthRequest(HttpServletRequest request) {
-        String authorization = request.getHeader("Authorization");
-        return startsWithIgnoreCase(authorization, "OAuth ") && isOAuthAccessAttempt(request);
+        String authorization = request.getHeader(AUTHORIZATION);
+        return startsWithIgnoreCase(authorization, AUTH_SCHEME) && isOAuthAccessAttempt(request);
     }
 
     private void printMessageToDebug(OAuthMessage message) throws IOException {
@@ -221,7 +224,7 @@ public class OAuth1aRequestFilter implements Filter {
     }
 
     private void handleOAuthProblemException(HttpServletRequest request, HttpServletResponse response,
-                                             OAuthMessage message, String tokenStr,
+                                             OAuthMessage message,
                                              OAuthProblemException ope) {
         logOAuthProblem(message, ope, log);
         try {
@@ -320,7 +323,7 @@ public class OAuth1aRequestFilter implements Filter {
         private void addOAuthAuthenticateHeader() {
             try {
                 OAuthMessage message = new OAuthMessage(null, null, null);
-                super.addHeader("WWW-Authenticate", message.getAuthorizationHeader(baseUrl));
+                addHeader("WWW-Authenticate", message.getAuthorizationHeader(baseUrl));
             } catch (IOException e) {
                 // ignore, this will never happen
                 throw new RuntimeException("Somehow the OAuth.net library threw an IOException, even though it's not doing any IO operations", e);

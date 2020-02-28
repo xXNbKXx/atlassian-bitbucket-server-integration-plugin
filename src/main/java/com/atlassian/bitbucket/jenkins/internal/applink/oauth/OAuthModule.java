@@ -1,7 +1,7 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.auth.UnderlyingSystemAuthorizerFilter;
-import com.atlassian.bitbucket.jenkins.internal.jenkins.auth.JenkinsAuthorizer;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.auth.TrustedUnderlyingSystemAuthorizerFilter;
+import com.atlassian.bitbucket.jenkins.internal.jenkins.auth.TrustedJenkinsAuthorizer;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import hudson.Extension;
@@ -20,6 +20,6 @@ public class OAuthModule extends AbstractModule {
     protected void configure() {
         bind(Clock.class).toInstance(Clock.systemUTC());
         bind(OAuthValidator.class).to(SimpleOAuthValidator.class).in(Singleton.class);
-        bind(UnderlyingSystemAuthorizerFilter.class).to(JenkinsAuthorizer.class).in(Singleton.class);
+        bind(TrustedUnderlyingSystemAuthorizerFilter.class).to(TrustedJenkinsAuthorizer.class).in(Singleton.class);
     }
 }
