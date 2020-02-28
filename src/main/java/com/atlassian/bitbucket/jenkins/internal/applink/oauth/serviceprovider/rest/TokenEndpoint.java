@@ -5,6 +5,9 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.te
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
 import hudson.model.Action;
 import hudson.model.InvisibleAction;
+import net.oauth.OAuthMessage;
+import net.oauth.OAuthProblemException;
+import net.oauth.server.OAuthServlet;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.WebMethod;
@@ -17,6 +20,7 @@ import java.io.IOException;
 import java.time.Clock;
 
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest.AccessTokenRestEndpoint.ACCESS_TOKEN_PATH_END;
+import static net.oauth.OAuth.OAUTH_TOKEN;
 
 @Singleton
 public class TokenEndpoint extends InvisibleAction {
@@ -65,10 +69,10 @@ public class TokenEndpoint extends InvisibleAction {
     }
 
     @SuppressWarnings("unused") // Stapler
-    public Action getAuthorize(StaplerRequest req) /*throws IOException, OAuthProblemException*/ {
-        /*OAuthMessage requestMessage = OAuthServlet.getMessage(req, null);
+    public Action getAuthorize(StaplerRequest req) throws IOException, OAuthProblemException {
+        OAuthMessage requestMessage = OAuthServlet.getMessage(req, null);
         requestMessage.requireParameters(OAUTH_TOKEN);
-        return new AuthorizeAction(tokenStore, randomizer, clock, requestMessage.getToken());*/
-        return new AuthorizeAction(tokenStore, randomizer, clock, "Test token");
+        return new AuthorizeAction(tokenStore, randomizer, clock, requestMessage.getToken());
+        //return new AuthorizeAction(tokenStore, randomizer, clock, "Test token");
     }
 }
