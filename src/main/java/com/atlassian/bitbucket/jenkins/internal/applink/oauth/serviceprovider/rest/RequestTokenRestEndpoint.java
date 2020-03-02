@@ -3,7 +3,7 @@ package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.r
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.OAuthConverter;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.Token;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ServiceProviderConsumerStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenFactory;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
@@ -44,13 +44,13 @@ public class RequestTokenRestEndpoint {
     private static final Logger LOGGER = Logger.getLogger(RequestTokenRestEndpoint.class.getName());
 
     private OAuthValidator oAuthValidator;
-    private ConsumerStore consumerStore;
+    private ServiceProviderConsumerStore consumerStore;
     private ServiceProviderTokenFactory tokenFactory;
     private ServiceProviderTokenStore tokenStore;
 
     @Inject
     public RequestTokenRestEndpoint(OAuthValidator oAuthValidator,
-                                    ConsumerStore consumerStore,
+                                    ServiceProviderConsumerStore consumerStore,
                                     ServiceProviderTokenFactory tokenFactory,
                                     ServiceProviderTokenStore tokenStore) {
         this.oAuthValidator = oAuthValidator;
@@ -64,10 +64,8 @@ public class RequestTokenRestEndpoint {
         try {
             OAuthMessage message = OAuthServlet.getMessage(req, null);
             message.requireParameters(OAUTH_CONSUMER_KEY);
-            Consumer consumer = consumerStore.get(message.getConsumerKey());
-            if (consumer == null) {
-                throw new OAuthProblemException(CONSUMER_KEY_UNKNOWN);
-            }
+            Consumer consumer = consumerStore.get(message.getConsumerKey())
+                    .orElseThrow(() -> new OAuthProblemException(CONSUMER_KEY_UNKNOWN));
 
             try {
                 oAuthValidator.validateMessage(message, new OAuthAccessor(OAuthConverter.toOAuthConsumer(consumer)));

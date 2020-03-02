@@ -1,7 +1,7 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ServiceProviderConsumerStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.Session;
 import hudson.XmlFile;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.Session.newSession;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.newAccessToken;
@@ -101,7 +102,7 @@ public class PersistentServiceProviderTokenStoreTest {
     private File tokensXmlFile;
 
     @Mock
-    private ConsumerStore consumerStore;
+    private ServiceProviderConsumerStore consumerStore;
 
     private PersistentServiceProviderTokenStore tokenStore;
 
@@ -123,8 +124,8 @@ public class PersistentServiceProviderTokenStoreTest {
     public void setup() throws IOException {
         tokensXmlFile = tempFolder.newFile("oauth-tokens.xml");
         tokenStore = new TestServiceProviderTokenStore(consumerStore, tokensXmlFile);
-        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(RSA_CONSUMER);
-        when(consumerStore.get(RSA_CONSUMER_WITH_2LO.getKey())).thenReturn(RSA_CONSUMER_WITH_2LO);
+        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(Optional.of(RSA_CONSUMER));
+        when(consumerStore.get(RSA_CONSUMER_WITH_2LO.getKey())).thenReturn(Optional.of(RSA_CONSUMER_WITH_2LO));
 
         tokenStore.tokenMap = new HashMap<>();
         tokenStore.tokenMap.put(REQUEST_TOKEN_1.getToken(), REQUEST_TOKEN_1);
@@ -405,7 +406,7 @@ public class PersistentServiceProviderTokenStoreTest {
 
         private final transient File tokensXmlFile;
 
-        private TestServiceProviderTokenStore(ConsumerStore consumerStore, File tokensXmlFile) {
+        private TestServiceProviderTokenStore(ServiceProviderConsumerStore consumerStore, File tokensXmlFile) {
             super(consumerStore);
             this.tokensXmlFile = tokensXmlFile;
         }
