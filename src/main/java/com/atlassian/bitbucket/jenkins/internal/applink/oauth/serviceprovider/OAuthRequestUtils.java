@@ -4,8 +4,10 @@ import net.oauth.OAuth;
 import net.oauth.server.HttpRequestMessage;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest.AccessTokenRestEndpoint.ACCESS_TOKEN_PATH_END;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest.RequestTokenRestEndpoint.REQUEST_TOKEN_PATH_END;
@@ -16,12 +18,12 @@ import static net.oauth.OAuth.*;
  */
 public final class OAuthRequestUtils {
 
-    static final Set<String> OAUTH_DATA_REQUEST_PARAMS = Arrays.asList(OAUTH_CONSUMER_KEY,
+    private static final Set<String> OAUTH_DATA_REQUEST_PARAMS = Stream.of(OAUTH_CONSUMER_KEY,
             OAUTH_TOKEN,
             OAUTH_SIGNATURE_METHOD,
             OAUTH_SIGNATURE,
             OAUTH_TIMESTAMP,
-            OAUTH_NONCE).stream().collect(Collectors.toSet());
+            OAUTH_NONCE).collect(Collectors.toSet());
 
     private OAuthRequestUtils() {
     }
@@ -44,13 +46,13 @@ public final class OAuthRequestUtils {
      * @param request the request object.
      * @return true if the request is an 2LO request.
      */
-    public static boolean is2LOAuthAccessAttempt(HttpServletRequest request) {
-        final Map<String, String> params = extractParameters(request);
+    private static boolean is2LOAuthAccessAttempt(HttpServletRequest request) {
+        Map<String, String> params = extractParameters(request);
 
         // http://oauth.googlecode.com/svn/spec/ext/consumer_request/1.0/drafts/2/spec.html
         // oauth_token: MUST be included with an empty value to indicate this is a two-legged request
         return params.keySet().containsAll(OAUTH_DATA_REQUEST_PARAMS) &&
-               "".equals(params.get(OAuth.OAUTH_TOKEN)) &&
+               isEmpty(params.get(OAUTH_TOKEN)) &&
                !isRequestTokenRequest(request);
     }
 
@@ -62,13 +64,13 @@ public final class OAuthRequestUtils {
      * @param request the request object.
      * @return true if the request is an 3LO request.
      */
-    public static boolean is3LOAuthAccessAttempt(HttpServletRequest request) {
-        final Map<String, String> params = extractParameters(request);
+    private static boolean is3LOAuthAccessAttempt(HttpServletRequest request) {
+        Map<String, String> params = extractParameters(request);
 
         // all the oauth request parameters must be present and oauth_token must not be empty
         return params.keySet().containsAll(OAUTH_DATA_REQUEST_PARAMS) &&
-               params.containsKey(OAuth.OAUTH_TOKEN) &&
-               !"".equals(params.get(OAuth.OAUTH_TOKEN)) &&
+               params.containsKey(OAUTH_TOKEN) &&
+               isEmpty(params.get(OAUTH_TOKEN)) &&
                !isAccessTokenRequest(request);
     }
 
@@ -96,10 +98,7 @@ public final class OAuthRequestUtils {
      * @return available parameters in the request.
      */
     private static Map<String, String> extractParameters(HttpServletRequest request) {
-        Map<String, String> params = new HashMap<String, String>();
-        for (OAuth.Parameter param : HttpRequestMessage.getParameters(request)) {
-            params.put(param.getKey(), param.getValue());
-        }
-        return Collections.unmodifiableMap(params);
+        return HttpRequestMessage.getParameters(request).stream()
+                .collect(Collectors.toMap(OAuth.Parameter::getKey, OAuth.Parameter::getValue));
     }
 }
