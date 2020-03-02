@@ -42,6 +42,7 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
     private Randomizer randomizer;
     private String token;
     private ServiceProviderTokenStore tokenStore;
+    private String accessRequest;
 
     public AuthorizeAction(ServiceProviderTokenStore tokenStore, Randomizer randomizer, Clock clock, String token) {
         this.tokenStore = tokenStore;
@@ -91,10 +92,23 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
         }
     }
 
-    @CheckForNull
-    @Override
     public String getDisplayName() {
-        return "Authorize Action";
+        //TODO: Need a "real" display name
+        return "Authorize #PLACEHOLDER 1";
+    }
+
+    @SuppressWarnings("unused") //Stapler
+    public String getAccessRequest() {
+        return accessRequest;
+    }
+
+    @SuppressWarnings("unused") //Stapler
+    public String getInstanceName() {
+        return "Jenkins";
+    }
+
+    public String getAuthenticatedUsername() {
+        return Jenkins.getAuthentication().getName();
     }
 
     @CheckForNull
@@ -110,7 +124,7 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
     @CheckForNull
     @Override
     public String getUrlName() {
-        return null;
+        return Jenkins.get().getRootUrl() != null ? Jenkins.get().getRootUrl() : "this domain";
     }
 
     private ServiceProviderToken getTokenForAuthorization(String rawToken) throws OAuthProblemException, IOException {
