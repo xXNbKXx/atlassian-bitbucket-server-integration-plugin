@@ -3,11 +3,11 @@
 <j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:f="/lib/form">
     <l:layout norefresh="true">
         <l:main-panel>
-            <h2>Welcome to PLACEHOLDER #2</h2>
+            <h2>Welcome to ${it.instanceName}</h2>
             <p>
-                The application <strong>PLACEHOLDER #1</strong> would like to have <strong>PLACEHOLDER #3</strong>
-                access to your data on <strong>PLACEHOLDER #4</strong>. The application will be allowed to use your
-                credentials and authenticate as you (PLACEHOLDER #5) in the future.
+                The application <strong>PLACEHOLDER #1</strong> would like to have <strong>${it.accessRequest}</strong>
+                access to your data on <strong>${it.urlName}</strong>. The application will be allowed to use your
+                credentials and authenticate as you (${it.authenticatedUsername}) in the future.
             </p>
 
             <f:form action="performSubmit" method="POST" name="performSubmit">
@@ -21,7 +21,7 @@
             </f:form>
 
             <p>
-                By allowing this, you can use <strong>PLACEHOLDER #2</strong> without storing your PLACEHOLDER #2
+                By allowing this, you can use <strong>${it.instanceName}</strong> without storing your ${it.instanceName}
                 password in <strong>PLACEHOLDER #1</strong>
             </p>
         </l:main-panel>
