@@ -212,8 +212,8 @@ public class OAuth1aRequestFilter implements Filter {
 
     private Consumer validateConsumer(OAuthMessage message) throws IOException, OAuthException {
         // This consumer must exist at the time the token is used.
-        final String consumerKey = message.getConsumerKey();
-        final Consumer consumer = consumerStore.get(consumerKey);
+        String consumerKey = message.getConsumerKey();
+        Consumer consumer = consumerStore.get(consumerKey);
 
         if (consumer == null) {
             log.log(INFO, "Unknown consumer key:'{}' supplied in OAuth request" + consumerKey);
