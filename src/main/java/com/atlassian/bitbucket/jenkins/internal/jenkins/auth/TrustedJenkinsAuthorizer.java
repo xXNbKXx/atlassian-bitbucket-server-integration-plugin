@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 public class TrustedJenkinsAuthorizer implements TrustedUnderlyingSystemAuthorizerFilter {
@@ -30,7 +31,7 @@ public class TrustedJenkinsAuthorizer implements TrustedUnderlyingSystemAuthoriz
                 filterChain.doFilter(request, response);
             }
         } else {
-            throw new NoSuchUserException();
+            throw new NoSuchUserException(format("No such user %s in the system", userName));
         }
     }
 
