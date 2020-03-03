@@ -7,12 +7,10 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.co
 import java.net.URI;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
 
 public class TestData {
 
-    public static final String USERNAME = "bob";
-    public static final Principal USER = () -> USERNAME;
+    public static final String USER = "bob";
 
     public static final KeyPair KEYS;
 
@@ -41,13 +39,5 @@ public class TestData {
                 .publicKey(KEYS.getPublic())
                 .callback(URI.create("http://consumer/callback"))
                 .build();
-    }
-
-    private static String repeat(String str, int times) {
-        StringBuilder sb = new StringBuilder(str.length() * times);
-        for (int i = 0; i < times; i++) {
-            sb.append(str);
-        }
-        return sb.toString();
     }
 }
