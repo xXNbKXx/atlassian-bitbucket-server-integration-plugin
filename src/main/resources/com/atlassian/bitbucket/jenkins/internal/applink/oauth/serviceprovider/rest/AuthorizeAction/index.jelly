@@ -5,14 +5,17 @@
         <l:main-panel>
             <h2>Welcome to ${it.instanceName}</h2>
             <p>
-                The application <strong>PLACEHOLDER #1</strong> would like to have <strong>${it.accessRequest}</strong>
-                access to your data on <strong>${it.urlName}</strong>. The application will be allowed to use your
+                The application <strong>${it.consumerName}</strong> would like to <strong>perform operations like running
+                build</strong> on <strong>${it.urlName}</strong>. The application will be allowed to use your
                 credentials and authenticate as you (${it.authenticatedUsername}) in the future.
             </p>
 
             <f:form action="performSubmit" method="POST" name="performSubmit">
                 <f:invisibleEntry field="token">
-                    <f:readOnlyTextbox type="hidden" name="id" value="${it.token}"/>
+                    <f:readOnlyTextbox type="hidden" name="token" value="${it.token}"/>
+                </f:invisibleEntry>
+                <f:invisibleEntry field="redirectUrl">
+                    <f:readOnlyTextbox type="hidden" name="redirectUrl" value="${it.redirectUrl}"/>
                 </f:invisibleEntry>
                 <f:bottomButtonBar>
                     <f:submit name="authorize" value="Authorize"/>
@@ -21,8 +24,8 @@
             </f:form>
 
             <p>
-                By allowing this, you can use <strong>${it.instanceName}</strong> without storing your ${it.instanceName}
-                password in <strong>PLACEHOLDER #1</strong>
+                By allowing this, you can use <strong>Jenkins</strong> without storing your Jenkins
+                password in <strong>${it.consumerName}</strong>.
             </p>
         </l:main-panel>
     </l:layout>

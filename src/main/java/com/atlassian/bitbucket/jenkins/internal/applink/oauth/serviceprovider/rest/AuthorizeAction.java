@@ -10,14 +10,13 @@ import hudson.model.AbstractDescribableImpl;
 import hudson.model.Action;
 import hudson.model.Descriptor;
 import jenkins.model.Jenkins;
+import net.oauth.OAuthMessage;
 import net.oauth.OAuthProblemException;
 import net.oauth.server.OAuthServlet;
 import net.sf.json.JSONObject;
 import org.jenkinsci.Symbol;
 import org.json.JSONException;
-import org.kohsuke.stapler.HttpResponse;
-import org.kohsuke.stapler.HttpResponses;
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.*;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -25,39 +24,64 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.Principal;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.*;
 import static jenkins.model.Jenkins.ANONYMOUS;
+import static net.oauth.OAuth.OAUTH_TOKEN;
 import static net.oauth.OAuth.Problems.*;
 
 public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> implements Action {
 
+    public static final String AUTHORIZE_ACTION_PATH_END = "authorize";
     private static final Logger LOGGER = Logger.getLogger(AuthorizeServlet.class.getName());
     private static final int VERIFIER_LENGTH = 6;
+    private URI callbackUri;
     private Clock clock;
     private Randomizer randomizer;
+    private String redirectUrl;
     private String token;
     private ServiceProviderTokenStore tokenStore;
-    private String accessRequest;
 
-    public AuthorizeAction(ServiceProviderTokenStore tokenStore, Randomizer randomizer, Clock clock, String token) {
+    public AuthorizeAction(ServiceProviderTokenStore tokenStore, Randomizer randomizer, Clock clock,
+                           StaplerRequest req) {
         this.tokenStore = tokenStore;
         this.randomizer = randomizer;
         this.clock = clock;
-        this.token = token;
+
+        if ("GET".equals(req.getMethod())) {
+            try {
+                OAuthMessage requestMessage = OAuthServlet.getMessage(req, null);
+                requestMessage.requireParameters(OAUTH_TOKEN);
+                token = requestMessage.getToken();
+                callbackUri = new URI(req.getParameter("oauth_callback"));
+                redirectUrl = Arrays.stream(callbackUri.getQuery().split("&"))
+                        .filter(param -> param.startsWith("redirectUrl"))
+                        .findFirst().orElseThrow(RuntimeException::new)
+                        .replace("redirectUrl=", "");
+            } catch (IOException | OAuthProblemException | URISyntaxException e) {
+                e.printStackTrace();
+            }
+        } else if ("POST".equals(req.getMethod())) {
+            token = req.getParameter("token");
+            redirectUrl = req.getParameter("redirectUrl");
+        }
     }
 
     @SuppressWarnings("unused") // Stapler
-    public final HttpResponse doPerformSubmit(StaplerRequest request) throws IOException, ServletException, JSONException {
+    public final HttpResponse doPerformSubmit(
+            StaplerRequest request) throws IOException, ServletException, JSONException {
         JSONObject data = request.getSubmittedForm();
         Map<String, String[]> params = request.getParameterMap();
         if (params.containsKey("cancel")) {
             // Redirect to Bitbucket, nothing else happens
-            return HttpResponses.redirectTo(/*consumer.getCallbackUrl()*/"http://www.atlassian.com");
+            return HttpResponses.redirectTo(redirectUrl);
         } else if (params.containsKey("authorize")) {
             ServiceProviderToken token;
             try {
@@ -77,44 +101,52 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
                 org.json.JSONObject json = new org.json.JSONObject();
                 json.put("authorizeCode", newToken.getVerifier());
 
-                //Not sure where this is returning to yet...
-                return (staplerRequest, staplerResponse, node) -> {
-                    staplerResponse.setContentType("application/json;charset=UTF-8");
-                    PrintWriter pw = staplerResponse.getWriter();
-                    pw.print(json);
-                    pw.flush();
+                HttpResponse response = new HttpResponse() {
+                    @Override
+                    public void generateResponse(StaplerRequest staplerRequest, StaplerResponse staplerResponse,
+                                                 Object node) throws IOException, ServletException {
+                        staplerResponse.setContentType("application/json;charset=UTF-8");
+                        PrintWriter pw = staplerResponse.getWriter();
+                        pw.print(json);
+                        pw.flush();
+                    }
                 };
+                return response;
             }
-
         } else {
             // Unexpected response to form. Angry Jenkins UI error here
             return HttpResponses.error(HttpServletResponse.SC_BAD_REQUEST, "Bad Request");
         }
     }
 
-    public String getDisplayName() {
-        //TODO: Need a "real" display name
-        return "Authorize #PLACEHOLDER 1";
-    }
-
     @SuppressWarnings("unused") //Stapler
-    public String getAccessRequest() {
-        return accessRequest;
-    }
-
-    @SuppressWarnings("unused") //Stapler
-    public String getInstanceName() {
-        return "Jenkins";
-    }
-
     public String getAuthenticatedUsername() {
         return Jenkins.getAuthentication().getName();
+    }
+
+    @SuppressWarnings("unused") //Stapler
+    public String getConsumerName() {
+        return "Bitbucket Server";
+    }
+
+    public String getDisplayName() {
+        return "Authorize Bitbucket Server";
     }
 
     @CheckForNull
     @Override
     public String getIconFileName() {
         return null;
+    }
+
+    @SuppressWarnings("unused") //Stapler
+    public String getInstanceName() {
+        return String.format("Jenkins (%s)", Jenkins.get().getRootUrl());
+    }
+
+    @SuppressWarnings("unused") //Stapler
+    public String getRedirectUrl() {
+        return redirectUrl;
     }
 
     public String getToken() {
