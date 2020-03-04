@@ -26,7 +26,6 @@ import static net.oauth.OAuth.OAUTH_TOKEN;
 public class TokenEndpoint extends InvisibleAction {
 
     private AccessTokenRestEndpoint accessTokenRestEndpoint;
-    private AuthorizeServlet authorizeServlet;
     private TempConsumerRegistrar consumerRegistrar;
     private RequestTokenRestEndpoint requestTokenRestEndpoint;
     private Clock clock;
@@ -36,14 +35,12 @@ public class TokenEndpoint extends InvisibleAction {
     @Inject
     public TokenEndpoint(
             AccessTokenRestEndpoint accessTokenRestEndpoint,
-            AuthorizeServlet authorizeServlet,
             TempConsumerRegistrar consumerRegistrar,
             RequestTokenRestEndpoint requestTokenRestEndpoint,
             Clock clock,
             ServiceProviderTokenStore tokenStore,
             Randomizer randomizer) {
         this.accessTokenRestEndpoint = accessTokenRestEndpoint;
-        this.authorizeServlet = authorizeServlet;
         this.consumerRegistrar = consumerRegistrar;
         this.requestTokenRestEndpoint = requestTokenRestEndpoint;
         this.clock = clock;
@@ -72,7 +69,6 @@ public class TokenEndpoint extends InvisibleAction {
     public Action getAuthorize(StaplerRequest req) throws IOException, OAuthProblemException {
         OAuthMessage requestMessage = OAuthServlet.getMessage(req, null);
         requestMessage.requireParameters(OAUTH_TOKEN);
-        return new AuthorizeAction(tokenStore, randomizer, clock, requestMessage.getToken());
-        //return new AuthorizeAction(tokenStore, randomizer, clock, "Test token");
+        return new AuthorizeAction(tokenStore, randomizer, clock, requestMessage);
     }
 }

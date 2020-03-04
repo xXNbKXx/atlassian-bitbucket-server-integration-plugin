@@ -10,11 +10,11 @@ import hudson.model.AbstractDescribableImpl;
 import hudson.model.Action;
 import hudson.model.Descriptor;
 import jenkins.model.Jenkins;
+import net.oauth.OAuthMessage;
 import net.oauth.OAuthProblemException;
 import net.oauth.server.OAuthServlet;
 import net.sf.json.JSONObject;
 import org.jenkinsci.Symbol;
-import org.json.JSONException;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest;
@@ -24,82 +24,80 @@ import javax.annotation.Nonnull;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.security.Principal;
 import java.time.Clock;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.*;
+import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken.Authorization;
 import static jenkins.model.Jenkins.ANONYMOUS;
+import static net.oauth.OAuth.*;
 import static net.oauth.OAuth.Problems.*;
 
 public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> implements Action {
 
-    private static final Logger LOGGER = Logger.getLogger(AuthorizeServlet.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AuthorizeAction.class.getName());
     private static final int VERIFIER_LENGTH = 6;
+
     private Clock clock;
     private Randomizer randomizer;
     private String token;
     private ServiceProviderTokenStore tokenStore;
-    private String accessRequest;
+    private String callback;
 
-    public AuthorizeAction(ServiceProviderTokenStore tokenStore, Randomizer randomizer, Clock clock, String token) {
+    public AuthorizeAction(ServiceProviderTokenStore tokenStore, Randomizer randomizer, Clock clock,
+                           OAuthMessage token) throws IOException {
         this.tokenStore = tokenStore;
         this.randomizer = randomizer;
         this.clock = clock;
-        this.token = token;
+        this.token = token.getToken();
+        callback = token.getParameter(OAUTH_CALLBACK);
     }
 
     @SuppressWarnings("unused") // Stapler
-    public final HttpResponse doPerformSubmit(StaplerRequest request) throws IOException, ServletException, JSONException {
+    public final HttpResponse doPerformSubmit(
+            StaplerRequest request) throws IOException, ServletException {
         JSONObject data = request.getSubmittedForm();
         Map<String, String[]> params = request.getParameterMap();
+        LOGGER.info("User from the request is " + request.getRemoteUser());
+
+        Principal userPrincipal = Jenkins.getAuthentication();
+        if (ANONYMOUS.getPrincipal().equals(userPrincipal.getName())) {
+            return HttpResponses.error(HttpServletResponse.SC_UNAUTHORIZED, "User not logged in.");
+        }
+
+        ServiceProviderToken token;
+        try {
+            token = getTokenForAuthorization((String) data.get("oauth_token"));
+        } catch (OAuthProblemException e) {
+            OAuthProblemUtils.logOAuthProblem(OAuthServlet.getMessage(request, null), e, LOGGER);
+            return HttpResponses.error(e);
+        }
+
+        ServiceProviderToken newToken;
         if (params.containsKey("cancel")) {
-            // Redirect to Bitbucket, nothing else happens
-            return HttpResponses.redirectTo(/*consumer.getCallbackUrl()*/"http://www.atlassian.com");
+            newToken = token.deny(userPrincipal.getName());
         } else if (params.containsKey("authorize")) {
-            ServiceProviderToken token;
-            try {
-                token = getTokenForAuthorization((String) data.get("token"));
-            } catch (OAuthProblemException e) {
-                OAuthProblemUtils.logOAuthProblem(OAuthServlet.getMessage(request, null), e, LOGGER);
-                return HttpResponses.error(e);
-            }
-
             String verifier = randomizer.randomAlphanumericString(VERIFIER_LENGTH);
-            Principal userPrincipal = Jenkins.getAuthentication();
-            if (ANONYMOUS.getPrincipal().equals(userPrincipal.getName())) {
-                return HttpResponses.error(HttpServletResponse.SC_UNAUTHORIZED, "Error Message");
-            } else {
-                ServiceProviderToken newToken = token.authorize(userPrincipal.getName(), verifier);
-                tokenStore.put(newToken);
-                org.json.JSONObject json = new org.json.JSONObject();
-                json.put("authorizeCode", newToken.getVerifier());
-
-                //Not sure where this is returning to yet...
-                return (staplerRequest, staplerResponse, node) -> {
-                    staplerResponse.setContentType("application/json;charset=UTF-8");
-                    PrintWriter pw = staplerResponse.getWriter();
-                    pw.print(json);
-                    pw.flush();
-                };
-            }
-
+            newToken = token.authorize(userPrincipal.getName(), verifier);
         } else {
             // Unexpected response to form. Angry Jenkins UI error here
             return HttpResponses.error(HttpServletResponse.SC_BAD_REQUEST, "Bad Request");
         }
+        tokenStore.put(newToken);
+
+        String callBackUrl =
+                addParameters((String) data.get("oauth_callback"),
+                        OAUTH_TOKEN, newToken.getToken(),
+                        OAUTH_VERIFIER,
+                        newToken.getAuthorization() == Authorization.AUTHORIZED ? newToken.getVerifier() :
+                                "denied");
+        return HttpResponses.redirectTo(callBackUrl);
     }
 
     public String getDisplayName() {
         //TODO: Need a "real" display name
         return "Authorize #PLACEHOLDER 1";
-    }
-
-    @SuppressWarnings("unused") //Stapler
-    public String getAccessRequest() {
-        return accessRequest;
     }
 
     @SuppressWarnings("unused") //Stapler
@@ -125,6 +123,10 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
     @Override
     public String getUrlName() {
         return Jenkins.get().getRootUrl() != null ? Jenkins.get().getRootUrl() : "this domain";
+    }
+
+    public String getCallback() {
+        return callback;
     }
 
     private ServiceProviderToken getTokenForAuthorization(String rawToken) throws OAuthProblemException, IOException {
