@@ -41,16 +41,16 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
 
     private Clock clock;
     private Randomizer randomizer;
-    private String token;
+    private ServiceProviderToken serviceProviderToken;
     private ServiceProviderTokenStore tokenStore;
     private String callback;
 
     public AuthorizeAction(ServiceProviderTokenStore tokenStore, Randomizer randomizer, Clock clock,
-                           OAuthMessage token) throws IOException {
+                           OAuthMessage token) throws IOException, OAuthProblemException {
         this.tokenStore = tokenStore;
         this.randomizer = randomizer;
         this.clock = clock;
-        this.token = token.getToken();
+        serviceProviderToken = getTokenForAuthorization(token.getToken());
         callback = token.getParameter(OAUTH_CALLBACK);
     }
 
@@ -97,7 +97,7 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
 
     public String getDisplayName() {
         //TODO: Need a "real" display name
-        return "Authorize #PLACEHOLDER 1";
+        return "Authorize";
     }
 
     @SuppressWarnings("unused") //Stapler
@@ -116,13 +116,17 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
     }
 
     public String getToken() {
-        return token;
+        return serviceProviderToken.getToken();
     }
 
     @CheckForNull
     @Override
     public String getUrlName() {
-        return Jenkins.get().getRootUrl() != null ? Jenkins.get().getRootUrl() : "this domain";
+        return "authorize";
+    }
+
+    public String getConsumerName() {
+        return serviceProviderToken.getConsumer().getName();
     }
 
     public String getCallback() {

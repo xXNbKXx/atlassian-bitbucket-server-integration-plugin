@@ -61,7 +61,7 @@ public class TokenEndpoint extends InvisibleAction {
     @WebMethod(name = RequestTokenRestEndpoint.REQUEST_TOKEN_PATH_END)
     public void doRequestToken(StaplerRequest req,
                                StaplerResponse resp) throws ServletException, IOException {
-        consumerRegistrar.registerConsumer("stash-consumer", "foo");
+        consumerRegistrar.registerConsumer("Stash", "stash-consumer", "foo");
         requestTokenRestEndpoint.handleRequestToken(req, resp);
     }
 
