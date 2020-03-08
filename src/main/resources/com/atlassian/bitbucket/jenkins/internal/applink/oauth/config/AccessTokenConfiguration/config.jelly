@@ -1,0 +1,14 @@
+<?jelly escape-by-default='true'?>
+
+<!-- TODO: Make these groovy files -->
+
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form" xmlns:l="/lib/layout" xmlns:i="jelly:fmt" xmlns:d="jelly:define">
+    <f:entry title="Manage Access Token">
+        <div>
+            <f:repeatable name="tokenStore" var="token" items="${it.tokens}" minimum="0" noAddButton="true">
+                <f:textbox clazz="token" name="tokenName" value="${token.token}"/>
+
+            </f:repeatable>
+        </div>
+    </f:entry>
+</j:jelly>
