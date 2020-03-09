@@ -136,7 +136,7 @@ public class BitbucketWebhookTriggerImpl extends Trigger<Job<?, ?>>
      *
      * For pipeline job, this is invoked every time a build is run.
      *
-     * We can't always continue registration check if newInstance is false since during Jenkin startup, this is invoked
+     * We can't always continue registration check if createInstance is false since during Jenkin startup, this is invoked
      * for every job. Making remote call to Bitbucket server would make the startup slow.
      *
      * @param project     the input project

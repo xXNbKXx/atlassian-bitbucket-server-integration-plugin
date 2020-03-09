@@ -1,0 +1,33 @@
+<?jelly escape-by-default='true'?>
+
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <l:layout permission="${app.ADMINISTER}" xmlns:local="local" norefresh="true">
+        <st:include it="${app}" page="sidepanel.jelly"/>
+
+        <l:main-panel>
+            <h1>
+                <img src="${imagesURL}/48x48/${it.iconFileName}" alt="${it.displayName}"/>
+                ${it.displayName}
+            </h1>
+
+            <table class="sortable pane bigtable">
+                <tr style="border-top: 0px;">
+                    <th>${%Consumer Name}</th>
+                    <th>${%Consumer Key}</th>
+                    <th>${%Callback URL}</th>
+                </tr>
+                <j:forEach var="d" items="${it.consumers}">
+                    <tr>
+                        <td>${d.consumerName}</td>
+                        <td><a href="${'consumer/'+d.consumerKey}" class="model-link inside">${d.consumerKey}</a></td>
+                        <td><a href="${d.consumerCallbackUrl}">${d.consumerCallbackUrl}</a></td>
+                    </tr>
+                </j:forEach>
+            </table>
+            <form method="get" action="create">
+                <p><f:submit value="${%Create New Consumer}"/></p>
+            </form>
+        </l:main-panel>
+    </l:layout>
+</j:jelly>

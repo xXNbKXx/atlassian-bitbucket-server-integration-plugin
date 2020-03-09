@@ -1,0 +1,16 @@
+<?jelly escape-by-default='true'?>
+
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
+    <f:entry field="consumerName" title="${%Name}">
+            <f:textbox value="${it.consumerName}"/>
+        </f:entry>
+    <f:entry field="consumerKey" title="${%Consumer Key}">
+        <f:textbox value="${it.consumerKey}"/>
+    </f:entry>
+    <f:entry field="consumerSecret" title="${%Consumer Secret}">
+        <f:password value="${it.consumerSecret}"/>
+    </f:entry>
+    <f:entry field="callbackUrl" title="${%Callback URL}">
+        <f:textbox value="${it.consumerCallbackUrl}"/>
+    </f:entry>
+</j:jelly>

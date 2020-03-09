@@ -1,13 +1,13 @@
 <?jelly escape-by-default='true'?>
 
 <j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:f="/lib/form">
-    <l:layout norefresh="true" permission="${app.READ}">
+    <l:layout permission="${app.READ}">
         <l:main-panel>
             <h2>Welcome to ${it.instanceName}</h2>
             <p>
                 The application <strong>${it.consumerName}</strong> would like to have <strong>${it.accessRequest}</strong>
                 access to your data on <strong>${it.urlName}</strong>. The application will be allowed to use your
-                credentials and authenticate as you (${it.authenticatedUsername}) in the future.
+                credentials and authenticate as you (<strong>${it.authenticatedUsername}</strong>) in the future.
             </p>
 
             <f:form action="performSubmit" method="POST" name="performSubmit">

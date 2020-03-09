@@ -2,8 +2,10 @@ package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.t
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.StoreException;
 
 import javax.inject.Singleton;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,7 +17,6 @@ public class InMemoryConsumerStore implements ConsumerStore {
     @Override
     public void add(Consumer consumer) {
         consumers.put(consumer.getKey(), consumer);
-
     }
 
     @Override
@@ -26,5 +27,10 @@ public class InMemoryConsumerStore implements ConsumerStore {
     @Override
     public void delete(String key) {
         consumers.remove(key);
+    }
+
+    @Override
+    public Collection<Consumer> getAll() throws StoreException {
+        return consumers.values();
     }
 }
