@@ -7,7 +7,7 @@ import java.net.URI;
 import java.security.PublicKey;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * <p>Immutable representation of an OAuth consumer.  At a minimum a consumer is required to have a key, a name, and a
@@ -48,7 +48,7 @@ public final class Consumer {
      * @return the builder for constructing the rest of the {@code Consumer} instance
      */
     public static Builder key(String key) {
-        return new Builder(checkNotNull(key, "key"));
+        return new Builder(requireNonNull(key, "key"));
     }
 
     /**
@@ -93,7 +93,7 @@ public final class Consumer {
      * description was not set.
      *
      * @return the optional description of the consumer as it would be displayed to the user, {@code null} if the
-     *         description was not set.
+     * description was not set.
      */
     public String getDescription() {
         return description;
@@ -143,7 +143,7 @@ public final class Consumer {
     /**
      * Builder allowing the optional attributes of the {@code Consumer} object under construction to be set and
      * construction of the final {@code Consumer} instance.
-     *
+     * <p>
      * We only support 3 legged authentication at the moment
      */
     public static final class Builder {
@@ -158,7 +158,7 @@ public final class Consumer {
         private String consumerSecret;
 
         public Builder(String key) {
-            this.key = key;
+            this.key = requireNonNull(key, "key");
         }
 
         /**
@@ -169,7 +169,7 @@ public final class Consumer {
          * @return {@code this} builder
          */
         public Builder name(String name) {
-            this.name = checkNotNull(name);
+            this.name = requireNonNull(name);
             return this;
         }
 
@@ -181,7 +181,7 @@ public final class Consumer {
          * @return {@code this} builder
          */
         public Builder signatureMethod(SignatureMethod signatureMethod) {
-            this.signatureMethod = checkNotNull(signatureMethod);
+            this.signatureMethod = requireNonNull(signatureMethod);
             return this;
         }
 
@@ -195,7 +195,7 @@ public final class Consumer {
          */
         public Builder publicKey(PublicKey publicKey) {
             this.signatureMethod = SignatureMethod.RSA_SHA1;
-            this.publicKey = checkNotNull(publicKey);
+            this.publicKey = requireNonNull(publicKey);
             return this;
         }
 
@@ -240,10 +240,10 @@ public final class Consumer {
          * @return the final {@code Consumer} instance
          */
         public Consumer build() {
-            checkNotNull(name, "name");
-            checkNotNull(signatureMethod, "signatureMethod");
+            requireNonNull(name, "name");
+            requireNonNull(signatureMethod, "signatureMethod");
             if (signatureMethod == SignatureMethod.RSA_SHA1) {
-                checkNotNull(publicKey, "publicKey must be set when the signature method is RSA-SHA1");
+                requireNonNull(publicKey, "publicKey must be set when the signature method is RSA-SHA1");
             }
             return new Consumer(this);
         }
