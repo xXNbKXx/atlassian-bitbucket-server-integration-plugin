@@ -24,7 +24,7 @@ public class ServiceProviderTokenStoreImpl implements ServiceProviderTokenStore 
 
     @Override
     public Iterable<ServiceProviderToken> getAccessTokensForUser(String username) {
-        return tokens.values().stream().filter(token -> token.getUser().equals(username)).collect(toList());
+        return tokens.values().stream().filter(token -> username.equals(token.getUser())).collect(toList());
     }
 
     @Override

@@ -1,11 +1,16 @@
 package com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.servlet.AuthorizeAction.AuthorizeActionDescriptor;
+import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.token.OAuthTokenConfiguration;
 import hudson.Extension;
+import hudson.model.Action;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
+import hudson.model.Descriptor.FormException;
 import hudson.model.ManagementLink;
 import jenkins.model.Jenkins;
+import org.kohsuke.stapler.StaplerRequest;
 
 import javax.annotation.CheckForNull;
 import javax.inject.Inject;
@@ -18,6 +23,10 @@ public class OAuthGlobalConfiguration extends ManagementLink implements Describa
 
     @Inject
     private ConsumerStore consumerStore;
+    @Inject
+    private OAuthTokenConfiguration tokenConfiguration;
+    @Inject
+    private AuthorizeActionDescriptor authorizeActionDescriptor;
 
     public Collection<OAuthConsumerEntry> getConsumers() {
         return consumerStore.getAll().stream().map(OAuthConsumerEntry::new).collect(toList());
@@ -42,6 +51,15 @@ public class OAuthGlobalConfiguration extends ManagementLink implements Describa
     @SuppressWarnings("unused") // Stapler
     public OAuthConsumerUpdateAction getConsumer(String key) {
         return new OAuthConsumerUpdateAction(key, consumerStore);
+    }
+
+    public Action getTokens() {
+        return tokenConfiguration;
+    }
+
+    @SuppressWarnings("unused") // Stapler
+    public Action getAuthorize(StaplerRequest req) throws FormException {
+        return authorizeActionDescriptor.createInstance(req);
     }
 
     @Override

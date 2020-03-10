@@ -18,7 +18,7 @@
                     <th>${%Callback URL}</th>
                 </tr>
                 <j:forEach var="d" items="${it.consumers}">
-                    <tr>
+                    <tr class="center">
                         <td>${d.consumerName}</td>
                         <td><a href="${'consumer/'+d.consumerKey}" class="model-link inside">${d.consumerKey}</a></td>
                         <td><a href="${d.consumerCallbackUrl}">${d.consumerCallbackUrl}</a></td>

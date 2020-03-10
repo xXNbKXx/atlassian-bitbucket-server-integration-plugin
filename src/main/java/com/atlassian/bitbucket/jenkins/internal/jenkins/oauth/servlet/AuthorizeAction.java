@@ -1,4 +1,4 @@
-package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.servlet;
+package com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.servlet;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.Randomizer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.exception.InvalidTokenException;
