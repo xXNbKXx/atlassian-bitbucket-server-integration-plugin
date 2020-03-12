@@ -84,4 +84,9 @@ public class OAuthGlobalConfiguration extends ManagementLink implements Describa
     public String getUrlName() {
         return "oauth-consumers";
     }
+
+    @Override
+    public String getDescription() {
+        return "Manage Oauth credentials used in BBS";
+    }
 }

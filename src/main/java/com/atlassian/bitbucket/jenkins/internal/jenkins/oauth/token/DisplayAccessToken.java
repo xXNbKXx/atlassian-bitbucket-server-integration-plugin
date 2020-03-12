@@ -4,9 +4,9 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.to
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
-import org.joda.time.DateTime;
 
 import java.time.Clock;
+import java.util.Date;
 
 public class DisplayAccessToken extends AbstractDescribableImpl<DisplayAccessToken> {
 
@@ -19,8 +19,8 @@ public class DisplayAccessToken extends AbstractDescribableImpl<DisplayAccessTok
     }
 
     @SuppressWarnings("unused") // Stapler
-    public String getCreationDate() {
-        return new DateTime(token.getCreationTime()).toString();
+    public Date getCreationDate() {
+        return new Date(token.getCreationTime());
     }
 
     public String getConsumerName() {
