@@ -22,7 +22,7 @@
                                 <td>${d.tokenStatus}</td>
                                 <td>
                                     <div>
-                                       <f:submit name="${d.token}" value="${%Revoke}"/>
+                                       <f:submit name="${d.token}" value="${it.REVOKE_BUTTON_NAME}"/>
                                     </div>
                                 </td>
                             </tr>
