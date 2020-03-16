@@ -3,7 +3,7 @@ package com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer.Builder;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer.SignatureMethod;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ServiceProviderConsumerStore;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
@@ -90,13 +90,13 @@ public class OAuthConsumerEntry extends AbstractDescribableImpl<OAuthConsumerEnt
     public static class OAuthConsumerEntryDescriptor extends Descriptor<OAuthConsumerEntry> {
 
         @Inject
-        private ConsumerStore consumerStore;
+        private ServiceProviderConsumerStore consumerStore;
 
         public FormValidation doCheckConsumerKey(@QueryParameter String consumerKey) {
-            consumerKey = consumerKey.replaceAll("-", "");
-            if (!isAlphanumeric(consumerKey)) {
+            String k = consumerKey.replaceAll("-", "");
+            if (!isAlphanumeric(k)) {
                 return FormValidation.error("Only Alphanumeric Consumer Key allowed");
-            } else if (consumerStore.get(consumerKey) != null) {
+            } else if (consumerStore.get(consumerKey).isPresent()) {
                 return FormValidation.error("Key with the same name already exists");
             } else {
                 return FormValidation.ok();

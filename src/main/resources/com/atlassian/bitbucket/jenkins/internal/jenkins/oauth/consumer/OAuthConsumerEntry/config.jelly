@@ -4,7 +4,7 @@
     <f:entry field="consumerKey" title="${%Consumer Key}">
         <j:choose>
            <j:when test="${it.update}">
-            <f:readOnlyTextbox value="${it.consumerKey}"/>
+            <f:readOnlyTextbox checkUrl="" value="${it.consumerKey}"/>
            </j:when>
           <j:otherwise>
              <f:textbox value="${it.consumerKey}"/>

@@ -1,6 +1,6 @@
 package com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ServiceProviderConsumerStore;
 import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.servlet.AuthorizeAction.AuthorizeActionDescriptor;
 import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.token.OAuthTokenConfiguration;
 import hudson.Extension;
@@ -17,19 +17,20 @@ import javax.inject.Inject;
 import java.util.Collection;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
 
 @Extension
 public class OAuthGlobalConfiguration extends ManagementLink implements Describable<OAuthGlobalConfiguration> {
 
     @Inject
-    private ConsumerStore consumerStore;
+    private ServiceProviderConsumerStore consumerStore;
     @Inject
     private OAuthTokenConfiguration tokenConfiguration;
     @Inject
     private AuthorizeActionDescriptor authorizeActionDescriptor;
 
     public Collection<OAuthConsumerEntry> getConsumers() {
-        return consumerStore.getAll().stream().map(OAuthConsumerEntry::getOAuthConsumerForUpdate).collect(toList());
+        return stream(consumerStore.getAll().spliterator(), false).map(OAuthConsumerEntry::getOAuthConsumerForUpdate).collect(toList());
     }
 
     /**
@@ -76,13 +77,13 @@ public class OAuthGlobalConfiguration extends ManagementLink implements Describa
     @CheckForNull
     @Override
     public String getDisplayName() {
-        return "BBS OAuth Consumers";
+        return "BBS OAuth";
     }
 
     @CheckForNull
     @Override
     public String getUrlName() {
-        return "oauth-consumers";
+        return "bbs-oauth";
     }
 
     @Override

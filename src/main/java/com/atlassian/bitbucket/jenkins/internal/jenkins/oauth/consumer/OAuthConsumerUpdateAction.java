@@ -1,7 +1,7 @@
 package com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ServiceProviderConsumerStore;
 import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer.OAuthConsumerEntry.OAuthConsumerEntryDescriptor;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
@@ -23,9 +23,9 @@ import static java.util.Objects.requireNonNull;
 public class OAuthConsumerUpdateAction extends AbstractDescribableImpl<OAuthConsumerUpdateAction> implements Action, ModelObjectWithContextMenu {
 
     private final String consumerKey;
-    private final ConsumerStore store;
+    private final ServiceProviderConsumerStore store;
 
-    public OAuthConsumerUpdateAction(String consumerKey, ConsumerStore store) {
+    public OAuthConsumerUpdateAction(String consumerKey, ServiceProviderConsumerStore store) {
         this.consumerKey = requireNonNull(consumerKey, "consumerKey");
         this.store = requireNonNull(store, "store");
     }
@@ -51,15 +51,15 @@ public class OAuthConsumerUpdateAction extends AbstractDescribableImpl<OAuthCons
 
     @SuppressWarnings("unused") // Stapler
     public OAuthConsumerEntryDescriptor getConsumerDescriptor() {
-        Consumer consumer = store.get(consumerKey);
-        if (consumer != null) {
-            return getConsumerEntry().getDescriptor();
+        OAuthConsumerEntry entry = getConsumerEntry();
+        if (entry != null) {
+            return entry.getDescriptor();
         }
         return null;
     }
 
     public OAuthConsumerEntry getConsumerEntry() {
-        return OAuthConsumerEntry.getOAuthConsumerForUpdate(store.get(consumerKey));
+        return store.get(consumerKey).map(OAuthConsumerEntry::getOAuthConsumerForUpdate).orElse(null);
     }
 
     @Override

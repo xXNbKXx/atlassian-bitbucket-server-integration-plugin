@@ -29,7 +29,6 @@ public class OAuthTokenConfiguration implements Action, Describable<OAuthGlobalC
     private Clock clock;
     @Inject
     private ServiceProviderTokenStore tokenStore;
-    private List<DisplayAccessToken> tokens;
 
     @CheckForNull
     @Override

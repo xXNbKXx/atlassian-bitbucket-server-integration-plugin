@@ -1,7 +1,7 @@
 package com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ServiceProviderConsumerStore;
 import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer.OAuthConsumerEntry.OAuthConsumerEntryDescriptor;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
@@ -21,9 +21,9 @@ import static java.util.Objects.requireNonNull;
 
 public class OAuthConsumerCreateAction extends AbstractDescribableImpl<OAuthConsumerCreateAction> implements Action {
 
-    private final ConsumerStore store;
+    private final ServiceProviderConsumerStore store;
 
-    public OAuthConsumerCreateAction(ConsumerStore store) {
+    public OAuthConsumerCreateAction(ServiceProviderConsumerStore store) {
         this.store = requireNonNull(store, "store");
     }
 
@@ -62,7 +62,7 @@ public class OAuthConsumerCreateAction extends AbstractDescribableImpl<OAuthCons
     public static class DescriptorImpl extends Descriptor<OAuthConsumerCreateAction> {
 
         @Inject
-        private ConsumerStore consumerStore;
+        private ServiceProviderConsumerStore consumerStore;
 
         @Override
         public String getDisplayName() {
