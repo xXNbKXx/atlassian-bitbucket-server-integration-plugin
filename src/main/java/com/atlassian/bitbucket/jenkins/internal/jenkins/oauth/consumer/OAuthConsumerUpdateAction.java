@@ -2,13 +2,12 @@ package com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer.OAuthConsumerEntry.OAuthConsumerEntryDescriptor;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Action;
 import hudson.model.Descriptor;
 import jenkins.model.ModelObjectWithContextMenu;
-import net.sf.json.JSONObject;
-import org.apache.commons.lang3.StringUtils;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
@@ -17,10 +16,8 @@ import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
 import javax.servlet.ServletException;
-import java.net.URI;
 import java.net.URISyntaxException;
 
-import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer.SignatureMethod.HMAC_SHA1;
 import static java.util.Objects.requireNonNull;
 
 public class OAuthConsumerUpdateAction extends AbstractDescribableImpl<OAuthConsumerUpdateAction> implements Action, ModelObjectWithContextMenu {
@@ -38,7 +35,6 @@ public class OAuthConsumerUpdateAction extends AbstractDescribableImpl<OAuthCons
         return new ContextMenu().from(this, request, response);
     }
 
-    //TODO: Can we delegate this work to a service class?
     @RequirePOST
     @SuppressWarnings("unused")
     public HttpResponse doPerformDelete(StaplerRequest req) {
@@ -46,49 +42,24 @@ public class OAuthConsumerUpdateAction extends AbstractDescribableImpl<OAuthCons
         return HttpResponses.redirectTo("../..");
     }
 
-    //TODO: Can we delegate this work to a service class?
     @RequirePOST
     @SuppressWarnings("unused")
     public HttpResponse doPerformUpdate(StaplerRequest req) throws ServletException, URISyntaxException {
-        JSONObject data = req.getSubmittedForm();
-
-        String consumerName = data.getString("consumerName");
-        String callbackUrl = data.getString("callbackUrl");
-        String consumerKey = data.getString("consumerKey");
-        String consumerSecret = data.getString("consumerSecret");
-
-        Consumer.Builder builder = Consumer.key(consumerKey)
-                .name(consumerName)
-                .consumerSecret(consumerSecret)
-                .signatureMethod(HMAC_SHA1);
-        if (!StringUtils.isBlank(callbackUrl)) {
-            builder.callback(new URI(callbackUrl));
-        }
+        Consumer consumer = getConsumerDescriptor().getConsumerFromSubmittedForm(req);
         return HttpResponses.redirectTo("../..");
     }
 
     @SuppressWarnings("unused") // Stapler
-    public String getCallbackUrl() {
-        return store.get(consumerKey).getCallback().toString();
-    }
-
-    @SuppressWarnings("unused") // Stapler
-    public Descriptor getConsumerDescriptor() {
+    public OAuthConsumerEntryDescriptor getConsumerDescriptor() {
         Consumer consumer = store.get(consumerKey);
         if (consumer != null) {
-            return new OAuthConsumerEntry(consumer).getDescriptor();
+            return getConsumerEntry().getDescriptor();
         }
         return null;
     }
 
-    @SuppressWarnings("unused") // Stapler
-    public String getConsumerKey() {
-        return store.get(consumerKey).getKey();
-    }
-
-    @SuppressWarnings("unused") // Stapler
-    public String getConsumerSecret() {
-        return store.get(consumerKey).getConsumerSecret().orElse("");
+    public OAuthConsumerEntry getConsumerEntry() {
+        return OAuthConsumerEntry.getOAuthConsumerForUpdate(store.get(consumerKey));
     }
 
     @Override

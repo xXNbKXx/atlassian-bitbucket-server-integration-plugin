@@ -8,14 +8,13 @@
         <l:main-panel>
             <h2>${it.displayName}</h2>
             <hr/>
-
             <j:set var="descriptor" value="${it.consumerDescriptor}"/>
             <j:scope>
                 <f:form action="performUpdate" method="POST" name="performUpdate">
                     <f:invisibleEntry>
                         <input type="hidden" name="stapler-class" value="${descriptor.clazz.name}" />
                     </f:invisibleEntry>
-                    <st:include from="${descriptor}" page="${descriptor.configPage}" />
+                    <st:include from="${descriptor}" it="${it.consumerEntry}" page="${descriptor.configPage}" />
                     <f:bottomButtonBar>
                         <f:submit value="${%Save}"/>
                     </f:bottomButtonBar>

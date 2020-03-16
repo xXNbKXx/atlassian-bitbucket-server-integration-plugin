@@ -4,7 +4,8 @@
     <l:side-panel>
         <j:set var="url" value="${h.getNearestAncestorUrl(request,it)}"/>
         <l:tasks>
-            <l:task icon="images/24x24/up.png" href=".." title="${%Back to Consumer List}" contextMenu="false"/>
+            <l:task icon="images/24x24/up.png" href="../.." title="${%Back to Consumer List}" contextMenu="false"/>
+            <l:task icon="images/24x24/edit-delete.png" href="${url}/delete" title="${%Delete}"/>
         </l:tasks>
     </l:side-panel>
 </j:jelly>

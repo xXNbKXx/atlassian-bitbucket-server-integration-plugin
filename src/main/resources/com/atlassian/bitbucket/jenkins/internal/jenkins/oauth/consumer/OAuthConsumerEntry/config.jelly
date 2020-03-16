@@ -1,16 +1,23 @@
 <?jelly escape-by-default='true'?>
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
-    <f:entry field="consumerName" title="${%Name}">
-            <f:textbox value="${it.consumerName}"/>
-        </f:entry>
     <f:entry field="consumerKey" title="${%Consumer Key}">
-        <f:textbox value="${it.consumerKey}"/>
+        <j:choose>
+           <j:when test="${it.update}">
+            <f:readOnlyTextbox value="${it.consumerKey}"/>
+           </j:when>
+          <j:otherwise>
+             <f:textbox value="${it.consumerKey}"/>
+          </j:otherwise>
+        </j:choose>
+    </f:entry>
+    <f:entry field="consumerName" title="${%Consumer Name}">
+        <f:textbox value="${it.consumerName}"/>
     </f:entry>
     <f:entry field="consumerSecret" title="${%Consumer Secret}">
         <f:password value="${it.consumerSecret}"/>
     </f:entry>
     <f:entry field="callbackUrl" title="${%Callback URL}">
-        <f:textbox value="${it.consumerCallbackUrl}"/>
+        <f:textbox value="${it.callbackUrl}"/>
     </f:entry>
 </j:jelly>

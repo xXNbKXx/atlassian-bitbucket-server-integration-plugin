@@ -29,7 +29,7 @@ public class OAuthGlobalConfiguration extends ManagementLink implements Describa
     private AuthorizeActionDescriptor authorizeActionDescriptor;
 
     public Collection<OAuthConsumerEntry> getConsumers() {
-        return consumerStore.getAll().stream().map(OAuthConsumerEntry::new).collect(toList());
+        return consumerStore.getAll().stream().map(OAuthConsumerEntry::getOAuthConsumerForUpdate).collect(toList());
     }
 
     /**
