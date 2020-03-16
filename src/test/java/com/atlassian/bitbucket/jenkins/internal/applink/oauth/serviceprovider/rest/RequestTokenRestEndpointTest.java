@@ -1,6 +1,6 @@
 package com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest;
 
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ServiceProviderConsumerStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderToken;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenFactory;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
@@ -19,6 +19,7 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.rest.RequestTokenRestEndpoint.INVALID_CALLBACK_ADVICE;
 import static com.atlassian.bitbucket.jenkins.internal.applink.oauth.util.TestData.Consumers.RSA_CONSUMER;
@@ -38,7 +39,7 @@ public class RequestTokenRestEndpointTest {
             ServiceProviderToken.newRequestToken("1234").tokenSecret("5678").consumer(RSA_CONSUMER).build();
 
     @Mock
-    private ConsumerStore consumerStore;
+    private ServiceProviderConsumerStore consumerStore;
     @Mock
     private ServiceProviderTokenStore tokenStore;
     @Mock
@@ -71,7 +72,7 @@ public class RequestTokenRestEndpointTest {
                 OAUTH_CONSUMER_KEY, new String[]{RSA_CONSUMER.getKey()},
                 OAUTH_CALLBACK, new String[]{"http://consumer/callback"}
         ));
-        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(RSA_CONSUMER);
+        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(Optional.of(RSA_CONSUMER));
         when(tokenStore.put(UNAUTHORIZED_REQUEST_TOKEN)).thenReturn(UNAUTHORIZED_REQUEST_TOKEN);
         when(factory.generateRequestToken(same(RSA_CONSUMER), eq(URI.create("http://consumer/callback"))))
                 .thenReturn(UNAUTHORIZED_REQUEST_TOKEN);
@@ -110,7 +111,7 @@ public class RequestTokenRestEndpointTest {
                 OAUTH_CONSUMER_KEY, new String[]{RSA_CONSUMER.getKey()},
                 OAUTH_CALLBACK, new String[]{"http://consumer/callback"}
         ));
-        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(RSA_CONSUMER);
+        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(Optional.of(RSA_CONSUMER));
         doThrow(new OAuthProblemException("signature_invalid"))
                 .when(validator).validateMessage(isA(OAuthMessage.class), isA(OAuthAccessor.class));
 
@@ -130,7 +131,7 @@ public class RequestTokenRestEndpointTest {
                 OAUTH_CONSUMER_KEY, new String[]{RSA_CONSUMER.getKey()},
                 OAUTH_CALLBACK, new String[]{callbackUrl}
         ));
-        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(RSA_CONSUMER);
+        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(Optional.of(RSA_CONSUMER));
 
         servlet.handleRequestToken(request, response);
 
@@ -149,7 +150,7 @@ public class RequestTokenRestEndpointTest {
                 OAUTH_CONSUMER_KEY, new String[]{RSA_CONSUMER.getKey()},
                 OAUTH_CALLBACK, new String[]{"oob"}
         ));
-        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(RSA_CONSUMER);
+        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(Optional.of(RSA_CONSUMER));
         when(tokenStore.put(UNAUTHORIZED_REQUEST_TOKEN)).thenReturn(UNAUTHORIZED_REQUEST_TOKEN);
         when(factory.generateRequestToken(same(RSA_CONSUMER))).thenReturn(UNAUTHORIZED_REQUEST_TOKEN);
 
@@ -172,7 +173,7 @@ public class RequestTokenRestEndpointTest {
                 OAUTH_CONSUMER_KEY, new String[]{RSA_CONSUMER.getKey()},
                 OAUTH_CALLBACK, new String[]{callbackUrl}
         ));
-        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(RSA_CONSUMER);
+        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(Optional.of(RSA_CONSUMER));
 
         servlet.handleRequestToken(request, response);
 
@@ -192,7 +193,7 @@ public class RequestTokenRestEndpointTest {
                 OAUTH_CONSUMER_KEY, new String[]{RSA_CONSUMER.getKey()},
                 OAUTH_CALLBACK, new String[]{callbackUrl}
         ));
-        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(RSA_CONSUMER);
+        when(consumerStore.get(RSA_CONSUMER.getKey())).thenReturn(Optional.of(RSA_CONSUMER));
 
         servlet.handleRequestToken(request, response);
 
