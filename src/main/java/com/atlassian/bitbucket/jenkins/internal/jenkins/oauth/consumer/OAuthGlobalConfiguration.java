@@ -1,6 +1,7 @@
 package com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ServiceProviderConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
 import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.servlet.AuthorizeAction.AuthorizeActionDescriptor;
 import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.token.OAuthTokenConfiguration;
 import hudson.Extension;
@@ -22,8 +23,12 @@ import static java.util.stream.StreamSupport.stream;
 @Extension
 public class OAuthGlobalConfiguration extends ManagementLink implements Describable<OAuthGlobalConfiguration> {
 
+    public static final String RELATIVE_PATH = "bbs-oauth";
+
     @Inject
     private ServiceProviderConsumerStore consumerStore;
+    @Inject
+    private ServiceProviderTokenStore serviceProviderTokenStore;
     @Inject
     private OAuthTokenConfiguration tokenConfiguration;
     @Inject
@@ -51,7 +56,7 @@ public class OAuthGlobalConfiguration extends ManagementLink implements Describa
      */
     @SuppressWarnings("unused") // Stapler
     public OAuthConsumerUpdateAction getConsumer(String key) {
-        return new OAuthConsumerUpdateAction(key, consumerStore);
+        return new OAuthConsumerUpdateAction(key, consumerStore, serviceProviderTokenStore);
     }
 
     public Action getTokens() {
@@ -83,7 +88,7 @@ public class OAuthGlobalConfiguration extends ManagementLink implements Describa
     @CheckForNull
     @Override
     public String getUrlName() {
-        return "bbs-oauth";
+        return RELATIVE_PATH;
     }
 
     @Override

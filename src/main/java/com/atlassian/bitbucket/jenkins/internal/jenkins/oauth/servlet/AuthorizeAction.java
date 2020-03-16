@@ -14,7 +14,6 @@ import net.oauth.OAuthMessage;
 import net.oauth.OAuthProblemException;
 import net.oauth.server.OAuthServlet;
 import net.sf.json.JSONObject;
-import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest;
@@ -39,6 +38,12 @@ import static net.oauth.OAuth.Problems.*;
 
 public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> implements Action {
 
+    //Following fields are used in Jelly file
+    public static final String AUTHORIZE_KEY = "authorize";
+    public static final String CANCEL_KEY = "cancel";
+    public static final String OAUTH_TOKEN_PARAM = "oauth_token";
+
+    private static final String DENIED_STATUS = "denied";
     private static final Logger LOGGER = Logger.getLogger(AuthorizeAction.class.getName());
     private static final int VERIFIER_LENGTH = 6;
 
@@ -64,16 +69,16 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
 
         ServiceProviderToken token;
         try {
-            token = getTokenForAuthorization((String) data.get("oauth_token"));
+            token = getTokenForAuthorization(data.getString(OAUTH_TOKEN_PARAM));
         } catch (OAuthProblemException e) {
             OAuthProblemUtils.logOAuthProblem(OAuthServlet.getMessage(request, null), e, LOGGER);
             return HttpResponses.error(e);
         }
 
         ServiceProviderToken newToken;
-        if (params.containsKey("cancel")) {
+        if (params.containsKey(CANCEL_KEY)) {
             newToken = token.deny(userPrincipal.getName());
-        } else if (params.containsKey("authorize")) {
+        } else if (params.containsKey(AUTHORIZE_KEY)) {
             String verifier = getDescriptor().randomizer.randomAlphanumericString(VERIFIER_LENGTH);
             newToken = token.authorize(userPrincipal.getName(), verifier);
         } else {
@@ -86,7 +91,7 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
                         OAUTH_TOKEN, newToken.getToken(),
                         OAUTH_VERIFIER,
                         newToken.getAuthorization() == Authorization.AUTHORIZED ? newToken.getVerifier() :
-                                "denied");
+                                DENIED_STATUS);
         return HttpResponses.redirectTo(callBackUrl);
     }
 
@@ -158,7 +163,6 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
     }
 
     @Extension
-    @Symbol("authorize-action")
     public static class AuthorizeActionDescriptor extends Descriptor<AuthorizeAction> {
 
         @Inject
@@ -187,12 +191,6 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
             } catch (IOException e) {
                 throw new FormException(e, e.getMessage());
             }
-        }
-
-        @Nonnull
-        @Override
-        public String getDisplayName() {
-            return "Authorize Action";
         }
     }
 }

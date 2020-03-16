@@ -11,15 +11,15 @@
             </p>
 
             <f:form action="performSubmit" method="POST" name="performSubmit">
-                <f:invisibleEntry field="oauth_token">
-                    <f:readOnlyTextbox type="hidden" name="oauth_token" value="${it.token}"/>
+                <f:invisibleEntry field="oauth_token_field">
+                    <f:readOnlyTextbox type="hidden" name="${it.OAUTH_TOKEN_PARAM}" value="${it.token}"/>
                 </f:invisibleEntry>
-                <f:invisibleEntry field="oauth_callback">
+                <f:invisibleEntry field="oauth_callback_field">
                       <f:readOnlyTextbox type="hidden" name="oauth_callback" value="${it.callback}"/>
                 </f:invisibleEntry>
                 <f:bottomButtonBar>
-                    <f:submit name="authorize" value="Authorize"/>
-                    <f:submit name="cancel" value="Cancel"/>
+                    <f:submit name="${it.AUTHORIZE_KEY}" value="Authorize"/>
+                    <f:submit name="${it.CANCEL_KEY}" value="Cancel"/>
                 </f:bottomButtonBar>
             </f:form>
 

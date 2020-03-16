@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.servlet.ServletException;
 import java.net.URISyntaxException;
 
+import static com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer.OAuthGlobalConfiguration.RELATIVE_PATH;
 import static java.util.Objects.requireNonNull;
 
 public class OAuthConsumerCreateAction extends AbstractDescribableImpl<OAuthConsumerCreateAction> implements Action {
@@ -27,13 +28,12 @@ public class OAuthConsumerCreateAction extends AbstractDescribableImpl<OAuthCons
         this.store = requireNonNull(store, "store");
     }
 
-    //TODO: Can we delegate this work to a service class?
     @RequirePOST
     @SuppressWarnings("unused") // Stapler
     public HttpResponse doPerformCreate(StaplerRequest req) throws ServletException, URISyntaxException {
         Consumer consumer = getConsumerDescriptor().getConsumerFromSubmittedForm(req);
         store.add(consumer);
-        return HttpResponses.redirectTo("..");
+        return HttpResponses.redirectViaContextPath(RELATIVE_PATH);
     }
 
     @SuppressWarnings("unused") // Stapler

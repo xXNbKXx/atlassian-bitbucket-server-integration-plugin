@@ -2,13 +2,11 @@ package com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ServiceProviderConsumerStore;
+import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
 import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer.OAuthConsumerEntry.OAuthConsumerEntryDescriptor;
-import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Action;
-import hudson.model.Descriptor;
 import jenkins.model.ModelObjectWithContextMenu;
-import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.StaplerRequest;
@@ -18,16 +16,20 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 import javax.servlet.ServletException;
 import java.net.URISyntaxException;
 
+import static com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer.OAuthGlobalConfiguration.RELATIVE_PATH;
 import static java.util.Objects.requireNonNull;
 
 public class OAuthConsumerUpdateAction extends AbstractDescribableImpl<OAuthConsumerUpdateAction> implements Action, ModelObjectWithContextMenu {
 
     private final String consumerKey;
-    private final ServiceProviderConsumerStore store;
+    private final ServiceProviderConsumerStore consumerStore;
+    private final ServiceProviderTokenStore tokenStore;
 
-    public OAuthConsumerUpdateAction(String consumerKey, ServiceProviderConsumerStore store) {
+    public OAuthConsumerUpdateAction(String consumerKey, ServiceProviderConsumerStore consumerStore,
+                                     ServiceProviderTokenStore tokenStore) {
         this.consumerKey = requireNonNull(consumerKey, "consumerKey");
-        this.store = requireNonNull(store, "store");
+        this.consumerStore = requireNonNull(consumerStore, "consumerStore");
+        this.tokenStore = tokenStore;
     }
 
     @Override
@@ -38,15 +40,17 @@ public class OAuthConsumerUpdateAction extends AbstractDescribableImpl<OAuthCons
     @RequirePOST
     @SuppressWarnings("unused")
     public HttpResponse doPerformDelete(StaplerRequest req) {
-        store.delete(consumerKey);
-        return HttpResponses.redirectTo("../..");
+        tokenStore.removeByConsumer(consumerKey);
+        consumerStore.delete(consumerKey);
+        return HttpResponses.redirectViaContextPath(RELATIVE_PATH);
     }
 
     @RequirePOST
     @SuppressWarnings("unused")
     public HttpResponse doPerformUpdate(StaplerRequest req) throws ServletException, URISyntaxException {
         Consumer consumer = getConsumerDescriptor().getConsumerFromSubmittedForm(req);
-        return HttpResponses.redirectTo("../..");
+        consumerStore.update(consumer);
+        return HttpResponses.redirectViaContextPath(RELATIVE_PATH);
     }
 
     @SuppressWarnings("unused") // Stapler
@@ -59,7 +63,11 @@ public class OAuthConsumerUpdateAction extends AbstractDescribableImpl<OAuthCons
     }
 
     public OAuthConsumerEntry getConsumerEntry() {
-        return store.get(consumerKey).map(OAuthConsumerEntry::getOAuthConsumerForUpdate).orElse(null);
+        return consumerStore.get(consumerKey).map(OAuthConsumerEntry::getOAuthConsumerForUpdate).orElse(null);
+    }
+
+    public String getConsumerKey() {
+        return consumerKey;
     }
 
     @Override
@@ -75,16 +83,5 @@ public class OAuthConsumerUpdateAction extends AbstractDescribableImpl<OAuthCons
     @Override
     public String getUrlName() {
         return consumerKey;
-    }
-
-    @Extension
-    @SuppressWarnings("unused") // Stapler
-    @Symbol("oauth-consumer-update")
-    public static class DescriptorImpl extends Descriptor<OAuthConsumerUpdateAction> {
-
-        @Override
-        public String getDisplayName() {
-            return "Update OAuth Consumer";
-        }
     }
 }

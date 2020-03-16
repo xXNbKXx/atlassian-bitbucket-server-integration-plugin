@@ -83,7 +83,7 @@ public class OAuthConsumerEntry extends AbstractDescribableImpl<OAuthConsumerEnt
     }
 
     public OAuthConsumerEntryDescriptor getDescriptor() {
-        return (OAuthConsumerEntryDescriptor) Jenkins.get().getDescriptorOrDie(getClass());
+        return (OAuthConsumerEntryDescriptor) super.getDescriptor();
     }
 
     @Extension
