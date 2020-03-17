@@ -2,13 +2,11 @@ package com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer.Builder;
-import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.Consumer.SignatureMethod;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ServiceProviderConsumerStore;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
-import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
@@ -28,11 +26,20 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  */
 public class OAuthConsumerEntry extends AbstractDescribableImpl<OAuthConsumerEntry> {
 
+    /**
+     * Because of JENKINS-26579, we can't use these in Jelly files. Since during create consumer, there is
+     * no consumer yet.
+     */
+    private static String CONSUMER_KEY_FIELD = "consumerKey";
+    private static String CONSUMER_NAME_FIELD = "consumerName";
+    private static String CONSUMER_SECRET_FIELD = "consumerSecret";
+    private static String CONSUMER_CALLBACKURL_FIELD = "callbackUrl";
+
     private static final OAuthConsumerEntry BLANK_ENTRY =
             new OAuthConsumerEntry(
                     Consumer.key("Enter Key")
                             .name("Enter Name")
-                            .signatureMethod(SignatureMethod.HMAC_SHA1)
+                            .signatureMethod(HMAC_SHA1)
                             .build(), false);
 
     private final Consumer consumer;
@@ -115,7 +122,7 @@ public class OAuthConsumerEntry extends AbstractDescribableImpl<OAuthConsumerEnt
                 try {
                     new URI(callbackUrl);
                 } catch (URISyntaxException e) {
-                    return FormValidation.error(e, "Invalid callback URL");
+                    return FormValidation.error("Invalid callback URL. Reason " + e.getMessage());
                 }
             }
             return FormValidation.ok();
@@ -124,10 +131,11 @@ public class OAuthConsumerEntry extends AbstractDescribableImpl<OAuthConsumerEnt
         public Consumer getConsumerFromSubmittedForm(
                 StaplerRequest request) throws ServletException, URISyntaxException {
             JSONObject data = request.getSubmittedForm();
-            String consumerName = data.getString("consumerName");
-            String callbackUrl = data.getString("callbackUrl");
-            String consumerKey = data.getString("consumerKey");
-            String consumerSecret = data.getString("consumerSecret");
+            String consumerKey = data.getString(CONSUMER_KEY_FIELD);
+            String consumerName = data.getString(CONSUMER_NAME_FIELD);
+            String consumerSecret = data.getString(CONSUMER_SECRET_FIELD);
+            String callbackUrl = data.getString(CONSUMER_CALLBACKURL_FIELD);
+
             Builder builder = Consumer.key(consumerKey)
                     .name(consumerName)
                     .consumerSecret(consumerSecret)
