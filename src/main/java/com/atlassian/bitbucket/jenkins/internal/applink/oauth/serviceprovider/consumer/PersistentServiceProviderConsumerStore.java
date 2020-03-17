@@ -101,6 +101,7 @@ public class PersistentServiceProviderConsumerStore extends AbstractPersistentSt
             throw new StoreException("No Consumer with the given key" + consumer.getKey());
         }
         entityMap.replace(consumer.getKey(), consumer);
+        save();
     }
 
     @Override
