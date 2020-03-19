@@ -17,7 +17,7 @@
                     </f:invisibleEntry>
                     <st:include from="${descriptor}" page="${descriptor.configPage}" />
                     <f:bottomButtonBar>
-                        <f:submit value="${%Save}"/>
+                        <f:submit value="${%bitbucket.oauth.save}"/>
                     </f:bottomButtonBar>
                 </f:form>
             </j:scope>

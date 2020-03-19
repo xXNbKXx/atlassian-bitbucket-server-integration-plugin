@@ -13,9 +13,9 @@
 
             <table class="sortable pane bigtable">
                 <tr style="border-top: 0px;">
-                    <th>${%Consumer Key}</th>
-                    <th>${%Consumer Name}</th>
-                    <th>${%Callback URL}</th>
+                    <th>${%bitbucket.oauth.consumer.key}</th>
+                    <th>${%bitbucket.oauth.consumer.name}</th>
+                    <th>${%bitbucket.oauth.consumer.callback}</th>
                 </tr>
                 <j:forEach var="d" items="${it.consumers}">
                     <tr class="center">

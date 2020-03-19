@@ -82,7 +82,7 @@ public class OAuthGlobalConfiguration extends ManagementLink implements Describa
     @CheckForNull
     @Override
     public String getDisplayName() {
-        return "BBS OAuth";
+        return Messages.bitbucket_oauth_consumer_admin_menu();
     }
 
     @CheckForNull
@@ -93,6 +93,6 @@ public class OAuthGlobalConfiguration extends ManagementLink implements Describa
 
     @Override
     public String getDescription() {
-        return "Manage Oauth credentials used in BBS";
+        return Messages.bitbucket_oauth_consumer_admin_menu_description();
     }
 }

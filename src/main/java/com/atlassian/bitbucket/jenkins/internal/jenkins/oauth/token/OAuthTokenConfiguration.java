@@ -39,7 +39,7 @@ public class OAuthTokenConfiguration implements Action, Describable<OAuthGlobalC
     @CheckForNull
     @Override
     public String getDisplayName() {
-        return "access-tokens";
+        return Messages.bitbucket_oauth_token_revoke_name();
     }
 
     @CheckForNull
