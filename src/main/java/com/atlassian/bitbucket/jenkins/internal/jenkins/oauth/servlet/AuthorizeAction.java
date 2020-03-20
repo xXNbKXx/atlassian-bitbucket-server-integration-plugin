@@ -172,6 +172,12 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
         @Inject
         private Clock clock;
 
+        AuthorizeActionDescriptor(ServiceProviderTokenStore tokenStore, Randomizer randomizer, Clock clock) {
+            this.tokenStore = tokenStore;
+            this.randomizer = randomizer;
+            this.clock = clock;
+        }
+
         public AuthorizeActionDescriptor() {
         }
 

@@ -35,7 +35,7 @@
                 </j:forEach>
             </table>
             <form method="get" action="create">
-                <p><f:submit value="${%Create New Consumer}"/></p>
+                <p><f:submit value="${%bitbucket.oauth.consumer.create}"/></p>
             </form>
         </l:main-panel>
     </l:layout>
