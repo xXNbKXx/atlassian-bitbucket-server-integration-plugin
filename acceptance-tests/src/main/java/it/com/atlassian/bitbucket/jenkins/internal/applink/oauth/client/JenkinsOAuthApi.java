@@ -4,13 +4,14 @@ import com.github.scribejava.core.builder.api.DefaultApi10a;
 import com.github.scribejava.core.services.HMACSha1SignatureService;
 import com.github.scribejava.core.services.SignatureService;
 
+import static org.apache.commons.lang3.StringUtils.removeEnd;
+
 public class JenkinsOAuthApi extends DefaultApi10a {
 
     private final String baseUrl;
 
     public JenkinsOAuthApi(String baseUrl) {
-        //todo: make sure ends in "/"
-        this.baseUrl = baseUrl;
+        this.baseUrl = removeEnd(baseUrl, "/") + "/";
     }
 
     @Override

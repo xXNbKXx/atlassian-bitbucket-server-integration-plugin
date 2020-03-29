@@ -1,0 +1,1 @@
+FROM atlassian/akord-bitbucket-server-test-image:latest
