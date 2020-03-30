@@ -13,6 +13,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
+import javax.annotation.CheckForNull;
 import javax.servlet.ServletException;
 import java.net.URISyntaxException;
 
@@ -62,6 +63,7 @@ public class OAuthConsumerUpdateAction extends AbstractDescribableImpl<OAuthCons
         return null;
     }
 
+    @CheckForNull
     public OAuthConsumerEntry getConsumerEntry() {
         return consumerStore.get(consumerKey).map(OAuthConsumerEntry::getOAuthConsumerForUpdate).orElse(null);
     }

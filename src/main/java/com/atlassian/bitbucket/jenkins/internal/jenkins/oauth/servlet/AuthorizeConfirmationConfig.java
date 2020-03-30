@@ -36,7 +36,7 @@ import static jenkins.model.Jenkins.ANONYMOUS;
 import static net.oauth.OAuth.*;
 import static net.oauth.OAuth.Problems.*;
 
-public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> implements Action {
+public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<AuthorizeConfirmationConfig> implements Action {
 
     //Following fields are used in Jelly file
     public static final String AUTHORIZE_KEY = "authorize";
@@ -44,13 +44,13 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
     public static final String OAUTH_TOKEN_PARAM = "oauth_token";
 
     private static final String DENIED_STATUS = "denied";
-    private static final Logger LOGGER = Logger.getLogger(AuthorizeAction.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AuthorizeConfirmationConfig.class.getName());
     private static final int VERIFIER_LENGTH = 6;
 
     private ServiceProviderToken serviceProviderToken;
     private String callback;
 
-    public AuthorizeAction(String rawToken, String callback) throws OAuthProblemException {
+    private AuthorizeConfirmationConfig(String rawToken, String callback) throws OAuthProblemException {
         serviceProviderToken = getTokenForAuthorization(rawToken);
         this.callback = callback;
     }
@@ -99,7 +99,6 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
         return "Authorize";
     }
 
-    @CheckForNull
     @Override
     public String getUrlName() {
         return "authorize";
@@ -158,12 +157,12 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
     }
 
     @Override
-    public AuthorizeActionDescriptor getDescriptor() {
-        return (AuthorizeActionDescriptor) super.getDescriptor();
+    public AuthorizeConfirmationConfigDescriptor getDescriptor() {
+        return (AuthorizeConfirmationConfigDescriptor) super.getDescriptor();
     }
 
     @Extension
-    public static class AuthorizeActionDescriptor extends Descriptor<AuthorizeAction> {
+    public static class AuthorizeConfirmationConfigDescriptor extends Descriptor<AuthorizeConfirmationConfig> {
 
         @Inject
         private ServiceProviderTokenStore tokenStore;
@@ -172,26 +171,27 @@ public class AuthorizeAction extends AbstractDescribableImpl<AuthorizeAction> im
         @Inject
         private Clock clock;
 
-        AuthorizeActionDescriptor(ServiceProviderTokenStore tokenStore, Randomizer randomizer, Clock clock) {
+        AuthorizeConfirmationConfigDescriptor(ServiceProviderTokenStore tokenStore, Randomizer randomizer,
+                                              Clock clock) {
             this.tokenStore = tokenStore;
             this.randomizer = randomizer;
             this.clock = clock;
         }
 
-        public AuthorizeActionDescriptor() {
+        public AuthorizeConfirmationConfigDescriptor() {
         }
 
         @Override
-        public AuthorizeAction newInstance(@Nullable StaplerRequest req,
-                                           @Nonnull JSONObject formData) throws FormException {
+        public AuthorizeConfirmationConfig newInstance(@Nullable StaplerRequest req,
+                                                       @Nonnull JSONObject formData) throws FormException {
             return createInstance(req);
         }
 
-        public AuthorizeAction createInstance(@Nullable StaplerRequest req) throws FormException {
+        public AuthorizeConfirmationConfig createInstance(@Nullable StaplerRequest req) throws FormException {
             try {
                 OAuthMessage requestMessage = OAuthServlet.getMessage(req, null);
                 requestMessage.requireParameters(OAUTH_TOKEN);
-                return new AuthorizeAction(requestMessage.getToken(), requestMessage.getParameter(OAUTH_CALLBACK));
+                return new AuthorizeConfirmationConfig(requestMessage.getToken(), requestMessage.getParameter(OAUTH_CALLBACK));
             } catch (OAuthProblemException e) {
                 throw new FormException(e, e.getProblem());
             } catch (IOException e) {

@@ -2,7 +2,7 @@ package com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.consumer;
 
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.consumer.ServiceProviderConsumerStore;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
-import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.servlet.AuthorizeAction.AuthorizeActionDescriptor;
+import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.servlet.AuthorizeConfirmationConfig.AuthorizeConfirmationConfigDescriptor;
 import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.token.OAuthTokenConfiguration;
 import hudson.Extension;
 import hudson.model.Action;
@@ -32,7 +32,7 @@ public class OAuthGlobalConfiguration extends ManagementLink implements Describa
     @Inject
     private OAuthTokenConfiguration tokenConfiguration;
     @Inject
-    private AuthorizeActionDescriptor authorizeActionDescriptor;
+    private AuthorizeConfirmationConfigDescriptor authorizeConfirmationConfigDescriptor;
 
     public Collection<OAuthConsumerEntry> getConsumers() {
         return stream(consumerStore.getAll().spliterator(), false).map(OAuthConsumerEntry::getOAuthConsumerForUpdate).collect(toList());
@@ -65,7 +65,7 @@ public class OAuthGlobalConfiguration extends ManagementLink implements Describa
 
     @SuppressWarnings("unused") // Stapler
     public Action getAuthorize(StaplerRequest req) throws FormException {
-        return authorizeActionDescriptor.createInstance(req);
+        return authorizeConfirmationConfigDescriptor.createInstance(req);
     }
 
     @Override

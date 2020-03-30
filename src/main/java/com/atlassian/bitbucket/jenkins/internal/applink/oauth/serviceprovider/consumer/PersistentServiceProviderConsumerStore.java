@@ -98,7 +98,7 @@ public class PersistentServiceProviderConsumerStore extends AbstractPersistentSt
         load();
         if (!entityMap.containsKey(consumer.getKey())) {
             log.warning(() -> String.format("Consumer with key '%s' does not exists.", consumer.getKey()));
-            throw new StoreException("No Consumer with the given key" + consumer.getKey());
+            throw new StoreException("No Consumer with the given key " + consumer.getKey());
         }
         entityMap.replace(consumer.getKey(), consumer);
         save();

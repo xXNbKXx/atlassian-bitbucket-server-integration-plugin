@@ -23,6 +23,7 @@ public class DisplayAccessToken extends AbstractDescribableImpl<DisplayAccessTok
         return new Date(token.getCreationTime());
     }
 
+    @SuppressWarnings("unused") // Stapler
     public String getConsumerName() {
         return token.getConsumer().getName();
     }
