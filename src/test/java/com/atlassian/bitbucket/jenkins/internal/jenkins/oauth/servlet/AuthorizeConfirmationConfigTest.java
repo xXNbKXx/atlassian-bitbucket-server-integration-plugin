@@ -4,6 +4,7 @@ import com.atlassian.bitbucket.jenkins.internal.applink.oauth.Randomizer;
 import com.atlassian.bitbucket.jenkins.internal.applink.oauth.serviceprovider.token.ServiceProviderTokenStore;
 import com.atlassian.bitbucket.jenkins.internal.jenkins.oauth.servlet.AuthorizeConfirmationConfig.AuthorizeConfirmationConfigDescriptor;
 import hudson.model.Descriptor.FormException;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,6 +32,11 @@ public class AuthorizeConfirmationConfigTest {
     private Clock clock;
     @Mock
     private StaplerRequest request;
+
+    @Before
+    public void setup() {
+        when(request.getRequestURL()).thenReturn(new StringBuffer("htpp://localhost:8080/jenkins"));
+    }
 
     @Test
     public void throwsExceptionForInvalidToken() throws FormException {
