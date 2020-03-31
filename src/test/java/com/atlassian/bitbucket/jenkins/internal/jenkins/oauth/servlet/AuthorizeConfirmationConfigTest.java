@@ -14,9 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Clock;
-import java.util.Optional;
 
-import static net.oauth.OAuth.OAUTH_TOKEN;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -40,10 +38,6 @@ public class AuthorizeConfirmationConfigTest {
 
     @Test
     public void throwsExceptionForInvalidToken() throws FormException {
-        String aToken = "123";
-        when(request.getParameter(OAUTH_TOKEN)).thenReturn(aToken);
-        when(serviceProviderTokenStore.get(aToken)).thenReturn(Optional.empty());
-
         AuthorizeConfirmationConfigDescriptor descriptor = createDescriptor();
 
         expectedException.expect(FormException.class);
