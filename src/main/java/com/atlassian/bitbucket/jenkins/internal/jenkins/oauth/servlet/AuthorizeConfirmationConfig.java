@@ -39,16 +39,15 @@ import static net.oauth.OAuth.Problems.*;
 public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<AuthorizeConfirmationConfig> implements Action {
 
     //Following fields are used in Jelly file
+    public static final String ACCESS_REQUEST = "read and write";
     public static final String AUTHORIZE_KEY = "authorize";
     public static final String CANCEL_KEY = "cancel";
     public static final String OAUTH_TOKEN_PARAM = "oauth_token";
-
     private static final String DENIED_STATUS = "denied";
     private static final Logger LOGGER = Logger.getLogger(AuthorizeConfirmationConfig.class.getName());
     private static final int VERIFIER_LENGTH = 6;
-
-    private ServiceProviderToken serviceProviderToken;
     private String callback;
+    private ServiceProviderToken serviceProviderToken;
 
     private AuthorizeConfirmationConfig(String rawToken, String callback) throws OAuthProblemException {
         serviceProviderToken = getTokenForAuthorization(rawToken);
@@ -95,18 +94,8 @@ public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<Authori
         return HttpResponses.redirectTo(callBackUrl);
     }
 
-    public String getDisplayName() {
-        return "Authorize";
-    }
-
-    @Override
-    public String getUrlName() {
-        return "authorize";
-    }
-
-    @SuppressWarnings("unused") //Stapler
-    public String getInstanceName() {
-        return "Jenkins";
+    public String getAccessRequest() {
+        return ACCESS_REQUEST;
     }
 
     @SuppressWarnings("unused")
@@ -115,14 +104,8 @@ public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<Authori
         return Jenkins.getAuthentication().getName();
     }
 
-    @CheckForNull
-    @Override
-    public String getIconFileName() {
-        return null;
-    }
-
-    public String getToken() {
-        return serviceProviderToken.getToken();
+    public String getCallback() {
+        return callback;
     }
 
     @SuppressWarnings("unused")
@@ -131,8 +114,38 @@ public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<Authori
         return serviceProviderToken.getConsumer().getName();
     }
 
-    public String getCallback() {
-        return callback;
+    @Override
+    public AuthorizeConfirmationConfigDescriptor getDescriptor() {
+        return (AuthorizeConfirmationConfigDescriptor) super.getDescriptor();
+    }
+
+    public String getDisplayName() {
+        return "Authorize";
+    }
+
+    @CheckForNull
+    @Override
+    public String getIconFileName() {
+        return null;
+    }
+
+    @SuppressWarnings("unused") //Stapler
+    public String getIconUrl() {
+        return Jenkins.get().getRootUrl() + "/plugin/atlassian-bitbucket-server-integration/images/bitbucket-to-jenkins.png";
+    }
+
+    @SuppressWarnings("unused") //Stapler
+    public String getInstanceName() {
+        return "Jenkins";
+    }
+
+    public String getToken() {
+        return serviceProviderToken.getToken();
+    }
+
+    @Override
+    public String getUrlName() {
+        return "authorize";
     }
 
     private ServiceProviderToken getTokenForAuthorization(String rawToken) throws OAuthProblemException {
@@ -156,20 +169,15 @@ public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<Authori
         return token;
     }
 
-    @Override
-    public AuthorizeConfirmationConfigDescriptor getDescriptor() {
-        return (AuthorizeConfirmationConfigDescriptor) super.getDescriptor();
-    }
-
     @Extension
     public static class AuthorizeConfirmationConfigDescriptor extends Descriptor<AuthorizeConfirmationConfig> {
 
         @Inject
-        private ServiceProviderTokenStore tokenStore;
+        private Clock clock;
         @Inject
         private Randomizer randomizer;
         @Inject
-        private Clock clock;
+        private ServiceProviderTokenStore tokenStore;
 
         AuthorizeConfirmationConfigDescriptor(ServiceProviderTokenStore tokenStore, Randomizer randomizer,
                                               Clock clock) {
@@ -179,12 +187,6 @@ public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<Authori
         }
 
         public AuthorizeConfirmationConfigDescriptor() {
-        }
-
-        @Override
-        public AuthorizeConfirmationConfig newInstance(@Nullable StaplerRequest req,
-                                                       @Nonnull JSONObject formData) throws FormException {
-            return createInstance(req);
         }
 
         public AuthorizeConfirmationConfig createInstance(@Nullable StaplerRequest req) throws FormException {
@@ -197,6 +199,16 @@ public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<Authori
             } catch (IOException e) {
                 throw new FormException(e, e.getMessage());
             }
+        }
+
+        @Override
+        public AuthorizeConfirmationConfig newInstance(@Nullable StaplerRequest req,
+                                                       @Nonnull JSONObject formData) throws FormException {
+            return createInstance(req);
+        }
+
+        public boolean isAuthenticated() {
+            return Jenkins.getAuthentication().isAuthenticated();
         }
     }
 }
