@@ -40,9 +40,10 @@ public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<Authori
 
     //Following fields are used in Jelly file
     public static final String ACCESS_REQUEST = "read and write";
-    public static final String AUTHORIZE_KEY = "authorize";
-    public static final String CANCEL_KEY = "cancel";
+    public static final String ALLOW_KEY = "authorize";
+    public static final String DENY_KEY = "cancel";
     public static final String OAUTH_TOKEN_PARAM = "oauth_token";
+
     private static final String DENIED_STATUS = "denied";
     private static final Logger LOGGER = Logger.getLogger(AuthorizeConfirmationConfig.class.getName());
     private static final int VERIFIER_LENGTH = 6;
@@ -54,8 +55,7 @@ public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<Authori
         this.callback = callback;
     }
 
-    //Used in jelly form target
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") //Stapler
     public HttpResponse doPerformSubmit(
             StaplerRequest request) throws IOException, ServletException {
         JSONObject data = request.getSubmittedForm();
@@ -75,9 +75,9 @@ public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<Authori
         }
 
         ServiceProviderToken newToken;
-        if (params.containsKey(CANCEL_KEY)) {
+        if (params.containsKey(DENY_KEY)) {
             newToken = token.deny(userPrincipal.getName());
-        } else if (params.containsKey(AUTHORIZE_KEY)) {
+        } else if (params.containsKey(ALLOW_KEY)) {
             String verifier = getDescriptor().randomizer.randomAlphanumericString(VERIFIER_LENGTH);
             newToken = token.authorize(userPrincipal.getName(), verifier);
         } else {
@@ -98,8 +98,7 @@ public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<Authori
         return ACCESS_REQUEST;
     }
 
-    @SuppressWarnings("unused")
-    //Used in Jelly
+    @SuppressWarnings("unused") //Stapler
     public String getAuthenticatedUsername() {
         return Jenkins.getAuthentication().getName();
     }
@@ -108,8 +107,7 @@ public class AuthorizeConfirmationConfig extends AbstractDescribableImpl<Authori
         return callback;
     }
 
-    @SuppressWarnings("unused")
-    //Used in Jelly
+    @SuppressWarnings("unused") //Stapler
     public String getConsumerName() {
         return serviceProviderToken.getConsumer().getName();
     }
