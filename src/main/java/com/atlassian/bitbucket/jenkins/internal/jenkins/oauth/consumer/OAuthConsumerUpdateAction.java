@@ -74,7 +74,7 @@ public class OAuthConsumerUpdateAction extends AbstractDescribableImpl<OAuthCons
 
     @Override
     public String getDisplayName() {
-        return "Update Consumer Configuration";
+        return Messages.bitbucket_oauth_consumer_admin_update_description();
     }
 
     @Override
