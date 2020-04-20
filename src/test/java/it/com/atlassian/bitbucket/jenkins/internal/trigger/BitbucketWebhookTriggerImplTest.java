@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.logging.Logger;
 
-import static com.google.common.base.Objects.firstNonNull;
+//import static com.google.common.base.Objects.firstNonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.hamcrest.Matchers.*;
@@ -198,7 +198,8 @@ public class BitbucketWebhookTriggerImplTest {
                 FilePath workspace,
                 TaskListener listener,
                 SCMRevisionState baseline) {
-            return firstNonNull(pollingResults.poll(), PollingResult.NO_CHANGES);
+            return pollingResults.poll() != null ? pollingResults.poll() : PollingResult.NO_CHANGES;
+            //return firstNonNull(pollingResults.poll(), PollingResult.NO_CHANGES);
         }
 
         @Override
