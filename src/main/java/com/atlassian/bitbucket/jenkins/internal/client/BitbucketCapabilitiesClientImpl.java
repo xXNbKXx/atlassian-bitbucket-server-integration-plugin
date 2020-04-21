@@ -1,9 +1,14 @@
 package com.atlassian.bitbucket.jenkins.internal.client;
 
 import com.atlassian.bitbucket.jenkins.internal.client.exception.BitbucketMissingCapabilityException;
+import com.atlassian.bitbucket.jenkins.internal.client.supply.BitbucketCapabilitiesSupplier;
 import com.atlassian.bitbucket.jenkins.internal.model.AtlassianServerCapabilities;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketWebhookSupportedEvents;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import okhttp3.HttpUrl;
+
+import java.util.concurrent.TimeUnit;
 
 import static com.atlassian.bitbucket.jenkins.internal.model.AtlassianServerCapabilities.WEBHOOK_CAPABILITY_KEY;
 import static okhttp3.HttpUrl.parse;
@@ -11,25 +16,21 @@ import static okhttp3.HttpUrl.parse;
 public class BitbucketCapabilitiesClientImpl implements BitbucketCapabilitiesClient {
 
     private final BitbucketRequestExecutor bitbucketRequestExecutor;
+    private final Supplier<AtlassianServerCapabilities> capabilitiesCache;
 
-    BitbucketCapabilitiesClientImpl(BitbucketRequestExecutor bitbucketRequestExecutor) {
+    BitbucketCapabilitiesClientImpl(BitbucketRequestExecutor bitbucketRequestExecutor, BitbucketCapabilitiesSupplier supplier) {
         this.bitbucketRequestExecutor = bitbucketRequestExecutor;
+        capabilitiesCache = Suppliers.memoizeWithExpiration(supplier, 60L, TimeUnit.MINUTES);
     }
 
     @Override
     public AtlassianServerCapabilities getServerCapabilities() {
-        HttpUrl url =
-                bitbucketRequestExecutor.getBaseUrl().newBuilder()
-                        .addPathSegment("rest")
-                        .addPathSegment("capabilities")
-                        .build();
-        return bitbucketRequestExecutor.makeGetRequest(url, AtlassianServerCapabilities.class).getBody();
+        return capabilitiesCache.get();
     }
 
     @Override
     public BitbucketWebhookSupportedEvents getWebhookSupportedEvents() throws BitbucketMissingCapabilityException {
-        AtlassianServerCapabilities capabilities =
-                new BitbucketCapabilitiesClientImpl(bitbucketRequestExecutor).getServerCapabilities();
+        AtlassianServerCapabilities capabilities = getServerCapabilities();
         String urlStr = capabilities.getCapabilities().get(WEBHOOK_CAPABILITY_KEY);
         if (urlStr == null) {
             throw new BitbucketMissingCapabilityException(
