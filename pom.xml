@@ -15,7 +15,6 @@
         <bitbucket.version>5.5.9</bitbucket.version>
         <cloverVersion>4.3.1</cloverVersion>
         <disableTestInjection>false</disableTestInjection>
-        <google.guava.libversion>29.0-jre</google.guava.libversion>
         <java.level>8</java.level>
         <jackson.version>2.9.9</jackson.version>
         <jenkins.version>2.162</jenkins.version>
@@ -134,11 +133,6 @@
             <version>2.9.9.1</version>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${google.guava.libversion}</version>
-        </dependency>
-        <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
             <version>3.14.1</version>
@@ -222,10 +216,10 @@
                     <groupId>org.mortbay.jetty</groupId>
                     <artifactId>jetty</artifactId>
                 </exclusion>
-<!--                <exclusion>-->
-<!--                    <groupId>com.google.guava</groupId>-->
-<!--                    <artifactId>guava</artifactId>-->
-<!--                </exclusion>-->
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
                     <artifactId>httpclient</artifactId>
