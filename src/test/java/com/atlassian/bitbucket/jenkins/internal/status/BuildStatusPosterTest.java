@@ -11,19 +11,16 @@ import com.atlassian.bitbucket.jenkins.internal.credentials.BitbucketCredentials
 import com.atlassian.bitbucket.jenkins.internal.credentials.GlobalCredentialsProvider;
 import com.atlassian.bitbucket.jenkins.internal.credentials.JenkinsToBitbucketCredentials;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketBuildStatus;
+import com.atlassian.bitbucket.jenkins.internal.provider.DisplayURLProviderWrapper;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.TaskListener;
 import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.jvnet.hudson.test.JenkinsRule;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.PrintStream;
@@ -41,9 +38,6 @@ public class BuildStatusPosterTest {
     private static final String SERVER_ID = "FakeServerId";
     private static final String SERVER_URL = "http://www.example.com";
 
-    @ClassRule
-    public static JenkinsRule jenkins = new JenkinsRule();
-
     @Mock
     private BitbucketTokenCredentials adminCredentials;
     @Captor
@@ -54,6 +48,8 @@ public class BuildStatusPosterTest {
     private AbstractBuild build;
     @Mock
     private BitbucketClientFactory factory;
+    @Mock
+    private DisplayURLProviderWrapper displayURLProviderWrapper;
     @Mock
     private BitbucketClientFactoryProvider factoryProvider;
     @Mock
@@ -83,10 +79,8 @@ public class BuildStatusPosterTest {
         when(parent.getFullName()).thenReturn("");
         when(parent.getFullDisplayName()).thenReturn("");
         when(build.isBuilding()).thenReturn(true);
-        when(build.getId()).thenReturn("10");
         when(build.getDurationString()).thenReturn("23 sec");
         when(build.getProject()).thenReturn(project);
-        when(build.getUrl()).thenReturn("job%2FTest%2520Project%2F14%2F");
         when(action.getRevisionSha1()).thenReturn(REVISION_SHA1);
         when(action.getServerId()).thenReturn(SERVER_ID);
         when(listener.getLogger()).thenReturn(logger);
@@ -100,6 +94,9 @@ public class BuildStatusPosterTest {
         when(server.getGlobalCredentialsProvider(project)).thenReturn(gcp);
         when(jenkinsToBitbucketCredentials.toBitbucketCredentials(any(BitbucketTokenCredentials.class),
                 any(GlobalCredentialsProvider.class))).thenReturn(credentials);
+        DisplayURLProvider provider = mock(DisplayURLProvider.class);
+        when(displayURLProviderWrapper.get()).thenReturn(provider);
+        when(provider.getRunURL(build)).thenReturn("/home/user/.jenkins/Test_Project");
     }
 
     @Test

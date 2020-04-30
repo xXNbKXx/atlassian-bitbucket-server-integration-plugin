@@ -70,6 +70,7 @@ public class BitbucketPluginConfigurationTest {
         when(invalidServerConfigurationTwo.getBaseUrl()).thenReturn("http://localhost:7990/bitbucket");
     }
 
+    /** TODO: Test candidate for Job agnostic Test **/
     @Test
     public void testConfigureChangedBaseUrlUpdatesJob() throws Exception {
         FreeStyleProject freeStyleProject = jenkins.createFreeStyleProject();
@@ -134,7 +135,6 @@ public class BitbucketPluginConfigurationTest {
         formData.put("serverList", 1);
         List<BitbucketServerConfiguration> validServerList = pluginConfiguration.getValidServerList();
         assertThat(validServerList, Matchers.contains(validServerConfiguration));
-        assertThat(validServerList, Matchers.contains(validServerConfiguration));
     }
 
     @Test
@@ -148,7 +148,6 @@ public class BitbucketPluginConfigurationTest {
         pluginConfiguration.setServerList(Arrays.asList(validServerConfiguration, invalidServerConfigurationOne, invalidServerConfigurationTwo));
         formData.put("serverList", 2);
         List<BitbucketServerConfiguration> validServerList = pluginConfiguration.getValidServerList();
-        assertThat(validServerList, Matchers.contains(validServerConfiguration));
         assertThat(validServerList, Matchers.contains(validServerConfiguration));
     }
 

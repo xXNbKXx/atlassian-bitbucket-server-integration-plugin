@@ -8,6 +8,7 @@ import com.atlassian.bitbucket.jenkins.internal.credentials.GlobalCredentialsPro
 import com.atlassian.bitbucket.jenkins.internal.credentials.JenkinsToBitbucketCredentials;
 import com.atlassian.bitbucket.jenkins.internal.credentials.JenkinsToBitbucketCredentialsModule;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketBuildStatus;
+import com.atlassian.bitbucket.jenkins.internal.provider.DisplayURLProviderWrapper;
 import com.cloudbees.plugins.credentials.Credentials;
 import com.google.inject.Guice;
 import hudson.model.Run;
@@ -31,6 +32,8 @@ public class BuildStatusPoster {
     BitbucketClientFactoryProvider bitbucketClientFactoryProvider;
     @Inject
     private BitbucketPluginConfiguration pluginConfiguration;
+    @Inject
+    private DisplayURLProviderWrapper displayURLProviderWrapper;
     private transient JenkinsToBitbucketCredentials jenkinsToBitbucketCredentials;
 
     public void postBuildStatus(Run<?, ?> run, TaskListener listener) {
@@ -48,7 +51,7 @@ public class BuildStatusPoster {
                 if (jenkinsToBitbucketCredentials == null) {
                     Guice.createInjector(new JenkinsToBitbucketCredentialsModule()).injectMembers(this);
                 }
-                BitbucketBuildStatus buildStatus = BitbucketBuildStatusFactory.fromBuild(run);
+                BitbucketBuildStatus buildStatus = BitbucketBuildStatusFactory.fromBuild(run, displayURLProviderWrapper.get());
                 listener.getLogger().format(BUILD_STATUS_FORMAT, buildStatus.getState(), server.getServerName());
 
                 Credentials globalAdminCredentials = globalCredentialsProvider.getGlobalAdminCredentials().orElse(null);

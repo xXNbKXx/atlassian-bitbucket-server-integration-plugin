@@ -2,6 +2,7 @@ package com.atlassian.bitbucket.jenkins.internal.status;
 
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketBuildStatus;
 import com.atlassian.bitbucket.jenkins.internal.model.BuildState;
+import com.atlassian.bitbucket.jenkins.internal.provider.DisplayURLProviderWrapper;
 import hudson.model.Job;
 import hudson.model.Result;
 import hudson.model.Run;
@@ -14,11 +15,17 @@ public final class BitbucketBuildStatusFactory {
 
     private static final Collection<Result> successfulResults = Arrays.asList(Result.SUCCESS, Result.UNSTABLE);
 
-    public static BitbucketBuildStatus fromBuild(Run<?, ?> build) {
+    /**
+     * Creates a build status
+     * @param build the build
+     * @param displayURLProvider a static DisplayURLProvider. Use a {@link DisplayURLProviderWrapper}.
+     * @return the build status
+     */
+    public static BitbucketBuildStatus fromBuild(Run<?, ?> build, DisplayURLProvider displayURLProvider) {
         Job<?, ?> parent = build.getParent();
         String key = parent.getFullName();
         String name = parent.getFullDisplayName();
-        String url = DisplayURLProvider.get().getRunURL(build);
+        String url = displayURLProvider.getRunURL(build);
         BuildState state;
         if (build.isBuilding()) {
             state = BuildState.INPROGRESS;

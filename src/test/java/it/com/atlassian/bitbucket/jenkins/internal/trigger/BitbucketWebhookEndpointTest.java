@@ -1,4 +1,4 @@
-package com.atlassian.bitbucket.jenkins.internal.trigger;
+package it.com.atlassian.bitbucket.jenkins.internal.trigger;
 
 import io.restassured.http.ContentType;
 import org.apache.commons.io.IOUtils;
@@ -18,6 +18,7 @@ import static com.atlassian.bitbucket.jenkins.internal.trigger.BitbucketWebhookE
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 
+/* These are REST tests */
 public class BitbucketWebhookEndpointTest {
 
     @ClassRule

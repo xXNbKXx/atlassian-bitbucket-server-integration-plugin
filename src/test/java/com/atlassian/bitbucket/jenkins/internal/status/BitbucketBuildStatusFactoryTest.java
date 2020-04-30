@@ -8,10 +8,8 @@ import hudson.model.Result;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.displayurlapi.DisplayURLProvider;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.jvnet.hudson.test.JenkinsRule;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -22,23 +20,22 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class BitbucketBuildStatusFactoryTest {
 
-    private static final String BUILD_URL = "http://www.example.com:8000";
     private static final String BUILD_DISPLAY_NAME = "#15";
     private static final String BUILD_DURATION = "400 secs";
     private static final String PROJECT_NAME = "Project Name";
+    private static final String PROJECT_PATH = "/home/user/.jenkins/Project_Name";
 
-    @Rule
-    public final JenkinsRule jenkinsRule = new JenkinsRule();
     @Mock
     private AbstractBuild build;
     @Mock
     private Jenkins parent;
     @Mock
     private Project project;
+    @Mock
+    private DisplayURLProvider provider;
 
     @Before
     public void setup() {
-        when(build.getUrl()).thenReturn(BUILD_URL);
         when(build.getDisplayName()).thenReturn(BUILD_DISPLAY_NAME);
         when(build.getDurationString()).thenReturn(BUILD_DURATION);
         when(build.getParent()).thenReturn(project);
@@ -47,13 +44,14 @@ public class BitbucketBuildStatusFactoryTest {
         when(project.getParent()).thenReturn(parent);
         when(parent.getFullName()).thenReturn("");
         when(parent.getFullDisplayName()).thenReturn("");
+        when(provider.getRunURL(build)).thenReturn(PROJECT_PATH);
     }
 
     @Test
     public void testBuildInProgressStatus() {
         when(build.isBuilding()).thenReturn(true);
 
-        BitbucketBuildStatus result = BitbucketBuildStatusFactory.fromBuild(build);
+        BitbucketBuildStatus result = BitbucketBuildStatusFactory.fromBuild(build, provider);
 
         assertThat(result.getState(), equalTo(BuildState.INPROGRESS.toString()));
     }
@@ -63,7 +61,7 @@ public class BitbucketBuildStatusFactoryTest {
         when(build.isBuilding()).thenReturn(false);
         when(build.getResult()).thenReturn(Result.UNSTABLE);
 
-        BitbucketBuildStatus result = BitbucketBuildStatusFactory.fromBuild(build);
+        BitbucketBuildStatus result = BitbucketBuildStatusFactory.fromBuild(build, provider);
 
         assertThat(result.getState(), equalTo(BuildState.SUCCESSFUL.toString()));
     }
@@ -73,14 +71,14 @@ public class BitbucketBuildStatusFactoryTest {
         when(build.isBuilding()).thenReturn(false);
         when(build.getResult()).thenReturn(Result.SUCCESS);
 
-        BitbucketBuildStatus result = BitbucketBuildStatusFactory.fromBuild(build);
+        BitbucketBuildStatus result = BitbucketBuildStatusFactory.fromBuild(build, provider);
 
         assertThat(result.getName(), equalTo(PROJECT_NAME));
         assertThat(result.getDescription(), equalTo(BuildState.SUCCESSFUL.getDescriptiveText(
                 BUILD_DISPLAY_NAME, BUILD_DURATION)));
         assertThat(result.getKey(), equalTo(PROJECT_NAME));
         assertThat(result.getState(), equalTo(BuildState.SUCCESSFUL.toString()));
-        assertThat(result.getUrl(), equalTo(DisplayURLProvider.get().getRunURL(build)));
+        assertThat(result.getUrl(), equalTo(provider.getRunURL(build)));
     }
 
     @Test
@@ -88,7 +86,7 @@ public class BitbucketBuildStatusFactoryTest {
         when(build.isBuilding()).thenReturn(false);
         when(build.getResult()).thenReturn(Result.FAILURE);
 
-        BitbucketBuildStatus result = BitbucketBuildStatusFactory.fromBuild(build);
+        BitbucketBuildStatus result = BitbucketBuildStatusFactory.fromBuild(build, provider);
 
         assertThat(result.getState(), equalTo(BuildState.FAILED.toString()));
     }
