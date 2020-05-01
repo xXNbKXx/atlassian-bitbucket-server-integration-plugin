@@ -20,9 +20,6 @@ import java.util.*;
  * test case for each one. The rule is designed for black-box testing (treating any kind of Jenkins project as a generic
  * {@link hudson.model.Job}), and can be customized to run with any chosen set of projects if your feature is not
  * intended to have full compatibility. This rule can also be used to handle project instantiation and cleanup for individual jobs.
- *
- * To specify a test method is utilizing the rule, use the {@link WithProjects} annotation to specify which project
- * types to test, or {@link WithAllProjects} to cover all we currently support.
  */
 public class JenkinsProjectRule implements TestRule {
 
@@ -36,8 +33,6 @@ public class JenkinsProjectRule implements TestRule {
     private ProjectType activeJobType;
     // The list of all jobs that have been created as part of testing this job
     private List<Job> instantiatedJobs = new ArrayList<>();
-    // The list of all jobs being tested for this particular test
-    private List<ProjectType> testedMethodProjectTypes;
 
     private JenkinsProjectRule(Builder builder) {
         this.jenkinsRule = builder.jenkinsRule;
@@ -46,24 +41,16 @@ public class JenkinsProjectRule implements TestRule {
 
     @Override
     public Statement apply(Statement base, Description description) {
-        testedMethodProjectTypes = new ArrayList<>();
-
-        if (description.getAnnotation(WithProjects.class) != null) {
-            testedMethodProjectTypes.addAll(Arrays.asList(description.getAnnotation(WithProjects.class).types()));
-        } else if (description.getAnnotation(WithAllProjects.class) != null) {
-            testedMethodProjectTypes.addAll(testedProjectTypes);
-        }
-
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
                 // If the method was not annotated with a project initialization, run as normal
-                if (testedMethodProjectTypes.isEmpty()) {
+                if (testedProjectTypes.isEmpty()) {
                     base.evaluate();
                 } else {
                     try {
                         initializeProjects();
-                        for (ProjectType projectType : testedMethodProjectTypes) {
+                        for (ProjectType projectType : testedProjectTypes) {
                             setActiveJob(projectType);
                             base.evaluate();
                         }
@@ -98,7 +85,7 @@ public class JenkinsProjectRule implements TestRule {
                 ((WorkflowJob) activeJob).setDefinition(new CpsScmFlowDefinition(scm, "Jenkinsfile"));
                 break;
             case MULTIBRANCH:
-                // TODO
+                // TODO: Add Multibranch Support
                 break;
         }
     }
@@ -112,11 +99,11 @@ public class JenkinsProjectRule implements TestRule {
     public SCM getSCM() {
         switch(activeJobType) {
             case FREESTYLE:
-                ((CpsScmFlowDefinition) ((WorkflowJob) activeJob).getDefinition()).getScm();
-            case PIPELINE:
                 return ((FreeStyleProject) activeJob).getScm();
+            case PIPELINE:
+                return ((CpsScmFlowDefinition) ((WorkflowJob) activeJob).getDefinition()).getScm();
             case MULTIBRANCH:
-                // TODO
+                // TODO: Add Multibranch Support
                 return null;
             default:
                 return null;
@@ -138,8 +125,11 @@ public class JenkinsProjectRule implements TestRule {
     }
 
     private void initializeProjects() throws IOException {
-        for (ProjectType projectType : testedMethodProjectTypes) {
+        for (ProjectType projectType : testedProjectTypes) {
             switch(projectType) {
+                case MULTIBRANCH:
+                    // TODO: Add Multibranch Support
+                    break;
                 default:
                     instantiatedJobs.add((Job) jenkinsRule.createProject(projectType.getTopLevelItemClass()));
                     break;
@@ -171,8 +161,8 @@ public class JenkinsProjectRule implements TestRule {
         }
 
         public Builder withMultibranchPipelineJob() {
-            projectTypes.add(ProjectType.MULTIBRANCH);
-            return this;
+            // TODO: Add Mutlibranch Support
+            throw new UnsupportedOperationException("Multibranch Jobs are not yet supported");
         }
 
         public Builder withPipelineJob() {

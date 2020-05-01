@@ -15,6 +15,7 @@ import java.util.Optional;
  */
 public enum ProjectType {
     FREESTYLE(FreeStyleProject.class),
+    // TODO: Add Mutlibranch Support
     MULTIBRANCH(WorkflowMultiBranchProject.class),
     PIPELINE(WorkflowJob.class);
 

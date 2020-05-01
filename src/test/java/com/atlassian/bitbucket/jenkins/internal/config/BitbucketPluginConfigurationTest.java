@@ -1,7 +1,6 @@
 package com.atlassian.bitbucket.jenkins.internal.config;
 
 import com.atlassian.bitbucket.jenkins.internal.fixture.JenkinsProjectRule;
-import com.atlassian.bitbucket.jenkins.internal.fixture.WithAllProjects;
 import com.atlassian.bitbucket.jenkins.internal.scm.BitbucketSCM;
 import hudson.scm.SCM;
 import hudson.util.FormValidation;
@@ -80,7 +79,6 @@ public class BitbucketPluginConfigurationTest {
     }
 
     @Test
-    @WithAllProjects
     public void testConfigureChangedBaseUrlUpdatesJob() throws Exception {
         BitbucketSCM initialSCM = mock(BitbucketSCM.class);
         when(initialSCM.getServerId()).thenReturn("0");
