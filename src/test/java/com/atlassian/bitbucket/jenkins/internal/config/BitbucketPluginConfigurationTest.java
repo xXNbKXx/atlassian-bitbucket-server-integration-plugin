@@ -1,18 +1,19 @@
 package com.atlassian.bitbucket.jenkins.internal.config;
 
+import com.atlassian.bitbucket.jenkins.internal.fixture.JenkinsProjectRule;
+import com.atlassian.bitbucket.jenkins.internal.fixture.WithAllProjects;
 import com.atlassian.bitbucket.jenkins.internal.scm.BitbucketSCM;
-import hudson.model.FreeStyleProject;
 import hudson.scm.SCM;
 import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
 import org.hamcrest.Matchers;
-import org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition;
-import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.kohsuke.stapler.StaplerRequest;
@@ -39,9 +40,17 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class BitbucketPluginConfigurationTest {
 
-    @ClassRule
-    public static final JenkinsRule jenkins = new JenkinsRule();
     private static final String ERROR_MESSAGE = "ERROR";
+
+    private static final JenkinsRule jenkinsRule = new JenkinsRule();
+    private static final JenkinsProjectRule jenkinsProjectRule = new JenkinsProjectRule.Builder(jenkinsRule)
+            .withFreestyleJob()
+            .withPipelineJob()
+            .build();
+
+    @ClassRule
+    public static TestRule testRule = RuleChain.outerRule(jenkinsRule).around(jenkinsProjectRule);
+
     private final JSONObject formData = new JSONObject();
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -71,16 +80,12 @@ public class BitbucketPluginConfigurationTest {
     }
 
     @Test
+    @WithAllProjects
     public void testConfigureChangedBaseUrlUpdatesJob() throws Exception {
-        FreeStyleProject freeStyleProject = jenkins.createFreeStyleProject();
-        BitbucketSCM bitbucketSCMInitial = mock(BitbucketSCM.class);
-        when(bitbucketSCMInitial.getServerId()).thenReturn("0");
-        freeStyleProject.setScm(bitbucketSCMInitial);
-        assertThat(jenkins.getInstance().getAllItems(FreeStyleProject.class).get(0).getScm(),
-                equalTo(bitbucketSCMInitial));
+        BitbucketSCM initialSCM = mock(BitbucketSCM.class);
+        when(initialSCM.getServerId()).thenReturn("0");
 
-        WorkflowJob workflowJob = jenkins.createProject(WorkflowJob.class);
-        workflowJob.setDefinition(new CpsScmFlowDefinition(bitbucketSCMInitial, "Jenkinsfile"));
+        jenkinsProjectRule.setSCM(initialSCM);
 
         BitbucketServerConfiguration changedBaseUrlConfiguration = mock(BitbucketServerConfiguration.class);
         when(changedBaseUrlConfiguration.validate()).thenReturn(FormValidation.ok());
@@ -95,13 +100,9 @@ public class BitbucketPluginConfigurationTest {
 
         assertTrue(pluginConfiguration.configure(request, formData));
 
-        SCM newScm = jenkins.getInstance().getAllItems(FreeStyleProject.class).get(0).getScm();
-        assertThat(newScm, not(equalTo(bitbucketSCMInitial)));
-        assertThat(((BitbucketSCM) newScm).getServerId(), equalTo("0"));
-
-        newScm = ((CpsScmFlowDefinition) jenkins.getInstance().getAllItems(WorkflowJob.class).get(0).getDefinition()).getScm();
-        assertThat(newScm, not(equalTo(bitbucketSCMInitial)));
-        assertThat(((BitbucketSCM) newScm).getServerId(), equalTo("0"));
+        SCM newSCM = jenkinsProjectRule.getSCM();
+        assertThat(newSCM, not(equalTo(initialSCM)));
+        assertThat(((BitbucketSCM) newSCM).getServerId(), equalTo("0"));
     }
 
     @Test
