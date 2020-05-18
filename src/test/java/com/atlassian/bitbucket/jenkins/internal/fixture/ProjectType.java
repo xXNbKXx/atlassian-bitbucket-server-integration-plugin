@@ -4,7 +4,6 @@ import hudson.model.FreeStyleProject;
 import hudson.model.Job;
 import hudson.model.TopLevelItem;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -15,8 +14,6 @@ import java.util.Optional;
  */
 public enum ProjectType {
     FREESTYLE(FreeStyleProject.class),
-    // TODO: Add Mutlibranch Support
-    MULTIBRANCH(WorkflowMultiBranchProject.class),
     PIPELINE(WorkflowJob.class);
 
     //Type casting of job into a consumable class is handled by getters- all supported types are both Jobs and TopLevelItems.

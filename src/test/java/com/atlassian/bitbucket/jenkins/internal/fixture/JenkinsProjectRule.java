@@ -10,7 +10,6 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.jvnet.hudson.test.JenkinsRule;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.*;
 
@@ -23,16 +22,14 @@ import java.util.*;
  */
 public class JenkinsProjectRule implements TestRule {
 
-    // The set of all project types that can be tested by this rule, specified in the builder
-    private final Set<ProjectType> testedProjectTypes;
+    // The list of all jobs that have been created as part of testing this job
+    private final List<Job> instantiatedJobs = new ArrayList<>();
     // The chained JenkinsRule, used to instantiate projects
     private final JenkinsRule jenkinsRule;
-
+    // The set of all project types that can be tested by this rule, specified in the builder
+    private final Set<ProjectType> testedProjectTypes;
     // The job available to the integration test
     private Job activeJob;
-    private ProjectType activeJobType;
-    // The list of all jobs that have been created as part of testing this job
-    private List<Job> instantiatedJobs = new ArrayList<>();
 
     private JenkinsProjectRule(Builder builder) {
         this.jenkinsRule = builder.jenkinsRule;
@@ -67,8 +64,31 @@ public class JenkinsProjectRule implements TestRule {
      *
      * @return the currently active job
      */
-    public Job getJob() {
+    public Job getActiveJob() {
         return activeJob;
+    }
+
+    private void setActiveJob(ProjectType type) {
+        activeJob = instantiatedJobs.stream()
+                .filter(job -> job.getClass() == type.getJobClass())
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Project of type " + type.toString() + " not found."));
+    }
+
+    /**
+     * Gets the SCM of the currently active job
+     *
+     * @return the SCM of the currently active job
+     */
+    public SCM getSCM() {
+        switch (getActiveJobType()) {
+            case FREESTYLE:
+                return ((FreeStyleProject) activeJob).getScm();
+            case PIPELINE:
+                return ((CpsScmFlowDefinition) ((WorkflowJob) activeJob).getDefinition()).getScm();
+            default:
+                return null;
+        }
     }
 
     /**
@@ -77,45 +97,14 @@ public class JenkinsProjectRule implements TestRule {
      * @param scm the SCM to add to the currently active job
      */
     public void setSCM(SCM scm) throws IOException {
-        switch(activeJobType) {
+        switch (getActiveJobType()) {
             case FREESTYLE:
                 ((FreeStyleProject) activeJob).setScm(scm);
                 break;
             case PIPELINE:
                 ((WorkflowJob) activeJob).setDefinition(new CpsScmFlowDefinition(scm, "Jenkinsfile"));
                 break;
-            case MULTIBRANCH:
-                // TODO: Add Multibranch Support
-                break;
         }
-    }
-
-    /**
-     * Gets the SCM of the currently active job
-     *
-     * @return the SCM of the currently active job
-     */
-    @Nullable
-    public SCM getSCM() {
-        switch(activeJobType) {
-            case FREESTYLE:
-                return ((FreeStyleProject) activeJob).getScm();
-            case PIPELINE:
-                return ((CpsScmFlowDefinition) ((WorkflowJob) activeJob).getDefinition()).getScm();
-            case MULTIBRANCH:
-                // TODO: Add Multibranch Support
-                return null;
-            default:
-                return null;
-        }
-    }
-
-    private void setActiveJob(ProjectType type) {
-        activeJob = instantiatedJobs.stream()
-                .filter(job -> job.getClass() == type.getJobClass())
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Project of type " + type.toString() + " not found."));
-        activeJobType = type;
     }
 
     private void cleanupProjects() throws IOException, InterruptedException {
@@ -124,23 +113,24 @@ public class JenkinsProjectRule implements TestRule {
         }
     }
 
+    private ProjectType getActiveJobType() {
+        return EnumSet.allOf(ProjectType.class).stream()
+                .filter(type -> type.getJobClass() == activeJob.getClass())
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Active job has been set with unsupported class type: "
+                                                        + activeJob.getClass().toString()));
+    }
+
     private void initializeProjects() throws IOException {
         for (ProjectType projectType : testedProjectTypes) {
-            switch(projectType) {
-                case MULTIBRANCH:
-                    // TODO: Add Multibranch Support
-                    break;
-                default:
-                    instantiatedJobs.add((Job) jenkinsRule.createProject(projectType.getTopLevelItemClass()));
-                    break;
-            }
+            instantiatedJobs.add((Job) jenkinsRule.createProject(projectType.getTopLevelItemClass()));
         }
     }
 
     public static class Builder {
 
-        public Set<ProjectType> projectTypes = new HashSet<>();
         public JenkinsRule jenkinsRule;
+        public Set<ProjectType> projectTypes = new HashSet<>();
 
         public Builder(JenkinsRule jenkinsRule) {
             this.jenkinsRule = jenkinsRule;
@@ -158,11 +148,6 @@ public class JenkinsProjectRule implements TestRule {
         public Builder withFreestyleJob() {
             projectTypes.add(ProjectType.FREESTYLE);
             return this;
-        }
-
-        public Builder withMultibranchPipelineJob() {
-            // TODO: Add Mutlibranch Support
-            throw new UnsupportedOperationException("Multibranch Jobs are not yet supported");
         }
 
         public Builder withPipelineJob() {
