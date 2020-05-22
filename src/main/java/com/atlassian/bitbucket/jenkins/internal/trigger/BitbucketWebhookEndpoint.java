@@ -94,6 +94,12 @@ public class BitbucketWebhookEndpoint implements UnprotectedRootAction {
         return org.kohsuke.stapler.HttpResponses.ok();
     }
 
+    private HttpResponse processPullRequestOpenedEvent(StaplerRequest request) {
+        PullRequestOpenedWebhookEvent event = parse(request, PullRequestOpenedWebhookEvent.class);
+        webhookConsumer.process(event);
+        return HttpResponses.ok();
+    }
+
     private HttpResponse processRefChangedEvent(StaplerRequest request) {
         RefsChangedWebhookEvent event = parse(request, RefsChangedWebhookEvent.class);
         webhookConsumer.process(event);
