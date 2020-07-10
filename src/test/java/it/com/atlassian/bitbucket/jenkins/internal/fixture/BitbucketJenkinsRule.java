@@ -42,6 +42,7 @@ public final class BitbucketJenkinsRule extends JenkinsRule {
     private static final AtomicReference<PersonalToken> READ_PERSONAL_TOKEN = new AtomicReference<>();
     private BitbucketServerConfiguration bitbucketServerConfiguration;
     private BitbucketPluginConfiguration bitbucketPluginConfiguration;
+    private String credentialsId;
     private HtmlPage currentPage;
     private FileHandler handler;
     private WebClient webClient;
@@ -125,13 +126,13 @@ public final class BitbucketJenkinsRule extends JenkinsRule {
             READ_PERSONAL_TOKEN.set(createPersonalToken(PROJECT_READ_PERMISSION));
             Runtime.getRuntime().addShutdownHook(new BitbucketTokenCleanUpThread(READ_PERSONAL_TOKEN.get().getId()));
         }
-        String readCredentialsId = UUID.randomUUID().toString();
-        Credentials readCredentials = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, readCredentialsId,
+        credentialsId = UUID.randomUUID().toString();
+        Credentials readCredentials = new UsernamePasswordCredentialsImpl(CredentialsScope.GLOBAL, credentialsId,
                 "", BITBUCKET_ADMIN_USERNAME, ADMIN_PERSONAL_TOKEN.get().getSecret());
         addCredentials(readCredentials);
 
         bitbucketServerConfiguration =
-                new BitbucketServerConfiguration(adminCredentialsId, BITBUCKET_BASE_URL, readCredentialsId, null);
+                new BitbucketServerConfiguration(adminCredentialsId, BITBUCKET_BASE_URL, null);
         bitbucketServerConfiguration.setServerName(SERVER_NAME);
         addBitbucketServer(bitbucketServerConfiguration);
     }
@@ -162,6 +163,10 @@ public final class BitbucketJenkinsRule extends JenkinsRule {
         CredentialsStore store = CredentialsProvider.lookupStores(jenkins).iterator().next();
         Domain domain = Domain.global();
         store.addCredentials(domain, credentials);
+    }
+
+    public String getCredentialsId() {
+        return credentialsId;
     }
 
     private static final class BitbucketTokenCleanUpThread extends Thread {

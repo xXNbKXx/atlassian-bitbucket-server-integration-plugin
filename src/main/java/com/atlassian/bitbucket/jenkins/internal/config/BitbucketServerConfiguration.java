@@ -6,7 +6,6 @@ import com.atlassian.bitbucket.jenkins.internal.client.exception.AuthorizationEx
 import com.atlassian.bitbucket.jenkins.internal.client.exception.BitbucketClientException;
 import com.atlassian.bitbucket.jenkins.internal.client.exception.ConnectionFailureException;
 import com.atlassian.bitbucket.jenkins.internal.client.exception.NotFoundException;
-import com.atlassian.bitbucket.jenkins.internal.credentials.CredentialUtils;
 import com.atlassian.bitbucket.jenkins.internal.credentials.GlobalCredentialsProvider;
 import com.atlassian.bitbucket.jenkins.internal.credentials.JenkinsToBitbucketCredentials;
 import com.atlassian.bitbucket.jenkins.internal.credentials.JenkinsToBitbucketCredentialsModule;
@@ -15,7 +14,6 @@ import com.cloudbees.plugins.credentials.Credentials;
 import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
-import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
 import com.google.inject.Guice;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
@@ -28,7 +26,6 @@ import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
-import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
@@ -48,7 +45,6 @@ import static com.cloudbees.plugins.credentials.CredentialsMatchers.firstOrNull;
 import static com.cloudbees.plugins.credentials.CredentialsMatchers.withId;
 import static com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials;
 import static java.lang.String.format;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.FINE;
 import static org.apache.commons.lang3.StringUtils.*;
@@ -61,7 +57,6 @@ public class BitbucketServerConfiguration
     private static final Logger log = Logger.getLogger(BitbucketServerConfiguration.class.getName());
 
     private final String adminCredentialsId;
-    private final String credentialsId;
     private final String id;
     private String baseUrl;
     private String serverName;
@@ -70,11 +65,9 @@ public class BitbucketServerConfiguration
     public BitbucketServerConfiguration(
             String adminCredentialsId,
             String baseUrl,
-            @Nullable String credentialsId,
             @Nullable String id) {
         this.adminCredentialsId = requireNonNull(adminCredentialsId);
         this.baseUrl = requireNonNull(baseUrl);
-        this.credentialsId = credentialsId;
         this.id = isBlank(id) ? UUID.randomUUID().toString() : id;
     }
 
@@ -95,8 +88,8 @@ public class BitbucketServerConfiguration
 
             @Override
             public Optional<Credentials> getGlobalCredentials() {
-                Credentials adminCredentials = BitbucketServerConfiguration.this.getCredentials();
-                return Optional.ofNullable(CredentialsProvider.track(item, adminCredentials));
+                // Default credentials have been removed- see JENKINS-62235
+                return Optional.empty();
             }
         };
     }
@@ -121,8 +114,8 @@ public class BitbucketServerConfiguration
 
             @Override
             public Optional<Credentials> getGlobalCredentials() {
-                log.fine(format("Using global credentials for [%s]", context));
-                return Optional.ofNullable(BitbucketServerConfiguration.this.getCredentials());
+                // Default credentials have been removed- see JENKINS-62235
+                return Optional.empty();
             }
         };
     }
@@ -148,11 +141,6 @@ public class BitbucketServerConfiguration
     @DataBoundSetter
     public void setBaseUrl(String baseUrl) {
         this.baseUrl = trimToEmpty(baseUrl);
-    }
-
-    @Nullable
-    public String getCredentialsId() {
-        return credentialsId;
     }
 
     public String getId() {
@@ -262,11 +250,6 @@ public class BitbucketServerConfiguration
                 withId(trimToEmpty(adminCredentialsId)));
     }
 
-    @Nullable
-    private Credentials getCredentials() {
-        return CredentialUtils.getCredentials(credentialsId);
-    }
-
     @Symbol("BbS")
     @Extension
     public static class DescriptorImpl extends Descriptor<BitbucketServerConfiguration> {
@@ -313,44 +296,16 @@ public class BitbucketServerConfiguration
                             CredentialsMatchers.always());
         }
 
-        @SuppressWarnings({"MethodMayBeStatic", "unused"})
-        @POST
-        public ListBoxModel doFillCredentialsIdItems(
-                @QueryParameter String baseUrl, @QueryParameter String credentialsId) {
-            Jenkins instance = Jenkins.get();
-            instance.checkPermission(Jenkins.ADMINISTER);
-
-            return new StandardListBoxModel()
-                    .includeEmptyValue()
-                    .includeMatchingAs(
-                            ACL.SYSTEM,
-                            instance,
-                            StringCredentials.class,
-                            URIRequirementBuilder.fromUri(baseUrl).build(),
-                            CredentialsMatchers.always())
-                    .includeMatchingAs(
-                            ACL.SYSTEM,
-                            instance,
-                            StandardUsernamePasswordCredentials.class,
-                            URIRequirementBuilder.fromUri(baseUrl).build(),
-                            CredentialsMatchers.always());
-        }
-
         @SuppressWarnings("unused")
         @POST
         public FormValidation doTestConnection(
                 @QueryParameter String adminCredentialsId,
-                @QueryParameter String baseUrl,
-                @QueryParameter String credentialsId) {
+                @QueryParameter String baseUrl) {
             Jenkins.get().checkPermission(Jenkins.ADMINISTER);
 
             BitbucketServerConfiguration config =
                     new BitbucketServerConfiguration(
-                            adminCredentialsId, baseUrl, credentialsId, null);
-            Credentials credentials = config.getCredentials();
-            if (credentials == null && isNotBlank(credentialsId)) {
-                return FormValidation.error("We can't find these credentials. Provide different credentials and try again.");
-            }
+                            adminCredentialsId, baseUrl, null);
             if (config.getAdminCredentials() == null) {
                 return FormValidation.error("A personal access token with project admin permissions is required.");
             }
@@ -373,14 +328,9 @@ public class BitbucketServerConfiguration
                 BitbucketClientFactory client =
                         clientFactoryProvider.getClient(
                                 config.getBaseUrl(),
-                                jenkinsToBitbucketCredentials.toBitbucketCredentials(credentials, config.getGlobalCredentialsProvider(context)));
+                                jenkinsToBitbucketCredentials.toBitbucketCredentials("", config.getGlobalCredentialsProvider(context)));
 
                 AtlassianServerCapabilities capabilities = client.getCapabilityClient().getServerCapabilities();
-                if (credentials instanceof StringCredentials) {
-                    if (!client.getAuthenticatedUserClient().getAuthenticatedUser().isPresent()) {
-                        throw new AuthorizationException("TO WRITE", HTTP_UNAUTHORIZED, null);
-                    }
-                }
 
                 if (capabilities.isBitbucketServer()) {
                     return FormValidation.ok("Jenkins can connect with Bitbucket Server.");

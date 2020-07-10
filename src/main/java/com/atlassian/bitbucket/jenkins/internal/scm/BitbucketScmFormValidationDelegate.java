@@ -13,6 +13,7 @@ import com.atlassian.bitbucket.jenkins.internal.model.BitbucketRepository;
 import com.cloudbees.plugins.credentials.Credentials;
 import hudson.util.FormValidation;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -49,7 +50,7 @@ public class BitbucketScmFormValidationDelegate implements BitbucketScmFormValid
     }
 
     @Override
-    public FormValidation doCheckProjectName(String serverId, String credentialsId, String projectName) {
+    public FormValidation doCheckProjectName(String serverId, @Nullable String credentialsId, String projectName) {
         if (isBlank(projectName)) {
             return FormValidation.error("Project name is required");
         }
@@ -81,7 +82,7 @@ public class BitbucketScmFormValidationDelegate implements BitbucketScmFormValid
     }
 
     @Override
-    public FormValidation doCheckRepositoryName(String serverId, String credentialsId, String projectName,
+    public FormValidation doCheckRepositoryName(String serverId, @Nullable String credentialsId, String projectName,
                                                 String repositoryName) {
         if (isBlank(projectName)) {
             return FormValidation.ok(); // There will be an error on the projectName field

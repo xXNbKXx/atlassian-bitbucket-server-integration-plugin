@@ -33,7 +33,7 @@ public class BitbucketSCMStepIT {
     @Test
     public void testCreateSCM() {
         BitbucketServerConfiguration serverConf = bbJenkinsRule.getBitbucketServerConfiguration();
-        String credentialsId = serverConf.getCredentialsId();
+        String credentialsId = bbJenkinsRule.getCredentialsId();
         String id = UUID.randomUUID().toString();
         String serverId = serverConf.getId();
         TestSCMStep scmStep = new TestSCMStep(id, singletonList(new BranchSpec("master")),

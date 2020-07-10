@@ -28,7 +28,7 @@ public class BitbucketSCMSnippetGeneratorIT {
         json.put("$class", "com.atlassian.bitbucket.jenkins.internal.scm.BitbucketSCMStep");
         json.put("id", "myId");
         json.put("branches", singletonList(singletonMap("name", "*/master")));
-        json.put("credentialsId", bbJenkinsRule.getBitbucketServerConfiguration().getCredentialsId());
+        json.put("credentialsId", bbJenkinsRule.getCredentialsId());
         json.put("projectName", "Project 1");
         json.put("repositoryName", "rep_1");
         json.put("serverId", bbJenkinsRule.getBitbucketServerConfiguration().getId());
@@ -48,7 +48,7 @@ public class BitbucketSCMSnippetGeneratorIT {
                         .getResource("/it/com/atlassian/bitbucket/jenkins/internal/scm/snippet.txt")
                         .toURI(),
                 StandardCharsets.UTF_8)
-                .replace("credentialsIdPlaceholder", bbJenkinsRule.getBitbucketServerConfiguration().getCredentialsId())
+                .replace("credentialsIdPlaceholder", bbJenkinsRule.getCredentialsId())
                 .replace("serverIdPlaceholder", bbJenkinsRule.getBitbucketServerConfiguration().getId())
                 .trim();
         assertThat(snippet, equalTo(expectedSnippet));

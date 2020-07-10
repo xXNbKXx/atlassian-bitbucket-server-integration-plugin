@@ -92,7 +92,7 @@ public class BitbucketSCMSourceIT {
     @Test
     public void testCreateSCM() {
         BitbucketServerConfiguration serverConf = bbJenkinsRule.getBitbucketServerConfiguration();
-        String credentialsId = serverConf.getCredentialsId();
+        String credentialsId = bbJenkinsRule.getCredentialsId();
         String id = UUID.randomUUID().toString();
         String serverId = serverConf.getId();
         BitbucketSCMSource scmSource = new BitbucketSCMSource(id, credentialsId, null, PROJECT_NAME, repoName, serverId, null);
@@ -124,7 +124,7 @@ public class BitbucketSCMSourceIT {
     @Test
     public void testFullFlow() throws IOException, InterruptedException, GitAPIException {
         BitbucketServerConfiguration serverConf = bbJenkinsRule.getBitbucketServerConfiguration();
-        String credentialsId = serverConf.getCredentialsId();
+        String credentialsId = bbJenkinsRule.getCredentialsId();
         String id = UUID.randomUUID().toString();
         String serverId = serverConf.getId();
         SCMSource scmSource = new BitbucketSCMSource(id, credentialsId, new BitbucketSCMSource.DescriptorImpl().getTraitsDefaults(),

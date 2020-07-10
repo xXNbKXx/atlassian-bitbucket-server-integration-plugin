@@ -43,7 +43,6 @@ public class BitbucketScmFormValidationDelegateTest {
     public static BitbucketMockJenkinsRule bbJenkins =
             new BitbucketMockJenkinsRule("token", wireMockConfig().dynamicPort());
 
-    private static String CREDENTIAL_ID = "credential_id";
     private static String SERVER_BASE_URL_VALID = "ServerBaseUrl_Valid";
     private static String SERVER_ID_INVALID = "ServerID_Invalid";
     private static String SERVER_ID_VALID = "ServerID_Valid";
@@ -72,7 +71,6 @@ public class BitbucketScmFormValidationDelegateTest {
         when(serverConfigurationValid.getServerName()).thenReturn(SERVER_NAME_VALID);
         when(serverConfigurationValid.getBaseUrl()).thenReturn(SERVER_BASE_URL_VALID);
         when(serverConfigurationValid.validate()).thenReturn(FormValidation.ok());
-        when(serverConfigurationValid.getCredentialsId()).thenReturn(CREDENTIAL_ID);
         when(serverConfigurationValid.getGlobalCredentialsProvider(anyString())).thenReturn(globalCredentialsProvider);
         when(pluginConfiguration.getValidServerList()).thenReturn(singletonList(serverConfigurationValid));
         when(pluginConfiguration.hasAnyInvalidConfiguration()).thenReturn(false);
@@ -81,7 +79,7 @@ public class BitbucketScmFormValidationDelegateTest {
         when(serverConfigurationInvalid.getServerName()).thenReturn(SERVER_NAME_INVALID);
         when(serverConfigurationInvalid.validate()).thenReturn(FormValidation.error("ERROR"));
         when(pluginConfiguration.getServerById(SERVER_ID_VALID)).thenReturn(of(serverConfigurationValid));
-        when(jenkinsToBitbucketCredentials.toBitbucketCredentials(CREDENTIAL_ID, globalCredentialsProvider)).thenReturn(mock(BitbucketCredentials.class));
+        when(jenkinsToBitbucketCredentials.toBitbucketCredentials((String) null, globalCredentialsProvider)).thenReturn(mock(BitbucketCredentials.class));
 
         when(bitbucketClientFactory.getSearchClient(any())).thenAnswer((Answer<BitbucketSearchClient>) getSearchClientInvocation -> {
             String partialProjectName = getSearchClientInvocation.getArgument(0);
@@ -141,34 +139,32 @@ public class BitbucketScmFormValidationDelegateTest {
 
     @Test
     public void testProjectNameEmpty() {
-        assertEquals(FormValidation.Kind.ERROR, delegate.doCheckProjectName(serverConfigurationValid.getId(), serverConfigurationValid.getCredentialsId(), "").kind);
+        assertEquals(FormValidation.Kind.ERROR, delegate.doCheckProjectName(serverConfigurationValid.getId(), null, "").kind);
     }
 
     @Test
     public void testProjectNameNonEmpty() {
-        assertEquals(FormValidation.Kind.OK, delegate.doCheckProjectName(serverConfigurationValid.getId(), serverConfigurationValid.getCredentialsId(), "PROJECT").kind);
+        assertEquals(FormValidation.Kind.OK, delegate.doCheckProjectName(serverConfigurationValid.getId(), null, "PROJECT").kind);
     }
 
     @Test
     public void testProjectNameNull() {
-        assertEquals(FormValidation.Kind.ERROR, delegate.doCheckProjectName(serverConfigurationValid.getId(), serverConfigurationValid.getCredentialsId(), null).kind);
+        assertEquals(FormValidation.Kind.ERROR, delegate.doCheckProjectName(serverConfigurationValid.getId(), null, null).kind);
     }
 
     @Test
     public void testRepositoryNameEmpty() {
-        when(serverConfigurationValid.getCredentialsId()).thenReturn(null);
-        assertEquals(FormValidation.Kind.ERROR, delegate.doCheckRepositoryName(serverConfigurationValid.getId(), serverConfigurationValid.getCredentialsId(), "PROJECT_1", "").kind);
+        assertEquals(FormValidation.Kind.ERROR, delegate.doCheckRepositoryName(serverConfigurationValid.getId(), null, "PROJECT_1", "").kind);
     }
 
     @Test
     public void testRepositoryNameNonEmpty() {
-        assertEquals(FormValidation.Kind.OK, delegate.doCheckRepositoryName(serverConfigurationValid.getId(), serverConfigurationValid.getCredentialsId(), "PROJECT_1", "repo").kind);
+        assertEquals(FormValidation.Kind.OK, delegate.doCheckRepositoryName(serverConfigurationValid.getId(), null, "PROJECT_1", "repo").kind);
     }
 
     @Test
     public void testRepositoryNameNull() {
-        when(serverConfigurationValid.getCredentialsId()).thenReturn(null);
-        assertEquals(FormValidation.Kind.ERROR, delegate.doCheckRepositoryName(serverConfigurationValid.getId(), serverConfigurationValid.getCredentialsId(), "PROJECT_1", null).kind);
+        assertEquals(FormValidation.Kind.ERROR, delegate.doCheckRepositoryName(serverConfigurationValid.getId(), null, "PROJECT_1", null).kind);
     }
 
     @Test
