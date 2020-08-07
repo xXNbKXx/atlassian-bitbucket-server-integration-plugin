@@ -105,10 +105,12 @@ public class BitbucketSCMStep extends SCMStep {
         return cloneUrl;
     }
 
+    @Nullable
     public String getCredentialsId() {
         return credentialsId;
     }
 
+    @Nullable
     public String getSshCredentialsId() {
         return sshCredentialsId;
     }
@@ -117,6 +119,7 @@ public class BitbucketSCMStep extends SCMStep {
         return id;
     }
 
+    @Nullable
     public String getMirrorName() {
         return mirrorName;
     }

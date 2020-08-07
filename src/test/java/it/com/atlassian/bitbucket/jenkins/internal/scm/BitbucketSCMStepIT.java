@@ -16,8 +16,8 @@ import org.junit.Test;
 import java.util.UUID;
 
 import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 public class BitbucketSCMStepIT {
 
@@ -39,6 +39,8 @@ public class BitbucketSCMStepIT {
         String serverId = serverConf.getId();
         TestSCMStep scmStep = new TestSCMStep(id, singletonList(new BranchSpec("master")),
                 credentialsId, "", PROJECT_NAME, REPO_NAME, serverId, "");
+        TestSCM scm = scmStep.createSCM();
+
         assertThat(scmStep.getBranches(), hasSize(1));
         assertThat(scmStep.getBranches().get(0).getName(), equalTo("master"));
         assertThat(scmStep.getCloneUrl(), containsStringIgnoringCase(CLONE_URL_HTTP));
@@ -50,10 +52,10 @@ public class BitbucketSCMStepIT {
         assertThat(scmStep.getRepositorySlug(), equalTo(REPO_SLUG));
         assertThat(scmStep.getSelfLink(), equalToIgnoringCase(BROWSE_URL));
         assertThat(scmStep.getServerId(), equalTo(serverId));
-        assertThat(scmStep.getSshCredentialsId(), equalTo(""));
-        assertThat(scmStep.getMirrorName(), equalTo(""));
+        // Blank fields are set to null so they do not appear as fields in the snippet generator
+        assertThat(scmStep.getSshCredentialsId(), equalTo(null));
+        assertThat(scmStep.getMirrorName(), equalTo(null));
 
-        TestSCM scm = scmStep.createSCM();
         assertThat(scm, instanceOf(BitbucketSCM.class));
         assertThat(scm.getBranches(), hasSize(1));
         assertThat(scm.getBranches().get(0).getName(), equalTo("master"));
@@ -67,7 +69,7 @@ public class BitbucketSCMStepIT {
         assertThat(bitbucketSCMRepository.getRepositoryName(), equalTo(REPO_NAME));
         assertThat(bitbucketSCMRepository.getRepositorySlug(), equalTo(REPO_SLUG));
         assertThat(bitbucketSCMRepository.getServerId(), equalTo(serverId));
-        assertThat(bitbucketSCMRepository.getSshCredentialsId(), equalTo(""));
+        assertThat(bitbucketSCMRepository.getSshCredentialsId(), equalTo(null));
         GitSCM gitSCM = scm.getGitSCM();
         assertThat(gitSCM.getRepositories(), hasSize(1));
         RemoteConfig remoteConfig = gitSCM.getRepositories().get(0);
@@ -85,6 +87,8 @@ public class BitbucketSCMStepIT {
         String serverId = serverConf.getId();
         TestSCMStep scmStep = new TestSCMStep(id, singletonList(new BranchSpec("master")),
                 credentialsId, sshCredentialsId, PROJECT_NAME, REPO_NAME, serverId, "");
+        TestSCM scm = scmStep.createSCM();
+
         assertThat(scmStep.getBranches(), hasSize(1));
         assertThat(scmStep.getBranches().get(0).getName(), equalTo("master"));
         assertThat(scmStep.getCloneUrl(), containsStringIgnoringCase(CLONE_URL_SSH));
@@ -97,9 +101,9 @@ public class BitbucketSCMStepIT {
         assertThat(scmStep.getSelfLink(), equalToIgnoringCase(BROWSE_URL));
         assertThat(scmStep.getServerId(), equalTo(serverId));
         assertThat(scmStep.getSshCredentialsId(), equalTo(sshCredentialsId));
-        assertThat(scmStep.getMirrorName(), equalTo(""));
+        // Blank fields are set to null so they do not appear as fields in the snippet generator
+        assertThat(scmStep.getMirrorName(), equalTo(null));
 
-        TestSCM scm = scmStep.createSCM();
         assertThat(scm, instanceOf(BitbucketSCM.class));
         assertThat(scm.getBranches(), hasSize(1));
         assertThat(scm.getBranches().get(0).getName(), equalTo("master"));
