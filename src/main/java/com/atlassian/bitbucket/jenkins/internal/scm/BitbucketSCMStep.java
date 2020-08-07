@@ -235,8 +235,8 @@ public class BitbucketSCMStep extends SCMStep {
         }
 
         @Override
-        public FormValidation doCheckSshCredentialsId(String credentialsId) {
-            return formValidation.doCheckSshCredentialsId(credentialsId);
+        public FormValidation doCheckSshCredentialsId(@QueryParameter String sshCredentialsId) {
+            return formValidation.doCheckSshCredentialsId(sshCredentialsId);
         }
 
         @Override
@@ -280,9 +280,10 @@ public class BitbucketSCMStep extends SCMStep {
 
         @Override
         @POST
-        public ListBoxModel doFillSshCredentialsIdItems(@QueryParameter String baseUrl,
-                                                     @QueryParameter String credentialsId) {
-            return formFill.doFillSshCredentialsIdItems(baseUrl, credentialsId);
+        public ListBoxModel doFillSshCredentialsIdItems(@AncestorInPath Item context,
+                                                        @QueryParameter String baseUrl,
+                                                        @QueryParameter String sshCredentialsId) {
+            return formFill.doFillSshCredentialsIdItems(context, baseUrl, sshCredentialsId);
         }
 
         @Override

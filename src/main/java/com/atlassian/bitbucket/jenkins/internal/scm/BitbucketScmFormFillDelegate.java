@@ -92,10 +92,12 @@ public class BitbucketScmFormFillDelegate implements BitbucketScmFormFill {
     }
 
     @Override
-    public ListBoxModel doFillSshCredentialsIdItems(String baseUrl, String credentialsId) {
+    public ListBoxModel doFillSshCredentialsIdItems(@Nullable Item context, String baseUrl, String sshCredentialsId) {
         Jenkins instance = Jenkins.get();
-        if (!instance.hasPermission(Jenkins.ADMINISTER)) {
-            return new StandardListBoxModel().includeCurrentValue(credentialsId);
+
+        if (context == null && !instance.hasPermission(Jenkins.ADMINISTER) ||
+                context != null && !context.hasPermission(Item.EXTENDED_READ)) {
+            return new StandardListBoxModel().includeCurrentValue(sshCredentialsId);
         }
 
         return new StandardListBoxModel()

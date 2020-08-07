@@ -18,7 +18,6 @@ import hudson.plugins.git.extensions.GitSCMExtensionDescriptor;
 import hudson.scm.SCM;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import jenkins.model.Jenkins;
 import jenkins.plugins.git.GitSCMSource;
 import jenkins.scm.api.*;
 import jenkins.scm.api.trait.SCMSourceTrait;
@@ -42,7 +41,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.atlassian.bitbucket.jenkins.internal.model.RepositoryState.AVAILABLE;
-import static hudson.model.Item.CONFIGURE;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -304,21 +302,18 @@ public class BitbucketSCMSource extends SCMSource {
         @Override
         @POST
         public FormValidation doCheckCredentialsId(@QueryParameter String credentialsId) {
-            Jenkins.get().checkPermission(CONFIGURE);
             return formValidation.doCheckCredentialsId(credentialsId);
         }
 
         @Override
-        public FormValidation doCheckSshCredentialsId(String credentialsId) {
-            Jenkins.get().checkPermission(CONFIGURE);
-            return formValidation.doCheckSshCredentialsId(credentialsId);
+        public FormValidation doCheckSshCredentialsId(@QueryParameter String sshCredentialsId) {
+            return formValidation.doCheckSshCredentialsId(sshCredentialsId);
         }
 
         @Override
         @POST
         public FormValidation doCheckProjectName(@QueryParameter String serverId, @QueryParameter String credentialsId,
                                                  @QueryParameter String projectName) {
-            Jenkins.get().checkPermission(CONFIGURE);
             return formValidation.doCheckProjectName(serverId, credentialsId, projectName);
         }
 
@@ -328,14 +323,12 @@ public class BitbucketSCMSource extends SCMSource {
                                                     @QueryParameter String credentialsId,
                                                     @QueryParameter String projectName,
                                                     @QueryParameter String repositoryName) {
-            Jenkins.get().checkPermission(CONFIGURE);
             return formValidation.doCheckRepositoryName(serverId, credentialsId, projectName, repositoryName);
         }
 
         @Override
         @POST
         public FormValidation doCheckServerId(@QueryParameter String serverId) {
-            Jenkins.get().checkPermission(CONFIGURE);
             return formValidation.doCheckServerId(serverId);
         }
 
@@ -348,9 +341,10 @@ public class BitbucketSCMSource extends SCMSource {
         }
 
         @Override
-        public ListBoxModel doFillSshCredentialsIdItems(String baseUrl, String credentialsId) {
-            Jenkins.get().checkPermission(CONFIGURE);
-            return formFill.doFillSshCredentialsIdItems(baseUrl, credentialsId);
+        public ListBoxModel doFillSshCredentialsIdItems(@AncestorInPath Item context,
+                                                        @QueryParameter String baseUrl,
+                                                        @QueryParameter String sshCredentialsId) {
+            return formFill.doFillSshCredentialsIdItems(context, baseUrl, sshCredentialsId);
         }
 
         @Override
@@ -360,7 +354,6 @@ public class BitbucketSCMSource extends SCMSource {
                                                   @QueryParameter String projectName,
                                                   @QueryParameter String repositoryName,
                                                   @QueryParameter String mirrorName) {
-            Jenkins.get().checkPermission(CONFIGURE);
             return formFill.doFillMirrorNameItems(serverId, credentialsId, projectName, repositoryName, mirrorName);
         }
 
@@ -369,7 +362,6 @@ public class BitbucketSCMSource extends SCMSource {
         public HttpResponse doFillProjectNameItems(@QueryParameter String serverId,
                                                    @QueryParameter String credentialsId,
                                                    @QueryParameter String projectName) {
-            Jenkins.get().checkPermission(CONFIGURE);
             return formFill.doFillProjectNameItems(serverId, credentialsId, projectName);
         }
 
@@ -379,14 +371,12 @@ public class BitbucketSCMSource extends SCMSource {
                                                       @QueryParameter String credentialsId,
                                                       @QueryParameter String projectName,
                                                       @QueryParameter String repositoryName) {
-            Jenkins.get().checkPermission(CONFIGURE);
             return formFill.doFillRepositoryNameItems(serverId, credentialsId, projectName, repositoryName);
         }
 
         @Override
         @POST
         public ListBoxModel doFillServerIdItems(@QueryParameter String serverId) {
-            Jenkins.get().checkPermission(CONFIGURE);
             return formFill.doFillServerIdItems(serverId);
         }
 

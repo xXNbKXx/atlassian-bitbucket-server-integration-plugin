@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@SuppressWarnings("unchecked")
 public class BitbucketUtils {
 
     public static final String BITBUCKET_ADMIN_PASSWORD =

@@ -13,7 +13,7 @@ public interface BitbucketScmFormFill {
 
     ListBoxModel doFillCredentialsIdItems(@Nullable Item context, String baseUrl, String credentialsId);
 
-    ListBoxModel doFillSshCredentialsIdItems(String baseUrl, String credentialsId);
+    ListBoxModel doFillSshCredentialsIdItems(@Nullable Item context, String baseUrl, String sshCredentialsId);
 
     HttpResponse doFillProjectNameItems(String serverId, String credentialsId, String projectName);
 
