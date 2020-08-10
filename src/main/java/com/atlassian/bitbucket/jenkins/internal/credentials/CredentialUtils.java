@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.Collections;
+import java.util.*;
 
 import static com.cloudbees.plugins.credentials.CredentialsMatchers.firstOrNull;
 import static com.cloudbees.plugins.credentials.CredentialsMatchers.withId;
