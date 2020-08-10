@@ -129,8 +129,8 @@ public class BitbucketSCMSource extends SCMSource {
      * @param oldScm old scm to copy values from
      */
     public BitbucketSCMSource(BitbucketSCMSource oldScm) {
-        this(oldScm.getId(), oldScm.getCredentialsId(), oldScm.getTraits(), oldScm.getProjectName(),
-                oldScm.getRepositoryName(), oldScm.getServerId(), oldScm.getMirrorName());
+        this(oldScm.getId(), oldScm.getCredentialsId(), oldScm.getSshCredentialsId(), oldScm.getTraits(),
+                oldScm.getProjectName(), oldScm.getRepositoryName(), oldScm.getServerId(), oldScm.getMirrorName());
     }
 
     @Override
