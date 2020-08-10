@@ -9,7 +9,7 @@ import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Collections;
 
 import static com.cloudbees.plugins.credentials.CredentialsMatchers.firstOrNull;
 import static com.cloudbees.plugins.credentials.CredentialsMatchers.withId;
@@ -25,12 +25,16 @@ public final class CredentialUtils {
 
     @CheckForNull
     public static Credentials getCredentials(@Nullable String credentialsId) {
-        List<Class<? extends Credentials>> acceptedCredentials = Arrays.asList(
-                StringCredentials.class,
-                UsernamePasswordCredentials.class,
-                BasicSSHUserPrivateKey.class
-        );
-        return getCredentials(acceptedCredentials, credentialsId);
+        Credentials creds = getCredentials(StringCredentials.class, credentialsId);
+
+        if (creds == null) {
+            creds = getCredentials(UsernamePasswordCredentials.class, credentialsId);
+        }
+        if (creds == null) {
+            creds = getCredentials(BasicSSHUserPrivateKey.class, credentialsId);
+        }
+
+        return creds;
     }
 
     @CheckForNull
@@ -38,15 +42,5 @@ public final class CredentialUtils {
         return firstOrNull(
                 lookupCredentials(type, Jenkins.get(), ACL.SYSTEM, Collections.emptyList()),
                 withId(trimToEmpty(credentialsId)));
-    }
-
-    @CheckForNull
-    private static Credentials getCredentials(List<Class<? extends Credentials>> typeList,
-                                              @Nullable String credentialsId) {
-        return typeList.stream()
-                .map(type -> getCredentials(type, credentialsId))
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
     }
 }

@@ -60,6 +60,17 @@ public class BitbucketSCMIT {
     }
 
     @Test
+    public void testCheckout() throws Exception {
+        project.setScm(createScmWithSpecs("*/master"));
+        project.save();
+
+        FreeStyleBuild build = project.scheduleBuild2(0).get();
+
+        assertEquals(SUCCESS, build.getResult());
+        assertTrue(build.getWorkspace().child("add_file").isDirectory());
+    }
+
+    @Test
     public void testCheckoutAndPush() throws Exception {
         String uniqueMessage = UUID.randomUUID().toString();
         Shell postScript = new Shell(TestUtils.readFileToString("/push-to-bitbucket.sh")

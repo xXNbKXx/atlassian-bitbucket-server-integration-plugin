@@ -5,10 +5,12 @@ import com.atlassian.bitbucket.jenkins.internal.credentials.GlobalCredentialsPro
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketNamedLink;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketProject;
 import com.atlassian.bitbucket.jenkins.internal.model.BitbucketRepository;
+import com.atlassian.bitbucket.jenkins.internal.trigger.BitbucketWebhookMultibranchTrigger;
 import com.atlassian.bitbucket.jenkins.internal.trigger.RetryingWebhookHandler;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.UserRemoteConfig;
 import hudson.scm.SCM;
+import jenkins.branch.MultiBranchProject;
 import jenkins.scm.api.SCMHead;
 import jenkins.scm.api.SCMSourceDescriptor;
 import org.apache.commons.lang3.StringUtils;
@@ -20,10 +22,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.nullable;
@@ -93,6 +96,54 @@ public class BitbucketSCMSourceTest {
         assertThat(bitbucketSCMsource.getCredentialsId(), is(equalTo(credentialsId)));
     }
 
+    @Test
+    public void testAfterSaveDoesNothingIfIsInvalid() {
+        String credentialsId = "valid-credentials";
+        BitbucketSCMSource bitbucketSCMsource = spy(createInstance(credentialsId));
+        MultiBranchProject<?, ?> owner = mock(MultiBranchProject.class);
+        bitbucketSCMsource.setOwner(owner);
+        BitbucketWebhookMultibranchTrigger.DescriptorImpl triggerDesc =
+                mock(BitbucketWebhookMultibranchTrigger.DescriptorImpl.class);
+        doReturn(singletonList(triggerDesc)).when(bitbucketSCMsource).getTriggers(any());
+
+        bitbucketSCMsource.afterSave();
+
+        verifyZeroInteractions(triggerDesc);
+    }
+
+    @Test
+    public void testAfterSaveDoesNothingIfWebhookAlreadyRegistered() {
+        String credentialsId = "valid-credentials";
+        BitbucketSCMSource bitbucketSCMsource = spy(createInstance(credentialsId));
+        MultiBranchProject<?, ?> owner = mock(MultiBranchProject.class);
+        bitbucketSCMsource.setOwner(owner);
+        bitbucketSCMsource.setWebhookRegistered(true);
+        doReturn(true).when(bitbucketSCMsource).isValid();
+        BitbucketWebhookMultibranchTrigger.DescriptorImpl triggerDesc =
+                mock(BitbucketWebhookMultibranchTrigger.DescriptorImpl.class);
+        doReturn(singletonList(triggerDesc)).when(bitbucketSCMsource).getTriggers(any());
+
+        bitbucketSCMsource.afterSave();
+
+        verifyZeroInteractions(triggerDesc);
+    }
+
+    @Test
+    public void testAfterSaveRegistersWebhookIfNotAlreadyRegistered() {
+        String credentialsId = "valid-credentials";
+        BitbucketSCMSource bitbucketSCMsource = spy(createInstance(credentialsId));
+        MultiBranchProject<?, ?> owner = mock(MultiBranchProject.class);
+        bitbucketSCMsource.setOwner(owner);
+        doReturn(true).when(bitbucketSCMsource).isValid();
+        BitbucketWebhookMultibranchTrigger.DescriptorImpl triggerDesc =
+                mock(BitbucketWebhookMultibranchTrigger.DescriptorImpl.class);
+        doReturn(singletonList(triggerDesc)).when(bitbucketSCMsource).getTriggers(any());
+
+        bitbucketSCMsource.afterSave();
+
+        verify(triggerDesc).addTrigger(any(), same(bitbucketSCMsource));
+    }
+
     private BitbucketSCMSource createInstance(String credentialId) {
         return createInstance(credentialId, null);
     }
@@ -123,7 +174,6 @@ public class BitbucketSCMSourceTest {
                 repo,
                 serverId,
                 null) {
-
             @Override
             public SCMSourceDescriptor getDescriptor() {
                 DescriptorImpl descriptor = mock(DescriptorImpl.class);

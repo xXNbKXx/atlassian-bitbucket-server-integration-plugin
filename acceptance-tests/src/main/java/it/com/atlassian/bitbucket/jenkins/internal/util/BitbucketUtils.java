@@ -173,8 +173,8 @@ public class BitbucketUtils {
         private final String publicKey;
         private final String privateKey;
 
-        private BitbucketSshKeyPair(String id, String publicKey, String privateKey) {
-            this.id = id;
+        private BitbucketSshKeyPair(Integer id, String publicKey, String privateKey) {
+            this.id = String.valueOf(id);
             this.publicKey = publicKey;
             this.privateKey = privateKey;
         }

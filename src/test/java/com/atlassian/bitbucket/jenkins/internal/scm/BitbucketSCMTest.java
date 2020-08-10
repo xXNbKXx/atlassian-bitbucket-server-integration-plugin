@@ -115,16 +115,15 @@ public class BitbucketSCMTest {
             public SCMDescriptor<?> getDescriptor() {
                 BitbucketServerConfiguration bitbucketServerConfiguration = mock(BitbucketServerConfiguration.class);
                 DescriptorImpl descriptor = mock(DescriptorImpl.class);
-                doReturn(Optional.of(bitbucketServerConfiguration))
-                        .when(descriptor).getConfiguration(argThat(serverId -> !isBlank(serverId)));
-                doReturn(Optional.empty())
-                        .when(descriptor).getConfiguration(argThat(StringUtils::isBlank));
-                doReturn(mock(BitbucketScmHelper.class))
-                        .when(descriptor).getBitbucketScmHelper(
-                                nullable(String.class),
-                                nullable(GlobalCredentialsProvider.class),
-                                nullable(String.class)
-                        );
+                when(descriptor.getConfiguration(argThat(serverId -> !isBlank(serverId))))
+                        .thenReturn(Optional.of(bitbucketServerConfiguration));
+                when(descriptor.getConfiguration(argThat(StringUtils::isBlank)))
+                        .thenReturn(Optional.empty());
+                when(descriptor.getBitbucketScmHelper(
+                        nullable(String.class),
+                        nullable(GlobalCredentialsProvider.class),
+                        nullable(String.class)))
+                        .thenReturn(mock(BitbucketScmHelper.class));
                 return descriptor;
             }
         };
