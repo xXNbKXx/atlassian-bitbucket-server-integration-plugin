@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 public class BitbucketSCMSourceTest {
 
     private static final String httpCloneLink = "http://localhost:7990/fake.git";
-    private static final String sshCloneLink = "@ssh://git@localhost:7990/fake.git";
+    private static final String sshCloneLink = "ssh://git@localhost:7990/fake.git";
 
     @Test
     public void testBuildHttp() {

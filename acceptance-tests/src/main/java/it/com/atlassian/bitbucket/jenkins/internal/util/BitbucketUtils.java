@@ -133,7 +133,7 @@ public class BitbucketUtils {
                 .delete(BITBUCKET_BASE_URL + "/rest/api/1.0/projects/" + PROJECT_KEY + "/repos/" + repoForkSlug);
     }
 
-    public static void deleteSshKeyPair(String id) {
+    public static void deleteSshPublicKey(String id) {
         RestAssured.given()
                     .queryParam("user", BITBUCKET_ADMIN_USERNAME)
                     .log()
