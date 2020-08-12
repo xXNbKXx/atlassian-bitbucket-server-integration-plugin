@@ -7,7 +7,6 @@ import hudson.security.ACL;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.plaincredentials.StringCredentials;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import java.util.*;
 
@@ -18,29 +17,19 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 public final class CredentialUtils {
 
+    private static final List<Class> CREDENTIAL_TYPES = Arrays.asList(StringCredentials.class,
+            UsernamePasswordCredentials.class, BasicSSHUserPrivateKey.class);
+
     private CredentialUtils() {
         throw new UnsupportedOperationException(
                 CredentialUtils.class.getName() + " should not be instantiated");
     }
 
-    @CheckForNull
-    public static Credentials getCredentials(@Nullable String credentialsId) {
-        Credentials creds = getCredentials(StringCredentials.class, credentialsId);
-
-        if (creds == null) {
-            creds = getCredentials(UsernamePasswordCredentials.class, credentialsId);
-        }
-        if (creds == null) {
-            creds = getCredentials(BasicSSHUserPrivateKey.class, credentialsId);
-        }
-
-        return creds;
-    }
-
-    @CheckForNull
-    private static <C extends Credentials> C getCredentials(Class<C> type, @Nullable String credentialsId) {
-        return firstOrNull(
+    public static Optional<Credentials> getCredentials(@Nullable String credentialsId) {
+        return CREDENTIAL_TYPES.stream().map(type -> firstOrNull(
                 lookupCredentials(type, Jenkins.get(), ACL.SYSTEM, Collections.emptyList()),
-                withId(trimToEmpty(credentialsId)));
+                withId(trimToEmpty(credentialsId))))
+                .filter(Objects::nonNull)
+                .findAny();
     }
 }
