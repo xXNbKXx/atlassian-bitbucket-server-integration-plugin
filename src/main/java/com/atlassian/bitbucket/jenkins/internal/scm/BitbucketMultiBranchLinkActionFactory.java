@@ -3,24 +3,24 @@ package com.atlassian.bitbucket.jenkins.internal.scm;
 import com.atlassian.bitbucket.jenkins.internal.config.BitbucketServerConfiguration;
 import hudson.Extension;
 import hudson.model.Action;
-import hudson.model.Project;
 import hudson.util.FormValidation;
 import jenkins.model.TransientActionFactory;
+import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 
 @Extension
-public class BitbucketLinkActionFactory extends TransientActionFactory<Project> {
+public class BitbucketMultiBranchLinkActionFactory extends TransientActionFactory<WorkflowMultiBranchProject> {
 
-    @Nonnull
     @Override
-    public Collection<? extends Action> createFor(@Nonnull Project target) {
-        if (!(target.getScm() instanceof BitbucketSCM)) {
+    public Collection<? extends Action> createFor(WorkflowMultiBranchProject target) {
+        Optional<BitbucketSCMSource> maybeSource = getBitbucketSCMSource(target);
+        if (!maybeSource.isPresent()) {
             return Collections.emptySet();
         }
-        BitbucketSCM bitbucketSCM = (BitbucketSCM) target.getScm();
-        BitbucketSCM.DescriptorImpl descriptor = (BitbucketSCM.DescriptorImpl) bitbucketSCM.getDescriptor();
+
+        BitbucketSCMSource bitbucketSCM = maybeSource.get();
+        BitbucketSCMSource.DescriptorImpl descriptor = (BitbucketSCMSource.DescriptorImpl) bitbucketSCM.getDescriptor();
         Optional<BitbucketServerConfiguration> maybeConfig = descriptor.getConfiguration(bitbucketSCM.getServerId());
         String serverId = Objects.toString(bitbucketSCM.getServerId(), "");
         String credentialsId = Objects.toString(bitbucketSCM.getCredentialsId(), "");
@@ -44,7 +44,14 @@ public class BitbucketLinkActionFactory extends TransientActionFactory<Project> 
     }
 
     @Override
-    public Class<Project> type() {
-        return Project.class;
+    public Class<WorkflowMultiBranchProject> type() {
+        return WorkflowMultiBranchProject.class;
+    }
+
+    private Optional<BitbucketSCMSource> getBitbucketSCMSource(WorkflowMultiBranchProject project) {
+        return project.getSCMSources().stream()
+                .filter(source -> source instanceof BitbucketSCMSource)
+                .map(source -> (BitbucketSCMSource) source)
+                .findAny();
     }
 }
